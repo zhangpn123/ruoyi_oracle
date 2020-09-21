@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.report.Z03.mapper.Z03Mapper">
+
+    <select id="selectReport" resultType="java.util.Map" parameterType="java.util.Map">
+        select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from GL_BAL gb
+        <where>
+            gb.B_ACC_CODE != '*'
+            <if test="bAccCode != null and bAccCode != ''">
+                and B_ACC_CODE = #{bAccCode}
+            </if>
+            <if test="accCode != null and accCode != ''">
+                and ACC_CODE = #{accCode}
+            </if>
+            <if test="accCode != null and accCode != ''">
+                and ACC_CODE = #{acc_code}
+            </if>
+        </where>
+        group by gb.B_ACC_CODE, gb.ACC_CODE
+    </select>
+
+
+    <select id="selBAccCode" resultType="java.util.Map" parameterType="java.util.Map">
+        select distinct(gb.B_ACC_CODE) as "bAccCode" from GL_BAL gb where gb.B_ACC_CODE  != '*'
+    </select>
+
+    
+</mapper>
