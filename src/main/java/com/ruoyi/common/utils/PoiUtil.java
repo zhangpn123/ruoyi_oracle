@@ -6,10 +6,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 导出复杂表头execl
@@ -102,19 +99,18 @@ public class PoiUtil {
     /**
      * 根据数据集生成Excel，并返回Excel文件流
      *
-     * @param data       数据集
-     * @param sheetName  Excel中sheet单元名称
-     * @param headLength 列数
-     * @param colKeys    列key,数据集根据该key进行按顺序取值
+     * @param data      数据集
+     * @param sheetName Excel中sheet单元名称
+     * @param colKeys   列key,数据集根据该key进行按顺序取值
      * @return
      * @throws IOException
      */
-    public static InputStream getExcelFile(List<Map<String, Object>> data, String sheetName, int headLength,
-                                           String[] colKeys, int colWidths[]) throws IOException {
+    public static InputStream getExcelFile(List<Map<String, Object>> data, String sheetName,
+                                           List<String> title, List<String> colKeys) throws IOException {
         workbook = new HSSFWorkbook();
         sheet = workbook.createSheet(sheetName);
         // 创建表头 startRow代表表体开始的行
-        int startRow = createHeadCell(headLength, colWidths);
+        int startRow = createHeadCell(title);
 
         // 创建表体数据
         HSSFCellStyle cellStyle = getStyle(12, HorizontalAlignment.CENTER.getCode(), false, true, false); // 建立新的cell样式
@@ -132,14 +128,14 @@ public class PoiUtil {
     /**
      * 创建表头
      *
-     * @param headLength 列数
-     * @param colWidths
+     * @param colKeys 列信息
      */
-    public static int createHeadCell(int headLength, int colWidths[]) {
+    public static int createHeadCell(List<String> colKeys) {
+
         // 表头标题
         List<Map<String, Object>> paramsMapListOne = new ArrayList<>();
         Map<String, Object> paramsMapOne = new HashMap<>();
-        paramsMapOne.put("clo", (int) Math.floor(headLength / 2));
+        paramsMapOne.put("clo", (int) Math.floor(colKeys.size() / 2));
         // paramsMapOne.put("clo2", headLength - 1);
         paramsMapOne.put("style", getStyle(22, HorizontalAlignment.CENTER.getCode(), false, false, false));
         paramsMapOne.put("value", "收入决算表");
@@ -149,7 +145,7 @@ public class PoiUtil {
         //第二行
         List<Map<String, Object>> paramsMapListTwo = new ArrayList<>();
         Map<String, Object> paramsMapTwo = new HashMap<>();
-        paramsMapTwo.put("clo", headLength -1);
+        paramsMapTwo.put("clo", colKeys.size() - 1);
         paramsMapTwo.put("style", getStyle(12, HorizontalAlignment.RIGHT.getCode(), false, false, false));
         paramsMapTwo.put("value", "财决03表");
         paramsMapListTwo.add(paramsMapTwo);
@@ -164,13 +160,13 @@ public class PoiUtil {
         paramsMapListThree.add(paramsMapThree1);
 
         Map<String, Object> paramsMapThree2 = new HashMap<>();
-        paramsMapThree2.put("clo", (int)Math.floor(headLength / 2));
+        paramsMapThree2.put("clo", (int) Math.floor(colKeys.size() / 2));
         paramsMapThree2.put("style", getStyle(12, HorizontalAlignment.CENTER.getCode(), false, false, false));
         paramsMapThree2.put("value", "2019年度");
         paramsMapListThree.add(paramsMapThree2);
 
         Map<String, Object> paramsMapThree3 = new HashMap<>();
-        paramsMapThree3.put("clo", headLength - 1);
+        paramsMapThree3.put("clo", colKeys.size() - 1);
         paramsMapThree3.put("style", getStyle(12, HorizontalAlignment.RIGHT.getCode(), false, false, false));
         paramsMapThree3.put("value", "金额单位：元");
         paramsMapListThree.add(paramsMapThree3);
@@ -181,45 +177,89 @@ public class PoiUtil {
         row2.setHeight((short) 0x289);
         HSSFCellStyle cellStyle = getStyle(12, HorizontalAlignment.CENTER.getCode(), false, true, true); // 建立新的cell样式
         String[] row_three = {"项目", "", "", "", "本年收入合计", "财政拨款收入", "上级补助收入", "事业收入", "", "经营收入", "附属单位上缴收入", "其他收入"};
-        for (int i = 0; i < row_three.length; i++) {
+        // LinkedList<String> colOnekeyList = new LinkedList<>();
+        // colOnekeyList.add("项目");
+        // colOnekeyList.add("");
+        // colOnekeyList.add("");
+        // colOnekeyList.add("");
+        // colOnekeyList.add("本年收入合计");
+        // colOnekeyList.add("财政拨款收入");
+        // colOnekeyList.add("上级补助收入");
+        // colOnekeyList.add("事业收入");
+        // colOnekeyList.add("");
+        // colOnekeyList.add("经营收入");
+        // colOnekeyList.add("附属单位上缴收入");
+        // colOnekeyList.add("其他收入");
+
+        for (int i = 0; i < colKeys.size(); i++) {
             Cell tempCell = row2.createCell(i);
-            tempCell.setCellValue(row_three[i]);
+            // tempCell.setCellValue(row_three[i]);
+            tempCell.setCellValue(colKeys.get(i));
             tempCell.setCellStyle(cellStyle);
-            if (colWidths != null && i < colWidths.length) {
-                sheet.setColumnWidth(i, 10 * colWidths[i]);
-            }
+            sheet.setColumnWidth(i, 4000);//宽度
+
+            // if (colWidths != null && i < colWidths.length) {
+            //
+            // }
         }
         /*对数据表格进行合并操作  不需要合并操作的可不必操作*/
-        sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, 3));
-        sheet.addMergedRegion(new CellRangeAddress(3, 4, 4, 4));
-        sheet.addMergedRegion(new CellRangeAddress(3, 4, 5, 5));
-        sheet.addMergedRegion(new CellRangeAddress(3, 4, 6, 6));
-        sheet.addMergedRegion(new CellRangeAddress(3, 3, 7, 8));
-        sheet.addMergedRegion(new CellRangeAddress(3, 4, 9, 9));
-        sheet.addMergedRegion(new CellRangeAddress(3, 4, 10, 10));
-        sheet.addMergedRegion(new CellRangeAddress(3, 4, 11, 11));
-        sheet.addMergedRegion(new CellRangeAddress(3, 4, 12, 12));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, 3));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 4, 4));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 5, 5));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 6, 6));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 3, 7, 8));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 9, 9));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 10, 10));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 11, 11));
+        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 12, 12));
 
         //第五行表头
-        HSSFRow row3 = sheet.createRow(4);
-        row3.setHeight((short) 0x289);
-        String[] row_four = {"支出功能分类科目编码", "", "", "科目名称", "", "", "", "小计", "其中：教育收费", "", "", ""};
-        for (int i = 0; i < row_four.length; i++) {
-            Cell tempCell = row3.createCell(i);
-            tempCell.setCellValue(row_four[i]);
-            tempCell.setCellStyle(cellStyle);
-        }
-        sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, 2));
-
-        HSSFRow row4 = sheet.createRow(5);
-        row4.setHeight((short) 0x189);
-        String[] row_five = {"类", "款", "项", "栏次", "1", "2", "3", "4", "5", "6", "7", "8"};
-        for (int i = 0; i < row_five.length; i++) {
-            Cell tempCell = row4.createCell(i);
-            tempCell.setCellValue(row_five[i]);
-            tempCell.setCellStyle(cellStyle);
-        }
-        return 6; //数据从哪一行开始渲染表体
+        // HSSFRow row3 = sheet.createRow(4);
+        // row3.setHeight((short) 0x289);
+        // String[] row_four = {"支出功能分类科目编码", "", "", "科目名称", "", "", "", "小计", "其中：教育收费", "", "", ""};
+        // // LinkedList<String> colTwokeyList = new LinkedList<>();
+        // // colTwokeyList.add("支出功能分类科目编码");
+        // // colTwokeyList.add("");
+        // // colTwokeyList.add("");
+        // // colTwokeyList.add("科目名称");
+        // // colTwokeyList.add("本年收入合计");
+        // // colTwokeyList.add("财政拨款收入");
+        // // colTwokeyList.add("上级补助收入");
+        // // colTwokeyList.add("小计");
+        // // colTwokeyList.add("其中：教育收费");
+        // // colTwokeyList.add("经营收入");
+        // // colTwokeyList.add("附属单位上缴收入");
+        // // colTwokeyList.add("其他收入");
+        //
+        // for (int i = 0; i < row_four.length; i++) {
+        //     Cell tempCell = row3.createCell(i);
+        //     tempCell.setCellValue(row_four[i]);
+        //     tempCell.setCellStyle(cellStyle);
+        // }
+        // sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, 2));
+        //
+        // HSSFRow row4 = sheet.createRow(5);
+        // row4.setHeight((short) 0x189);
+        // String[] row_five = {"类", "款", "项", "栏次", "1", "2", "3", "4", "5", "6", "7", "8"};
+        // // LinkedList<String> colThreekeyList = new LinkedList<>();
+        // // colThreekeyList.add("类");
+        // // colThreekeyList.add("款");
+        // // colThreekeyList.add("项");
+        // // colThreekeyList.add("栏次");
+        // // colThreekeyList.add("1");
+        // // colThreekeyList.add("2");
+        // // colThreekeyList.add("3");
+        // // colThreekeyList.add("4");
+        // // colThreekeyList.add("5");
+        // // colThreekeyList.add("6");
+        // // colThreekeyList.add("7");
+        // // colThreekeyList.add("8");
+        // for (int i = 0; i < row_five.length; i++) {
+        //     Cell tempCell = row4.createCell(i);
+        //     tempCell.setCellValue(row_five[i]);
+        //     tempCell.setCellStyle(cellStyle);
+        // }
+        return 4; //数据从哪一行开始渲染表体
     }
 
     /**
@@ -230,7 +270,7 @@ public class PoiUtil {
      * @param startRow  开始行
      * @param colKeys   值对应map的key
      */
-    public static void setCellData(List<Map<String, Object>> data, HSSFCellStyle cellStyle, int startRow, String[] colKeys) {
+    public static void setCellData(List<Map<String, Object>> data, HSSFCellStyle cellStyle, int startRow, List<String> colKeys) {
         // 创建数据
         HSSFRow row = null;
         HSSFCell cell = null;
@@ -241,8 +281,8 @@ public class PoiUtil {
                 row.setHeight((short) 0x189);
                 int j = 0;
 
-                for (int k = 0; k < colKeys.length; k++) {
-                    String colKey = colKeys[k];//获取Key值
+                for (int k = 0; k < colKeys.size(); k++) {
+                    String colKey = colKeys.get(k);//获取Key值
                     Object colValue = rowData.get(colKey);
 
                     cell = row.createCell(j);
@@ -253,7 +293,6 @@ public class PoiUtil {
                     }
                     j++;
                 }
-                sheet.addMergedRegion(new CellRangeAddress(startRow, startRow, 0, 2));
                 startRow++;
             }
         }
@@ -335,10 +374,10 @@ public class PoiUtil {
 
 
         // String[] headNames = {"序号", "", "", "委托单位", "外委单位", "提交工作日期", "审核时长", "规定时长", "超时时长", "审核时长", "规定时长", "超时时长"};
-        String[] keys = {"xh", "xh1", "xh2", "unit", "wwdw", "date", "swsh", "swgd", "swcs", "cjsh", "cjgd", "cjcs"};
+        // String[] keys = {"xh", "xh1", "xh2", "unit", "wwdw", "date", "swsh", "swgd", "swcs", "cjsh", "cjgd", "cjcs"};
         int colWidths[] = {200, 200, 200, 300, 400, 400, 400, 200, 600, 400, 500, 400};
 
-        InputStream input = (excel.getExcelFile(data, "Z03 收入决算表(财决03表)", 12, keys, colWidths));
+        InputStream input = (excel.getExcelFile(data, "Z03 收入决算表(财决03表)", new ArrayList<>(),new ArrayList<>()));
 
         File f = new File("d:\\excel6.xls");
         if (f.exists())

@@ -69,6 +69,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			#{dictCode}
         </foreach> 
  	</delete>
+
+	<delete id="deleteDictDataByDictType" parameterType="String">
+ 		delete from sys_dict_data where dict_type = #{dictType}
+ 	</delete>
  	
 	<update id="updateDictData" parameterType="DictData">
  		update sys_dict_data
@@ -97,6 +101,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			SELECT seq_sys_dict_data.NEXTVAL as dictCode FROM DUAL
 		</selectKey>
  		insert into sys_dict_data(
+			<if test="dictCode != null and dictCode != ''">dict_code,</if>
 			<if test="dictSort != null">dict_sort,</if>
  			<if test="dictLabel != null and dictLabel != ''">dict_label,</if>
  			<if test="dictValue != null and dictValue != ''">dict_value,</if>
@@ -109,7 +114,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="createBy != null and createBy != ''">create_by,</if>
  			create_time
  		)values(
- 		    <if test="dictSort != null">#{dictSort},</if>
+			<if test="dictCode != null and dictCode != ''">#{dictCode},</if>
+			<if test="dictSort != null">#{dictSort},</if>
  		    <if test="dictLabel != null and dictLabel != ''">#{dictLabel},</if>
  			<if test="dictValue != null and dictValue != ''">#{dictValue},</if>
  			<if test="dictType != null and dictType != ''">#{dictType},</if>

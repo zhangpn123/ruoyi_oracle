@@ -92,4 +92,12 @@ public interface DictDataMapper
      * @return 结果
      */
     public int updateDictDataType(@Param("oldDictType") String oldDictType, @Param("newDictType") String newDictType);
+
+
+    /**
+     * 根据字典类型删除字典数据
+     * @param dictType
+     * @return
+     */
+    int deleteDictDataByDictType(@Param("dictType") String dictType);
 }

@@ -13,6 +13,16 @@ import com.ruoyi.common.utils.text.StrFormatter;
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     /**
+     * 判断是否为空字符串，空返回true,非空返回false
+     *
+     * @param str 判断是否为空字符串
+     * @return 空返回true, 非空返回false
+     */
+    public static boolean isEmpty(Object str) {
+        return ((str == null || str.toString().trim().equals("")) ? true : false);
+    }
+
+    /**
      * 将obj 转换为String 如果为则返回 "0"
      *
      * @param obj

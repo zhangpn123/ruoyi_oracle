@@ -2,6 +2,7 @@ package com.ruoyi.project.system.dict.service;
 
 import java.util.List;
 import com.ruoyi.project.system.dict.domain.DictData;
+import com.ruoyi.project.system.dict.domain.DictType;
 
 /**
  * 字典 业务层
@@ -58,4 +59,12 @@ public interface IDictDataService
      * @return 结果
      */
     public int updateDictData(DictData dictData);
+
+    /**
+     * 导入Z03报表模板
+     * @param dictDataList
+     * @param updateSupport
+     * @return
+     */
+    String importDictData(List<DictData> dictDataList, boolean updateSupport);
 }

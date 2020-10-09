@@ -405,8 +405,10 @@ var table = {
             				return false;
             			}
             			var index = layer.load(2, {shade: false});
+						// console.log("index:"+index);
             			$.modal.disable();
             			var formData = new FormData(layero.find('form')[0]);
+						// console.log("formData:"+formData)
             			$.ajax({
             				url: table.options.importUrl,
             				data: formData,

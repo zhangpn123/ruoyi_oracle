@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.project.report.Z03.mapper.Z03Mapper">
 
     <select id="selectReport" resultType="java.util.Map" parameterType="java.util.Map">
@@ -14,8 +14,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="accCode != null and accCode != ''">
                 and ACC_CODE = #{accCode}
             </if>
-            <if test="accCode != null and accCode != ''">
-                and ACC_CODE = #{acc_code}
+            <if test="deptName != null and deptName != ''">
+                <bind name="deptName" value="deptName+'%'"/>
+                and gb.co_code Like #{deptName}
             </if>
         </where>
         group by gb.B_ACC_CODE, gb.ACC_CODE
@@ -26,5 +27,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select distinct(gb.B_ACC_CODE) as "bAccCode" from GL_BAL gb where gb.B_ACC_CODE  != '*'
     </select>
 
-    
+
 </mapper>

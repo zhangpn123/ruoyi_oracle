@@ -22,5 +22,5 @@ public class Z03Report extends BaseEntity {
     // private String jysr; //经营收入
     // private String fsdwsjsr;//附属单位上缴收入
     // private String qtsr;//其他收入
-    private Long deptId; //部门ID
+    private String deptName; //部门ID
 }

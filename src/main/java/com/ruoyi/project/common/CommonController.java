@@ -48,6 +48,8 @@ public class CommonController {
             String filePath = RuoYiConfig.getDownloadPath() + fileName;
 
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            // response.setHeader("Content-type", "application/xls");
+            response.setHeader("Content-Disposition", "attachment;fileName="+java.net.URLEncoder.encode(realFileName,"UTF-8"));
             FileUtils.setAttachmentResponseHeader(response, realFileName);
             FileUtils.writeBytes(filePath, response.getOutputStream());
             if (delete) {

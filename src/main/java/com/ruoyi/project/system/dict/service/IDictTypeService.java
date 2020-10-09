@@ -96,4 +96,5 @@ public interface IDictTypeService
      * @return 所有字典类型
      */
     public List<Ztree> selectDictTree(DictType dictType);
+
 }
