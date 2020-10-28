@@ -1,13 +1,10 @@
 package com.ruoyi.common.utils.poi;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -40,7 +37,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFDataValidation;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.ruoyi.common.exception.BusinessException;
@@ -853,5 +852,87 @@ public class ExcelUtil<T> {
         } catch (Exception e) {
             log.error("Export excel failed", e);
         }
+    }
+
+    /**
+     * 读取Excel文件
+     * 返回Workbook，操作完记得close掉
+     */
+    public static XSSFWorkbook getExcelWorkBook(String path) throws Exception {
+        File file;
+        FileInputStream fis = null;
+        try{
+            file = new File(path);
+            fis = new FileInputStream(file);
+            XSSFWorkbook rwb = new XSSFWorkbook(fis);
+            return rwb;
+        } finally {
+            try {
+                if(fis!=null){
+                    fis.close();
+                }
+            } catch (IOException e) {
+                log.error("getExcelWorkBook IOException:"+e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    /**
+     * 读取单元格的字符串
+     */
+    /**
+     * @param cell
+     * @return
+     */
+    public static String getStringValueFromCell(Cell cell) {
+        SimpleDateFormat sFormat = new SimpleDateFormat("MM/dd/yyyy");
+        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+        String cellValue = "";
+        if(cell == null) {
+            return cellValue;
+        }
+        else if(cell.getCellType() == Cell.CELL_TYPE_STRING) {
+            cellValue = cell.getStringCellValue();
+        }
+
+        else if(cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
+            if(HSSFDateUtil.isCellDateFormatted(cell)) {
+                double d = cell.getNumericCellValue();
+                Date date = HSSFDateUtil.getJavaDate(d);
+                cellValue = sFormat.format(date);
+            }
+            else {
+                cellValue = decimalFormat.format((cell.getNumericCellValue()));
+            }
+        }
+        else if(cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+            cellValue = "";
+        }
+        else if(cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+            cellValue = String.valueOf(cell.getBooleanCellValue());
+        }
+        else if(cell.getCellType() == Cell.CELL_TYPE_ERROR) {
+            cellValue = "";
+        }
+        else if(cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+            cellValue = cell.getCellFormula().toString();
+        }
+        return cellValue;
+    }
+
+
+    /**
+     * 替换单元格的内容，单元格的获取位置是合并单元格之前的位置，也就是下标都是合并之前的下表
+     *
+     * @param cell
+     *            单元格
+     * @param value
+     *            需要设置的值
+     */
+    public static void replaceCellValue(Cell cell, Object value) {
+        String val = value != null ? String.valueOf(value) : "";
+        cell.setCellValue(val);
     }
 }

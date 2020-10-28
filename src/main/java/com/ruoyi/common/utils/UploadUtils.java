@@ -56,6 +56,34 @@ public class UploadUtils {
     }
 
     /**
+     * 上传文件
+     * @param MultipartFile  file
+     * @param destPath 文件保存路径
+     * @return 上传后文件名
+     * 注意：uploadFile 为 前端 input file 的name属性
+     */
+    public static Boolean upLoadFile(MultipartFile file, String destPath){
+        String fileName = file.getOriginalFilename();
+        String extName = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+        fileName = "Z03ReportTemp"+extName;//重命名文件名称
+        String dirPath = destPath.substring(0,destPath.lastIndexOf(File.separator));
+        FileUtils.createDirectory(dirPath);
+        try {
+            //上传文件
+            if (file != null && !file.isEmpty()) {
+                // 文件复制
+                String fullPath = dirPath + File.separator + fileName;
+                File localFile = new File(fullPath);
+                file.transferTo(localFile);
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
      * 获取上传文件信息 - huangjj
      * @param request  req请求
      * @param destPath 文件磁盘全路径

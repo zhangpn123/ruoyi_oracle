@@ -108,4 +108,11 @@ public class RuoYiConfig
     {
         return getProfile() + "/upload";
     }
+    /**
+     *Z03收入报表模板路径
+     */
+    public static String getZ03ReportPath(){
+        return getProfile() + "/Z03Report\\";
+    }
+
 }

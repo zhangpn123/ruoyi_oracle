@@ -27,5 +27,22 @@
         select distinct(gb.B_ACC_CODE) as "bAccCode" from GL_BAL gb where gb.B_ACC_CODE  != '*'
     </select>
 
+    <select id="getData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.Z03.domain.Z03ReportRsp">
+        select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from GL_BAL gb
+        <where>
+            gb.B_ACC_CODE != '*'
+            <if test="bAccCode != null and bAccCode != ''">
+            <bind name="bAccCode" value="bAccCode + '%'"/>
+                and B_ACC_CODE LIKE #{bAccCode}
+            </if>
+
+            <if test="deptName != null and deptName != ''">
+                <bind name="deptName" value="deptName+'%'"/>
+                and gb.co_code Like #{deptName}
+            </if>
+        </where>
+        group by gb.B_ACC_CODE, gb.ACC_CODE
+    </select>
+
 
 </mapper>

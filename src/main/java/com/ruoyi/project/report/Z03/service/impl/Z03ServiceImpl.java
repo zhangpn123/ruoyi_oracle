@@ -2,6 +2,7 @@ package com.ruoyi.project.report.Z03.service.impl;
 
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.project.report.Z03.domain.Z03Report;
+import com.ruoyi.project.report.Z03.domain.Z03ReportRsp;
 import com.ruoyi.project.report.Z03.mapper.Z03Mapper;
 import com.ruoyi.project.report.Z03.service.Z03Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,11 @@ public class Z03ServiceImpl implements Z03Service {
         map.remove("bAccCode");
         map.put("bAccName","合计");
         return resultList;
+    }
+
+    @Override
+    public List<Z03ReportRsp> getData( Map paramsMap) {
+        return z03Mapper.getData(paramsMap);
     }
 
     /**
