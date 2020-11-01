@@ -1,4 +1,4 @@
-package com.ruoyi.project.report.Z03.domain;
+package com.ruoyi.project.report.report.domain;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import lombok.Data;
  * @create: 2020-10-28 15:29
  **/
 @Data
-public class Z03ReportRsp {
+public class ReportRsp {
     private String caAmt;
     private String bAccCode;
     private String accCode;

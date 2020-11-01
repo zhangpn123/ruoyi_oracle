@@ -144,4 +144,26 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         String encode = URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
         return encode.replaceAll("\\+", "%20");
     }
+
+    /**
+     * 判断文件夹是否存在
+     *
+     * @param path
+     */
+    public static void judeDirExists(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+    }
+
+    // 判断文件是否存在
+    public static void judeFileExists(String path) throws IOException {
+        File file = new File(path);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+    }
+
+
 }

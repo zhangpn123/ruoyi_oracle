@@ -65,7 +65,7 @@ public class UploadUtils {
     public static Boolean upLoadFile(MultipartFile file, String destPath){
         String fileName = file.getOriginalFilename();
         String extName = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
-        fileName = "Z03ReportTemp"+extName;//重命名文件名称
+        fileName = "ReportTemp"+extName;//重命名文件名称
         String dirPath = destPath.substring(0,destPath.lastIndexOf(File.separator));
         FileUtils.createDirectory(dirPath);
         try {

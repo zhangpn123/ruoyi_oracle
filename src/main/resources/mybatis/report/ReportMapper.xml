@@ -2,17 +2,15 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.project.report.Z03.mapper.Z03Mapper">
+<mapper namespace="com.ruoyi.project.report.report.mapper.ReportMapper">
 
-    <select id="selectReport" resultType="java.util.Map" parameterType="java.util.Map">
+    <select id="getData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.report.domain.ReportRsp">
         select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from GL_BAL gb
         <where>
             gb.B_ACC_CODE != '*'
             <if test="bAccCode != null and bAccCode != ''">
-                and B_ACC_CODE = #{bAccCode}
-            </if>
-            <if test="accCode != null and accCode != ''">
-                and ACC_CODE = #{accCode}
+            <bind name="bAccCode" value="bAccCode + '%'"/>
+                and B_ACC_CODE LIKE #{bAccCode}
             </if>
             <if test="deptName != null and deptName != ''">
                 <bind name="deptName" value="deptName+'%'"/>
@@ -20,11 +18,6 @@
             </if>
         </where>
         group by gb.B_ACC_CODE, gb.ACC_CODE
-    </select>
-
-
-    <select id="selBAccCode" resultType="java.util.Map" parameterType="java.util.Map">
-        select distinct(gb.B_ACC_CODE) as "bAccCode" from GL_BAL gb where gb.B_ACC_CODE  != '*'
     </select>
 
 

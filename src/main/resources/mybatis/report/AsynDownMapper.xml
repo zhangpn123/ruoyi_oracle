@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.report.report.mapper.AsynDownMapper">
+
+    <insert id="save" parameterType="com.ruoyi.project.report.report.domain.AsynDown">
+        insert into sys_asynDown(
+        <if test="id != null and id != ''">id,</if>
+        <if test="filePath != null and filePath != ''">filePath,</if>
+        <if test="fileName != null and fileName != ''">fileName,</if>
+        <if test="status != null and status != ''">status,</if>
+        <if test="msg != null and msg != ''">msg,</if>
+        createDate
+        )values(
+        <if test="id != null and id != ''">#{id},</if>
+        <if test="filePath != null and filePath != ''">#{filePath},</if>
+        <if test="fileName != null and fileName != ''">#{fileName},</if>
+        <if test="status != null and status != ''">#{status},</if>
+        <if test="msg != null and msg != ''">#{msg},</if>
+        sysdate
+        )
+    </insert>
+
+
+    <select id="selectAsynDownList" parameterType="com.ruoyi.project.report.report.domain.AsynDown"
+            resultType="com.ruoyi.project.report.report.domain.AsynDown">
+        select id, filePath,fileName,status,msg,createDate from sys_asynDown
+        where 1=1
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        order by createDate desc
+    </select>
+
+    <select id="selectAsynDown" parameterType="java.lang.String" resultType="com.ruoyi.project.report.report.domain.AsynDown">
+         select id, filePath,fileName,status,msg,createDate from sys_asynDown
+        where id = #{id}
+    </select>
+
+    <delete id="deleteAsynDownByIds"  parameterType="java.lang.String">
+        delete from  sys_asynDown  where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+</mapper>

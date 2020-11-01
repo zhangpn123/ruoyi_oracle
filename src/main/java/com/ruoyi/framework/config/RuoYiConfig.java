@@ -1,5 +1,7 @@
 package com.ruoyi.framework.config;
 
+import com.ruoyi.common.utils.uuid.IdUtils;
+import com.ruoyi.common.utils.uuid.UUID;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -109,10 +111,14 @@ public class RuoYiConfig
         return getProfile() + "/upload";
     }
     /**
-     *Z03收入报表模板路径
+     *报表模板路径
      */
-    public static String getZ03ReportPath(){
-        return getProfile() + "/Z03Report\\";
+    public static String getReportPath(){
+        return getProfile() + "/Report\\";
+    }
+
+    public static String getAsynDown(){
+        return "/asynDown/"+ IdUtils.simpleUUID()+"/";
     }
 
 }

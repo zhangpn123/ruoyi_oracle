@@ -828,6 +828,19 @@ create table gen_table_column (
 alter table gen_table_column add constraint pk_gen_table_column primary key (column_id);
 commit;
 
+
+CREATE TABLE SYS_ASYNDOWN (
+	ID VARCHAR2(50) NOT NULL,
+	FILEPATH VARCHAR2(100) NOT NULL,
+	FILENAME VARCHAR2(50) NOT NULL,
+	STATUS VARCHAR2(8) NOT NULL,
+	MSG VARCHAR2(500) NOT NULL,
+	CREATEDATE DATE NOT NULL
+)
+TABLESPACE LEARN;
+CREATE UNIQUE INDEX SYS_ASYNDOWN_ID_IDX ON LEARN.SYS_ASYNDOWN (ID);
+COMMENT ON TABLE LEARN.SYS_ASYNDOWN IS '异步下载表';
+commit;
 -- ----------------------------
 -- 函数 ，代替mysql的find_in_set
 -- 例如： select * from sys_dept where FIND_IN_SET (101,ancestors) <> 0

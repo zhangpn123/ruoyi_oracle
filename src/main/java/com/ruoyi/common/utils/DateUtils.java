@@ -152,4 +152,10 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
         // long sec = diff % nd % nh % nm / ns;
         return day + "天" + hour + "小时" + min + "分钟";
     }
+
+    public static void main(String[] args) {
+        int i = 5;
+        i += 1;
+        System.out.println(i);
+    }
 }
