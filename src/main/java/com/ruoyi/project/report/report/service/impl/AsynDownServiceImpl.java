@@ -1,5 +1,6 @@
 package com.ruoyi.project.report.report.service.impl;
 
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.text.Convert;
@@ -43,6 +44,7 @@ public class AsynDownServiceImpl implements AsynDownService {
         asynDown.setFilePath(filePath);
         asynDown.setStatus(status);
         asynDown.setMsg(msg);
+        asynDown.setCreateDate(DateUtils.curDateTime());
 
         // asynDownMapper.
         asynDownMapper.save(asynDown);

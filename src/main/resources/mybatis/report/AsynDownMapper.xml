@@ -11,14 +11,14 @@
         <if test="fileName != null and fileName != ''">fileName,</if>
         <if test="status != null and status != ''">status,</if>
         <if test="msg != null and msg != ''">msg,</if>
-        createDate
+        <if test="createDate != null and createDate != ''">createDate</if>
         )values(
         <if test="id != null and id != ''">#{id},</if>
         <if test="filePath != null and filePath != ''">#{filePath},</if>
         <if test="fileName != null and fileName != ''">#{fileName},</if>
         <if test="status != null and status != ''">#{status},</if>
         <if test="msg != null and msg != ''">#{msg},</if>
-        sysdate
+        <if test="createDate != null and createDate != ''">#{createDate}</if>
         )
     </insert>
 
@@ -30,7 +30,6 @@
         <if test="status != null and status != ''">
             and status = #{status}
         </if>
-        order by createDate desc
     </select>
 
     <select id="selectAsynDown" parameterType="java.lang.String" resultType="com.ruoyi.project.report.report.domain.AsynDown">

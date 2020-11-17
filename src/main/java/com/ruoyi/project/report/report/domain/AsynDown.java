@@ -2,7 +2,6 @@ package com.ruoyi.project.report.report.domain;
 
 import lombok.Data;
 
-import java.util.Date;
 
 /**
  * @program: RuoYi
@@ -23,6 +22,6 @@ public class AsynDown {
 
     private String msg;//处理 消息
 
-    private Date createDate; //创建时间
+    private String createDate; //创建时间
 
 }

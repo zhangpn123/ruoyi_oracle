@@ -175,6 +175,7 @@ public class ReportController extends BaseController {
                         && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
                         && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
                         && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
+                        && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
                 ) {
                     continue;
                 }

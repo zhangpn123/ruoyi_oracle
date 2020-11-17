@@ -67,15 +67,16 @@
             importUrl: prefix + "/import",
             downFile: prefix + "/downFile",
             removeUrl: prefix + "/remove",
-            sortName: "roleSort",
+            sortName: "createdate",
+            sortOrder: "desc",
             modalName: "报表",
-            pagination: false,
+            pagination: true,
             columns: [{
                 checkbox: true
             },
                 {
                     field: 'id',
-                    title: '文件ID'
+                    title: '文件ID',
                 },
                 {
                     field: 'fileName',
