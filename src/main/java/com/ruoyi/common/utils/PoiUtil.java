@@ -1,7 +1,6 @@
 package com.ruoyi.common.utils;
 
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
@@ -335,6 +334,7 @@ public class PoiUtil {
         sheet.addMergedRegion(new CellRangeAddress(size, size, 18, 20));
 
     }
+
 
 
     // 测试

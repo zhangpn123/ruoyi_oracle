@@ -1,5 +1,6 @@
 package com.ruoyi.project.report.report.controller;
 
+import com.ruoyi.common.utils.PoiUtil;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.UploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
@@ -21,6 +22,7 @@ import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.dict.service.IDictTypeService;
 import com.ruoyi.project.system.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.ehcache.search.aggregator.Sum;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -33,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -55,6 +58,9 @@ public class ReportController extends BaseController {
 
     @Autowired
     private AsynDownService asynDownService;
+
+    @Autowired
+    private HttpServletRequest request;
 
     private String prefix = "report";
 
@@ -157,6 +163,8 @@ public class ReportController extends BaseController {
         params.put("filePath", filePath);
         params.put("fileName", fileName);
 
+        HttpSession session = request.getSession();//使用session
+
         try (FileInputStream fis = new FileInputStream(exportTempPath)) {
 
             log.info("Start generating reports");
@@ -169,155 +177,229 @@ public class ReportController extends BaseController {
                 //获取对应的sheet
                 HSSFSheet sheet = workBook.getSheetAt(m);
                 String sheetName = sheet.getSheetName();
-                if (!sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
+                if (
+                        !sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
                         && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
                         && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
-                        && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
+                       &&  !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
                         && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
-                        && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
+                         && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
                         && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
                 ) {
                     continue;
                 }
 
-                /*遍历表中的行的*/
-                for (int i = 9; i < sheet.getLastRowNum(); i++) {
-                    if (sheet.getRow(i) == null) {
-                        //空行
-                        continue;
-                    }
-                    if (StringUtils.isEmpty(ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(4)))) {
-                        continue; //如果合计列为空 则认为是空行
-                    }
+                List<Map<String, Object>> bAccCodeList = reportService.getBAccCode();
+                int beginRow = 9;
+                int delete = 0; //是否偶有删除的行
+                if(bAccCodeList != null && bAccCodeList.size() > 0){
+                    /*遍历表中的行的*/
+                    for (int i = 0; i < bAccCodeList.size(); i++) {
+                        // if (sheet.getRow(i) == null) {
+                        //     //空行
+                        //     continue;
+                        // }
+                        // if (StringUtils.isEmpty(ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(4)))) {
+                        //     continue; //如果合计列为空 则认为是空行
+                        // }
 
-                    BigDecimal sum = new BigDecimal("0.00");
+                        BigDecimal sum = new BigDecimal("0.00");
 
-                    /*获取baccCode*/
-                    String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
-                    if (StringUtils.isEmpty(bAccCode)) {
-                        continue;
-                    }
-                    Map paramsMap = new HashMap();
-                    paramsMap.put("bAccCode", bAccCode);
-                    paramsMap.put("deptName", z03Report.getDeptName());
-                    List<ReportRsp> dataList = reportService.getData(paramsMap);
+                        /*获取baccCode*/
+                        // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
+                        String bAccCode = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccCode"));
+                        //String bAccName = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccName"));
 
-                    int total = 0;//合计的列
-                    /*遍历表中的列*/
-                    for (int j = 4; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
-                        BigDecimal bigDecimal = new BigDecimal("0.00"); //统计符合列的数据
-
-                        HSSFCell cell = sheet.getRow(i).getCell(j);
-                        String cellVal = ExcelUtil.getStringValueFromCell(cell);//获取列的内容
-                        /*如果是 一 则忽略*/
-                        if (cellVal.equalsIgnoreCase("\\一")) {
+                        if (StringUtils.isEmpty(bAccCode)) {
                             continue;
                         }
-                        if (cellVal.equalsIgnoreCase("sum")) {//代表合计
-                            total = j;//记录合计的列号
-                            continue;//不往下执行
-                        }
 
-                        if (cellVal.contains("(") || cellVal.contains("（")) {//考虑到中英文
-                            // ,    ，
-                            String splitFirst = "";//是否是sum
-                            String str = "";//获取()内的数据
-                            if (cellVal.split("\\(").length > 1) {
-                                splitFirst = cellVal.split("\\(")[0];
-                                //说明是 ( 这个符号(英文)
-                                //获取里面的值
-                                int start = cellVal.indexOf("(") + 1;//截取开始值
-                                int end = cellVal.indexOf(")");//截取结束值
-                                str = cellVal.substring(start, end);//获取()内的数据
-                            } else if (cellVal.split("（").length > 1) {
-                                splitFirst = cellVal.split("（")[0];
-                                //说明是 （ 这个符号(中文)
-                                //说明是 ( 这个符号(英文)
-                                //获取里面的值
-                                int start = cellVal.indexOf("（") + 1;//截取开始值
-                                int end = cellVal.indexOf("）");//截取结束值
-                                str = cellVal.substring(start, end);//获取()内的数据
-                            } else {
+                        sheet.getRow(i + beginRow + delete).getCell(0).setCellValue(bAccCode);
+                        //sheet.getRow(i + beginRow+ delete).getCell(3).setCellValue(bAccName);
+
+                        Map paramsMap = new HashMap();
+                        paramsMap.put("bAccCode", bAccCode);
+                        paramsMap.put("deptName", z03Report.getDeptName());
+                        List<ReportRsp> dataList = reportService.getData(paramsMap);
+
+                        int total = 0;//合计的列
+
+                        /*遍历表中的列*/
+                        for (int j = 4; j < sheet.getRow(i + beginRow + delete).getPhysicalNumberOfCells(); j++) {
+                            BigDecimal bigDecimal = new BigDecimal("0.00"); //统计符合列的数据
+
+                            //HSSFCell cellgetVal = sheet.getRow( beginRow).getCell(j);//使用第一行的值
+                            HSSFCell cellsetVal = sheet.getRow( i + beginRow + delete).getCell(j);//
+                            String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
+                          //将首行的值存到session,
+                            if( i+ beginRow == 9){
+                                session.setAttribute(String.valueOf(j),cellVal);
+                            }else{
+                                cellVal = session.getAttribute(String.valueOf(j)).toString();
+                            }
+                            /*如果是 一 则忽略*/
+                            if (cellVal.equalsIgnoreCase("\\一")) {
                                 continue;
                             }
-                            int size = 0;//小计长度
-                            if (str.split(",").length > 1) {
-                                size = StringUtils.getObjInt(str.split(",")[1]) - StringUtils.getObjInt(str.split(",")[0]) + 1;
-                            } else if (str.split("，").length > 1) {
-                                size = StringUtils.getObjInt(str.split("，")[1]) - StringUtils.getObjInt(str.split("，")[0]) + 1;
-                            } else {
-                                continue;
+                            if (cellVal.equalsIgnoreCase("sum")) {//代表合计
+                                total = j;//记录合计的列号
+                                continue;//不往下执行
                             }
 
-                            if (splitFirst.equalsIgnoreCase("sum")) {//代表小计
-                                size += j;//小计的长度
-                                BigDecimal subtotal = new BigDecimal("0.00");//小计金额
-                                for (int k = j + 1; k < size + 1; k++) {
-                                    HSSFCell cell2 = sheet.getRow(i).getCell(k);
-                                    String cellVal2 = ExcelUtil.getStringValueFromCell(cell2);//获取列的内容
-                                    /*如果是 一 则忽略*/
-                                    if (cellVal2.equalsIgnoreCase("\\一")) {
-                                        continue;
-                                    }
-                                    BigDecimal bigDecimal2 = new BigDecimal("0.00"); //统计符合列的数据
-                                    /*值为空则设置为0*/
-                                    if (StringUtils.isEmpty(cellVal2)) {
-                                        cell2.setCellValue(bigDecimal2.toString());
-                                    } else {
-                                        if (dataList != null && dataList.size() > 0) {
-                                            String[] split2 = cellVal2.split("\\+");
-                                            for (int l = 0; l < split2.length; l++) {
-                                                for (ReportRsp reportRsp : dataList) {
-                                                    String accCode = reportRsp.getAccCode();
-                                                    if (accCode.length() >= split2[l].length()) {
-                                                        if (split2[l].equalsIgnoreCase(accCode.substring(0, split2[l].length()))) {
-                                                            bigDecimal2 = bigDecimal2.add(new BigDecimal(reportRsp.getCaAmt()));
+                            /**
+                             * 获取要小计的列数
+                             */
+                            if (cellVal.contains("(") || cellVal.contains("（")) { //考虑到中英文
+                                // ,    ， 区别
+                                String splitFirst = "";//是否是sum
+                                String str = "";//获取()内的数据
+                                if (cellVal.split("\\(").length > 1) {
+                                    splitFirst = cellVal.split("\\(")[0];
+                                    //说明是 ( 这个符号(英文)
+                                    //获取里面的值
+                                    int start = cellVal.indexOf("(") + 1;//截取开始值
+                                    int end = cellVal.indexOf(")");//截取结束值
+                                    str = cellVal.substring(start, end);//获取()内的数据
+                                } else if (cellVal.split("（").length > 1) {
+                                    splitFirst = cellVal.split("（")[0];
+                                    //说明是 （ 这个符号(中文)
+                                    //说明是 ( 这个符号(英文)
+                                    //获取里面的值
+                                    int start = cellVal.indexOf("（") + 1;//截取开始值
+                                    int end = cellVal.indexOf("）");//截取结束值
+                                    str = cellVal.substring(start, end);//获取()内的数据
+                                } else {
+                                    continue;
+                                }
+                                int size = 0;//小计长度
+                                if (str.split(",").length > 1) {
+                                    size = StringUtils.getObjInt(str.split(",")[1]) - StringUtils.getObjInt(str.split(",")[0]) + 1;
+                                } else if (str.split("，").length > 1) {
+                                    size = StringUtils.getObjInt(str.split("，")[1]) - StringUtils.getObjInt(str.split("，")[0]) + 1;
+                                } else {
+                                    continue;
+                                }
+
+                                if (splitFirst.equalsIgnoreCase("sum")) {//代表小计
+                                    size += j;//小计的长度
+                                    BigDecimal subtotal = new BigDecimal("0.00");//小计金额
+
+                                    /**
+                                     * 小计这段的数据的操作
+                                     */
+                                    for (int k = j + 1; k < size + 1; k++) {
+                                        //HSSFCell cell2getVale = sheet.getRow(beginRow).getCell(k);
+                                        HSSFCell cell2setValue  = sheet.getRow(i + beginRow + delete).getCell(k);
+                                        String cellVal2 = ExcelUtil.getStringValueFromCell(cell2setValue);//获取列的内容
+                                        //将首行的值存到session,
+                                        if( i+ beginRow == 9){
+                                            session.setAttribute(String.valueOf(k),cellVal2);
+                                        }else{
+                                            cellVal2 = session.getAttribute(String.valueOf(k)).toString();
+                                        }
+                                        
+                                        /*如果是 一 则忽略*/
+                                        if (cellVal2.equalsIgnoreCase("\\一")) {
+                                            continue;
+                                        }
+                                        BigDecimal bigDecimal2 = new BigDecimal("0.00"); //统计符合列的数据
+                                        /*值为空则设置为0*/
+                                        if (StringUtils.isEmpty(cellVal2)) {
+                                            cell2setValue.setCellValue(bigDecimal2.toString());
+                                        } else {
+                                            if (dataList != null && dataList.size() > 0) {
+                                                String[] split2 = cellVal2.split("\\+");
+                                                for (int l = 0; l < split2.length; l++) {
+                                                    for (ReportRsp reportRsp : dataList) {
+                                                        String accCode = reportRsp.getAccCode();
+                                                        if (accCode.length() >= split2[l].length()) {
+                                                            if (split2[l].equalsIgnoreCase(accCode.substring(0, split2[l].length()))) {
+                                                                bigDecimal2 = bigDecimal2.add(new BigDecimal(reportRsp.getCaAmt()));
+                                                            }
                                                         }
                                                     }
                                                 }
+                                                cell2setValue.setCellValue(bigDecimal2.toString());
+                                            } else {
+                                                cell2setValue.setCellValue(bigDecimal2.toString());
                                             }
-                                            cell2.setCellValue(bigDecimal2.toString());
-                                        } else {
-                                            cell2.setCellValue(bigDecimal2.toString());
+                                            /*
+                                            统计第一行的合计值
+                                             */
+                                            if(i + beginRow == 9){
+                                                session.setAttribute("sum"+k, bigDecimal2) ;
+                                            }else{
+                                                session.setAttribute("sum" + k, new BigDecimal(session.getAttribute("sum" + k).toString()).add(bigDecimal2));
+                                            }
+                                            subtotal = subtotal.add(bigDecimal2);
                                         }
-                                        subtotal = subtotal.add(bigDecimal2);
                                     }
+                                      /*
+                                            统计第一行的合计值
+                                             */
+                                    if(i + beginRow == 9){
+                                        session.setAttribute("sum"+j,subtotal) ;
+                                    }else{
+                                        session.setAttribute("sum" + j,new BigDecimal(session.getAttribute("sum" + j).toString()).add(subtotal));
+                                    }
+                                    sum = sum.add(subtotal);//将数量加到合计中
+                                    cellsetVal.setCellValue(subtotal.toString());//将小计的值赋值
+                                    j = size;
+                                    continue; //不往下执行
+                                }else{
+                                    continue;
                                 }
-                                sum = sum.add(subtotal);//将数量加到合计中
-                                cell.setCellValue(subtotal.toString());//将小计的值赋值
-                                j = size;
-                                continue; //不往下执行
                             }
-                            {
-                                continue;
+
+                            /*值为空则设置为0*/
+                            if (StringUtils.isEmpty(cellVal)) {
+                                cellsetVal.setCellValue(bigDecimal.toString());
+                            } else {
+                                if (dataList != null && dataList.size() > 0) {
+                                    String[] split = cellVal.split("\\+");
+                                    for (int k = 0; k < split.length; k++) {
+                                        for (ReportRsp reportRsp : dataList) {
+                                            String accCode = reportRsp.getAccCode();
+                                            if (accCode.length() >= split[k].length()) {
+                                                if (split[k].equalsIgnoreCase(accCode.substring(0, split[k].length()))) {
+                                                    bigDecimal = bigDecimal.add(new BigDecimal(reportRsp.getCaAmt()));
+                                                }
+                                            }
+                                        }
+                                    }
+                                    cellsetVal.setCellValue(bigDecimal.toString());
+                                } else {
+                                    cellsetVal.setCellValue(bigDecimal.toString());
+                                }
+                                  /* 统计第一行的合计值*/
+                                if(i + beginRow == 9){
+                                    session.setAttribute("sum"+j, bigDecimal) ;
+                                }else{
+                                    session.setAttribute("sum" + j, new BigDecimal(session.getAttribute("sum" + j).toString()).add(bigDecimal));
+                                }
+                                sum = sum.add(bigDecimal);
                             }
                         }
 
-                        /*值为空则设置为0*/
-                        if (StringUtils.isEmpty(cellVal)) {
-                            cell.setCellValue(bigDecimal.toString());
-                        } else {
-                            if (dataList != null && dataList.size() > 0) {
-                                String[] split = cellVal.split("\\+");
-                                for (int k = 0; k < split.length; k++) {
-                                    for (ReportRsp reportRsp : dataList) {
-                                        String accCode = reportRsp.getAccCode();
-                                        if (accCode.length() >= split[k].length()) {
-                                            if (split[k].equalsIgnoreCase(accCode.substring(0, split[k].length()))) {
-                                                bigDecimal = bigDecimal.add(new BigDecimal(reportRsp.getCaAmt()));
-                                            }
-                                        }
-                                    }
-                                }
-                                cell.setCellValue(bigDecimal.toString());
-                            } else {
-                                cell.setCellValue(bigDecimal.toString());
-                            }
-                            sum = sum.add(bigDecimal);
+                        if(sum.compareTo(BigDecimal.ZERO) == 0){
+                            delete --;
+                        }else{
+                            sheet.getRow(i+beginRow+delete).getCell(total).setCellValue(sum.toString());
                         }
+                          /*  统计第一行的合计值*/
+                        if(i + beginRow == 9){
+                            session.setAttribute("sum"+total, sum) ;
+                        }else{
+                            session.setAttribute("sum" + total, new BigDecimal(session.getAttribute("sum" + total).toString()).add(sum));
+                        }
+
                     }
-                    sheet.getRow(i).getCell(total).setCellValue(sum.toString());//给合计赋值
                 }
+                /*  给第一行的合计值 赋值*/
+                for (int i = 4; i < sheet.getRow(beginRow-1 ).getPhysicalNumberOfCells(); i++) {
+                    sheet.getRow(beginRow - 1).getCell(i).setCellValue(session.getAttribute("sum"+i).toString());//给合计赋值
+                }
+
             }
             FileUtils.judeDirExists(rootPath + filePath);
             FileUtils.judeFileExists(excelPath);

@@ -17,6 +17,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -922,6 +924,22 @@ public class ExcelUtil<T> {
         return cellValue;
     }
 
+    /**
+     * Remove a row by its index
+     * @param sheet a Excel sheet
+     * @param rowIndex a 0 based index of removing row
+     */
+    public static void removeRow(HSSFSheet sheet, int rowIndex) {
+        int lastRowNum = sheet.getLastRowNum();
+        if (rowIndex >= 0 && rowIndex < lastRowNum)
+            sheet.shiftRows(rowIndex + 1, lastRowNum, -1,true,false); // 将行号为rowIndex+1一直到行号为lastRowNum的单元格全部上移一行，以便删除rowIndex行
+        if (rowIndex == lastRowNum) {
+            HSSFRow removingRow = sheet.getRow(rowIndex);
+            if (removingRow != null)
+                sheet.removeRow(removingRow);
+        }
+    }
+
 
     /**
      * 替换单元格的内容，单元格的获取位置是合并单元格之前的位置，也就是下标都是合并之前的下表
@@ -935,4 +953,6 @@ public class ExcelUtil<T> {
         String val = value != null ? String.valueOf(value) : "";
         cell.setCellValue(val);
     }
+
+
 }

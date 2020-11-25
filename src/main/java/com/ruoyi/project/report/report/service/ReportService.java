@@ -19,4 +19,11 @@ public interface ReportService {
      * @return
      */
     List<ReportRsp> getData(Map paramsMap);
+
+    /**
+     * 获取所有的bAccCode
+     * @return
+     */
+    List<Map<String, Object>> getBAccCode();
+
 }

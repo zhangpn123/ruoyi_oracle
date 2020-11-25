@@ -87,6 +87,7 @@ public class Z03Controller extends BaseController {
                     List srctList = new ArrayList();
                     for (int i = 1; i < split.length; i++) {
                         srctList.add(split[i]);
+                        fieldList.add(split[i]);
                     }
                     map.put("src", srctList);
                     replaceMap.add(map);
