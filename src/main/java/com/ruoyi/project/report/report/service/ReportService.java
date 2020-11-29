@@ -26,4 +26,10 @@ public interface ReportService {
      */
     List<Map<String, Object>> getBAccCode();
 
+    /**
+     * 根据条件查询
+     * @param paramMap
+     * @return
+     */
+    Map<String, Object> getDateByCondition(Map<String, Object> paramMap);
 }

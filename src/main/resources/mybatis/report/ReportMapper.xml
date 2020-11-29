@@ -20,5 +20,19 @@
         group by gb.B_ACC_CODE, gb.ACC_CODE
     </select>
 
+    <select id="getDateByCondition" parameterType="java.util.List" resultType="java.util.List">
+        select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode" from GL_BAL gb
+        <where>
+            gb.B_ACC_CODE != '*'
+            <if test="accCode != null and accCode != ''">
+                and ACC_CODE LIKE #{acc_code}
+            </if>
+            <if test="acc_item1 != null and acc_item1 != ''">
+                and acc_item1 LIKE  #{acc_item1}
+            </if>
+        </where>
+        group by gb.B_ACC_CODE
+    </select>
+
 
 </mapper>

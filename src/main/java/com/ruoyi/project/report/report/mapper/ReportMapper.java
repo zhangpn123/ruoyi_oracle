@@ -13,4 +13,7 @@ import java.util.Map;
 public interface ReportMapper {
 
     List<ReportRsp> getData(Map paramsMap);
+
+
+    List<Map<String, Object>> getDateByCondition(Map<String, Object> paramMap);
 }

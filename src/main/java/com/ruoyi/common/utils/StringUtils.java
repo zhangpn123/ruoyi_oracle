@@ -1,6 +1,7 @@
 package com.ruoyi.common.utils;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.ruoyi.common.utils.text.StrFormatter;
@@ -391,4 +392,35 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return obj == null ? "" : obj.toString().trim();
     }
 
+
+    /**
+     * 将字符串转换成map
+     * @param str
+     * @return
+     */
+    public static Map<String,Object> getStringToMap(String str){
+        //感谢bojueyou指出的问题
+        //判断str是否有值
+        if(null == str || "".equals(str)){
+            return null;
+        }
+        //根据&截取
+        String[] strings = str.split(",");
+        //设置HashMap长度
+        int mapLength = strings.length;
+        //判断hashMap的长度是否是2的幂。
+        if((strings.length % 2) != 0){
+            mapLength = mapLength+1;
+        }
+
+        Map<String,Object> map = new HashMap<>(mapLength);
+        //循环加入map集合
+        for (int i = 0; i < strings.length; i++) {
+            //截取一组字符串
+            String[] strArray = strings[i].split(":");
+            //strArray[0]为KEY  strArray[1]为值
+            map.put(strArray[0],strArray[1]);
+        }
+        return map;
+    }
 }
