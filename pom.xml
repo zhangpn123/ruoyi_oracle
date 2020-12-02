@@ -291,7 +291,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>baobiao</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

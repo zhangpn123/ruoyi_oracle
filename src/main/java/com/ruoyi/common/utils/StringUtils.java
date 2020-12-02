@@ -400,10 +400,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
      */
     public static Map<String,Object> getStringToMap(String str){
         //感谢bojueyou指出的问题
+
         //判断str是否有值
         if(null == str || "".equals(str)){
             return null;
         }
+        //去掉前后的{}
+        str = str.substring(1, str.length()-1);
         //根据&截取
         String[] strings = str.split(",");
         //设置HashMap长度

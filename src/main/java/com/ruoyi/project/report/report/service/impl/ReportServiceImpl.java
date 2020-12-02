@@ -8,6 +8,8 @@ import com.ruoyi.project.report.report.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -43,9 +45,9 @@ public class ReportServiceImpl implements ReportService {
         if(dateByCondition != null && dateByCondition.size() > 0){
             for (Map<String, Object> map : dateByCondition) {
                 String bAccCode = StringUtils.getObjStr(map.get("bAccCode"));
-                int caAmt = StringUtils.getObjInt(map.get("caAmt"));
+                BigDecimal caAmt = new BigDecimal(StringUtils.getObjStr(map.get("caAmt")));
                     if (resMap.containsKey(bAccCode)){
-                        resMap.put(bAccCode,StringUtils.getObjInt(resMap.get(bAccCode)) + caAmt);
+                        resMap.put(bAccCode, new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode))).add(caAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString() );
                     }else{
                         resMap.put(bAccCode,caAmt);
                     }

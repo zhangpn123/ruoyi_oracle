@@ -20,11 +20,11 @@
         group by gb.B_ACC_CODE, gb.ACC_CODE
     </select>
 
-    <select id="getDateByCondition" parameterType="java.util.List" resultType="java.util.List">
+    <select id="getDateByCondition" parameterType="java.util.Map" resultType="java.util.Map">
         select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode" from GL_BAL gb
         <where>
             gb.B_ACC_CODE != '*'
-            <if test="accCode != null and accCode != ''">
+            <if test="acc_code != null and acc_code != ''">
                 and ACC_CODE LIKE #{acc_code}
             </if>
             <if test="acc_item1 != null and acc_item1 != ''">
