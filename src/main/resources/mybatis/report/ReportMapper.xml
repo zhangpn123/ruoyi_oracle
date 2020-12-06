@@ -25,7 +25,12 @@
         <where>
             gb.B_ACC_CODE != '*'
             <if test="acc_code != null and acc_code != ''">
+                <bind name="acc_code" value="acc_code+'%'"/>
                 and ACC_CODE LIKE #{acc_code}
+            </if>
+            <if test="deptName != null and deptName != ''">
+                <bind name="deptName" value="deptName+'%'"/>
+                and co_code Like #{deptName}
             </if>
             <if test="acc_item1 != null and acc_item1 != ''">
                 and acc_item1 LIKE  #{acc_item1}
@@ -34,5 +39,32 @@
         group by gb.B_ACC_CODE
     </select>
 
+    <select id="getDataByAccCode" parameterType="java.util.Map" resultType="java.util.Map">
+        select sum(gb.CR_AMT)  as crAmt from GL_BAL gb
+        where 1=1
+            <if test="acc_code != null and acc_code != ''">
+                <bind name="acc_code" value="acc_code+'%'"/>
+                and ACC_CODE LIKE #{acc_code}
+            </if>
+            <if test="deptName != null and deptName != ''">
+                <bind name="deptName" value="deptName+'%'"/>
+                and co_code Like #{deptName}
+            </if>
+    </select>
+
+    <select id="getCRAmt" parameterType="java.util.Map" resultType="java.util.Map">
+        select sum(gb.CR_AMT)  as crAmt from GL_BAL gb where 1=1
+        <if test="acc_code != null and acc_code != ''">
+            <bind name="acc_code" value="acc_code+'%'"/>
+            and ACC_CODE LIKE #{acc_code}
+        </if>
+        <if test="deptName != null and deptName != ''">
+            <bind name="deptName" value="deptName+'%'"/>
+            and co_code Like #{deptName}
+        </if>
+        <if test="acc_item1 != null and acc_item1 != ''">
+            and acc_item1 LIKE  #{acc_item1}
+        </if>
+    </select>
 
 </mapper>

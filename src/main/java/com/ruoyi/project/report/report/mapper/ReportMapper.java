@@ -1,6 +1,7 @@
 package com.ruoyi.project.report.report.mapper;
 
 import com.ruoyi.project.report.report.domain.ReportRsp;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -16,4 +17,8 @@ public interface ReportMapper {
 
 
     List<Map<String, Object>> getDateByCondition(Map<String, Object> paramMap);
+
+    Map<String, Object> getDataByAccCode(Map paramsMap);
+
+    Map<String, Object> getCRAmt(Map<String, Object> paramMap);
 }

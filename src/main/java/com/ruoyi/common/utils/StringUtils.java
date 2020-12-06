@@ -1,5 +1,6 @@
 package com.ruoyi.common.utils;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -390,6 +391,16 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
      */
     public static String getObjStr(Object obj) {
         return obj == null ? "" : obj.toString().trim();
+    }
+
+    /**
+     * 将obj 转换为String
+     *
+     * @param obj
+     * @return
+     */
+    public static String getObjStrBigDeci(Object obj) {
+        return obj == null ? "0.00" : obj.toString().trim();
     }
 
 

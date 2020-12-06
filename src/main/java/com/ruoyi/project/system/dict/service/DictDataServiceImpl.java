@@ -70,6 +70,11 @@ public class DictDataServiceImpl implements IDictDataService {
         return successMsg.toString();
     }
 
+    @Override
+    public DictData selectByDictLaber(DictData dictData) {
+        return dictDataMapper.selectByDictLabel(dictData);
+    }
+
     /**
      * 根据条件分页查询字典数据
      *

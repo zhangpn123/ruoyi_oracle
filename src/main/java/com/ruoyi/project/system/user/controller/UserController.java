@@ -3,6 +3,7 @@ package com.ruoyi.project.system.user.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,6 +29,8 @@ import com.ruoyi.project.system.role.service.IRoleService;
 import com.ruoyi.project.system.user.domain.User;
 import com.ruoyi.project.system.user.service.IUserService;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * 用户信息
  *
@@ -46,6 +49,7 @@ public class UserController extends BaseController {
 
     @Autowired
     private IPostService postService;
+
 
     @RequiresPermissions("system:user:view")
     @GetMapping()

@@ -100,4 +100,11 @@ public interface DictDataMapper
      * @return
      */
     int deleteDictDataByDictType(@Param("dictType") String dictType);
+
+    /**
+     * 根据字典标签查询信息
+     * @param dictData
+     * @return
+     */
+    DictData selectByDictLabel(DictData dictData);
 }

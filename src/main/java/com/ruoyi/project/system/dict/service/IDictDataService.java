@@ -67,4 +67,11 @@ public interface IDictDataService
      * @return
      */
     String importDictData(List<DictData> dictDataList, boolean updateSupport);
+
+    /**
+     * 根据字典标签查询信息
+     * @param dictData
+     * @return
+     */
+    DictData selectByDictLaber(DictData dictData);
 }

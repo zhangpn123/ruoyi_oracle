@@ -128,5 +128,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			sysdate
  		)
 	</insert>
+
+
+	<select id="selectByDictLabel" parameterType="DictData" resultMap="DictDataResult">
+		<include refid="selectDictDataVo"/> where dict_label = #{dictLabel}
+	</select>
 	
 </mapper> 

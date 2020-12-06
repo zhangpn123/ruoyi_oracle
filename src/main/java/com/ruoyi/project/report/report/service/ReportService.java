@@ -32,4 +32,18 @@ public interface ReportService {
      * @return
      */
     Map<String, Object> getDateByCondition(Map<String, Object> paramMap);
+
+    /**
+     * 跟Acccode  获取信息
+     * @param paramsMap
+     * @return
+     */
+    String getDataByAccCode(Map paramsMap);
+
+    /**
+     * 获取金额
+     * @param paramMap
+     * @return
+     */
+    String getCRAmt(Map<String, Object> paramMap);
 }
