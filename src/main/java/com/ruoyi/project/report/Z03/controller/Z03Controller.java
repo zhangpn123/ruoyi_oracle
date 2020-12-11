@@ -1,6 +1,7 @@
 package com.ruoyi.project.report.Z03.controller;
 
 import com.ruoyi.common.utils.PoiUtil;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.UploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
@@ -12,12 +13,14 @@ import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.report.Z03.domain.Z03Report;
 import com.ruoyi.project.report.Z03.service.Z03Service;
+import com.ruoyi.project.system.dept.service.IDeptService;
 import com.ruoyi.project.system.dict.domain.DictData;
 import com.ruoyi.project.system.dict.domain.DictType;
 import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.dict.service.IDictTypeService;
 import com.ruoyi.project.system.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -49,7 +52,8 @@ public class Z03Controller extends BaseController {
     @Autowired
     private IDictTypeService dictTypeService;
 
-
+    @Autowired
+    private IDeptService iDeptService;
     @Autowired
     private IDictDataService dictDataService;
 
@@ -98,6 +102,12 @@ public class Z03Controller extends BaseController {
             }
         }
 
+        if (StringUtils.isEmpty(z03Report.getDeptName())) {
+            /*取当前用户的所属部门*/
+            User user = (User) SecurityUtils.getSubject().getPrincipal();
+            z03Report.setDeptName(iDeptService.selectDeptById(user.getDeptId()).getDeptName());
+        }
+
         List<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, z03Report);
         return getDataTable(list);
     }
@@ -116,7 +126,7 @@ public class Z03Controller extends BaseController {
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
         ExcelUtil<DictData> util = new ExcelUtil<DictData>(DictData.class);
         List<DictData> dictDataList = util.importExcel(file.getInputStream());
-        String message  = dictDataService.importDictData(dictDataList,updateSupport);
+        String message  = dictDataService.importDictData(dictDataList,updateSupport,"report_z03_column");
         return AjaxResult.success(message);
     }
 

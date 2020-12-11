@@ -61,12 +61,12 @@ public interface IDictDataService
     public int updateDictData(DictData dictData);
 
     /**
-     * 导入Z03报表模板
+     * 导入报表模板
      * @param dictDataList
      * @param updateSupport
      * @return
      */
-    String importDictData(List<DictData> dictDataList, boolean updateSupport);
+    String importDictData(List<DictData> dictDataList, boolean updateSupport,String dictName);
 
     /**
      * 根据字典标签查询信息

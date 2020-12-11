@@ -46,12 +46,13 @@ public class Z03ServiceImpl implements Z03Service {
             }
             List<Map<String, Object>> list = z03Mapper.selectReport(paramsMap);
             Map<String, Object> data = getData(list, fieldList, replaceMap, 4);
-            if (!StringUtils.getObjStr(data.get("total")).equals("0.00")) {
+            if (!StringUtils.getObjStrBigDeci(data.get("total")).equals("0.00")) {
                 Set<String> keySet = data.keySet();
                 for (String key : keySet) {
-                    totalMap.put(key, new BigDecimal(totalMap.get(key).toString()).setScale(2, BigDecimal.ROUND_HALF_UP).add(new BigDecimal(data.get(key).toString()).setScale(2, BigDecimal.ROUND_HALF_UP)).toString());
+                    totalMap.put(key, new BigDecimal(StringUtils.getObjStrBigDeci(totalMap.get(key))).add(new BigDecimal(StringUtils.getObjStrBigDeci(data.get(key))).setScale(2, BigDecimal.ROUND_HALF_UP)).toString());
                 }
-                data.put("bAccName","");
+                data.put("bAccName",map.get("bAccName"));
+                data.put("bAccCode",map.get("bAccCode"));
                 resultList.add(index, data);
                 index++;
             }
@@ -76,8 +77,8 @@ public class Z03ServiceImpl implements Z03Service {
         Map<String, Object> resultMap = new HashMap<>();
         BigDecimal total = new BigDecimal("0").setScale(2, BigDecimal.ROUND_HALF_UP);
         for (String accCode : accCodeList) {//设置初始值
-            if (!accCode.equals("bAccName")) {
-                resultMap.put(accCode, new BigDecimal("0").setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            if (!"bAccName".equalsIgnoreCase(accCode.trim()) && !"bAccCode".equalsIgnoreCase(accCode.trim())) {
+                resultMap.put(accCode.trim(), new BigDecimal("0").setScale(2, BigDecimal.ROUND_HALF_UP).toString());
             }
         }
         /*校验遍历*/
@@ -86,6 +87,9 @@ public class Z03ServiceImpl implements Z03Service {
                 /*校验遍历*/
                 if (paramsMap != null && paramsMap.size() > 0) {
                     /*截取指定长度的值 进行比较*/
+                    if(paramsMap.get("accCode").toString().length() < lenght){
+                        continue;
+                    }
                     String accCode = paramsMap.get("accCode").toString().substring(0, lenght);
                     /*判断list中是否有需要的field*/
                     if (accCodeList.contains(accCode)) {
@@ -107,7 +111,7 @@ public class Z03ServiceImpl implements Z03Service {
                         resultMap.put(accCode, oldCaAmt.add(newCaAmt).toString());//加上新的金额
                         total = total.add(newCaAmt);
                     }
-                    resultMap.put("bAccCode", paramsMap.get("bAccCode"));
+                    // resultMap.put("bAccCode", paramsMap.get("bAccCode"));
                 }
             }
         }

@@ -29,7 +29,7 @@ public class DictDataServiceImpl implements IDictDataService {
     private DictDataMapper dictDataMapper;
 
     @Override
-    public String importDictData(List<DictData> dictDataList, boolean updateSupport) {
+    public String importDictData(List<DictData> dictDataList, boolean updateSupport,String dictName) {
         if (StringUtils.isNull(dictDataList) || dictDataList.size() == 0) {
             throw new BusinessException("导入的模板数据不能为空！");
         }
@@ -37,15 +37,17 @@ public class DictDataServiceImpl implements IDictDataService {
         int failureNum = 0;
         StringBuilder successMsg = new StringBuilder();
         StringBuilder failureMsg = new StringBuilder();
-
-        int del = dictDataMapper.deleteDictDataByDictType("report_z03_column");
+            // if(updateSupport){
+        int del = dictDataMapper.deleteDictDataByDictType(dictName);
+            // }
         //导入成功之前吧数据删除
         for (DictData dictData : dictDataList) {
             try {
                 dictData.setStatus("0");
                 dictData.setIsDefault("Y");
-                dictData.setDictType("report_z03_column");
+                dictData.setDictType(dictName);
                 dictData.setCreateBy(ShiroUtils.getLoginName());
+                dictData.setDictValue(dictData.getDictValue().trim());
                 int row = dictDataMapper.insertDictData(dictData);
                 if (row > 0) {
                     successNum++;

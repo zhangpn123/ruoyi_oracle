@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.report.Z05.mapper.Z05Mapper">
+
+    <select id="selectByCondition" resultType="java.util.Map" parameterType="java.util.Map">
+        select sum(gb.CR_AMT) as "crAmt" from GL_BAL gb
+        <where>
+            gb.B_ACC_CODE != '*'
+            <if test="bAccCode != null and bAccCode != ''">
+                and B_ACC_CODE = #{bAccCode}
+            </if>
+            <if test="accCode != null and accCode != ''">
+                <bind name="accCode" value="accCode+'%'"/>
+                and ACC_CODE like #{accCode}
+            </if>
+            <if test="deptName != null and deptName != ''">
+                <bind name="deptName" value="deptName+'%'"/>
+                and gb.co_code Like #{deptName}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -241,10 +241,16 @@ public class ReportController extends BaseController {
                 int beginRow = StringUtils.getObjInt(dictValue.split("/")[0]);
                 int beginClo = StringUtils.getObjInt(dictValue.split("/")[1]);//开始写的第一列数据
                 int delete = 0; //是否有删除的行
-                int cacheRow = beginRow;
 
                 if (Constans.reportCss.STYLE_ONE.getValue().equalsIgnoreCase(dictData.getCssClass())) {//判断模板类型
                     List<Map<String, Object>> bAccCodeList = reportService.getBAccCode();
+                    if(sheet.getLastRowNum() - beginRow < bAccCodeList.size() ){
+                        int addRow = bAccCodeList.size() - (sheet.getLastRowNum()-beginRow);
+                        log.error("{}:表列的行数量不够",sheetName);
+                        params.put("status", "2");
+                        params.put("msg", "导出数据失败, "+sheetName+":表列的行数量不够,需增加"+addRow+"行");
+                        return AjaxResult.error();
+                    }
 
                     if (bAccCodeList != null && bAccCodeList.size() > 0) {
                         /*遍历表中的行的*/
@@ -269,9 +275,9 @@ public class ReportController extends BaseController {
                             List<ReportRsp> dataList = reportService.getData(paramsMap);
 
                             /*遍历表中的列*/
-                            Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo,cacheRow, deptName, bAccCode, sessionMap, style, true, dataList);
+                            Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptName, bAccCode, sessionMap, style, true, dataList);
 
-                            int   total = StringUtils.getObjInt(resultMap.get("total"));
+                            int  total = StringUtils.getObjInt(resultMap.get("total"));
                             BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
 
                             if (total != 0) { //如果total为零  则认为没有这一列
@@ -286,13 +292,12 @@ public class ReportController extends BaseController {
                                     cellSum.setCellValue(sum.toString());
                                 }
                                 /*  统计第一行的合计值*/
-                                if (i + beginRow == cacheRow) {
-                                    sessionMap.put("sum" + total, sum);
-                                } else {
+                                if(sessionMap.containsKey("sum" + total)){
                                     sessionMap.put("sum" + total, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + total))).add(sum));
+                                }else{
+                                    sessionMap.put("sum" + total, sum);
                                 }
                             }
-
                         }
                     }
                     /*  给第一行的合计值 赋值*/
@@ -422,7 +427,7 @@ public class ReportController extends BaseController {
 
     }
 
-    public Map getCellVal(HSSFSheet sheet, int beginRow, int beginClo, int cacheRow,String deptName, String bAccCode, Map sessionMap, CellStyle style, boolean IsCache, List<ReportRsp> dataList) {
+    public Map getCellVal(HSSFSheet sheet, int beginRow, int beginClo,String deptName, String bAccCode, Map sessionMap, CellStyle style, boolean IsCache, List<ReportRsp> dataList) {
 
         Map resMap = new HashMap();//返回结果集
         BigDecimal sum = new BigDecimal("0.00");
@@ -437,10 +442,10 @@ public class ReportController extends BaseController {
             String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
             if (IsCache) {
                 //将首行的值存到session,
-                if (beginRow == cacheRow) {
-                    sessionMap.put(String.valueOf(j), cellVal);
-                } else {
+                if(sessionMap.containsKey(String.valueOf(j))){
                     cellVal = StringUtils.getObjStr(sessionMap.get(String.valueOf(j)));
+                }else{
+                    sessionMap.put(String.valueOf(j), cellVal);
                 }
             }
 
@@ -473,7 +478,7 @@ public class ReportController extends BaseController {
                 String[] split = cellVal.split("\\+");
                 BigDecimal temp = new BigDecimal("0.00");
                 for (String s : split) {
-                    BigDecimal dateForJson = getDateForJson(s, j, sessionMap, beginRow,cacheRow, bAccCode, deptName);
+                    BigDecimal dateForJson = getDateForJson(s, j, sessionMap, beginRow, bAccCode, deptName);
                     temp = temp.add(dateForJson);
                 }
                 cellsetVal.setCellValue(temp.toString());
@@ -481,7 +486,7 @@ public class ReportController extends BaseController {
                 continue;
             }
             if (cellVal.contains("{")) {//代表是json
-                BigDecimal dateForJson = getDateForJson(cellVal, j, sessionMap, beginRow,cacheRow, bAccCode, deptName);
+                BigDecimal dateForJson = getDateForJson(cellVal, j, sessionMap, beginRow, bAccCode, deptName);
                 cellsetVal.setCellValue(dateForJson.toString());
                 sum = sum.add(dateForJson);//将数量加到合计中
                 continue;
@@ -491,7 +496,7 @@ public class ReportController extends BaseController {
              * 获取要小计的列数
              */
             if (cellVal.contains("(")) { //代表小计
-                Map dateSum = getDateSum(cellVal, j, sessionMap, beginRow,cacheRow, bAccCode, sheet, dataList, cellsetVal, deptName);
+                Map dateSum = getDateSum(cellVal, j, sessionMap, beginRow, bAccCode, sheet, dataList, cellsetVal, deptName);
                 if (dateSum != null && dateSum.size() > 0) {
                     j = StringUtils.getObjInt(dateSum.get("index"));
                     sum = sum.add(new BigDecimal(StringUtils.getObjStr(dateSum.get("subtotal"))));
@@ -523,10 +528,10 @@ public class ReportController extends BaseController {
             }
             if (IsCache) {
                 /* 统计第一行的合计值*/
-                if (beginRow == cacheRow) {
-                    sessionMap.put("sum" + j, bigDecimal);
-                } else {
+                if(sessionMap.containsKey(("sum" + j))){
                     sessionMap.put("sum" + j, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + j))).add(bigDecimal));
+                }else{
+                    sessionMap.put("sum" + j, bigDecimal);
                 }
             }
         }
@@ -545,18 +550,18 @@ public class ReportController extends BaseController {
      * @param bAccCode   当前的模板值
      * @return 返回这一列的值
      */
-    public BigDecimal getDateForJson(String cellVal, int index, Map sessionMap, int begin, int cacheRow,String bAccCode, String deptName) {
+    public BigDecimal getDateForJson(String cellVal, int index, Map sessionMap, int begin,String bAccCode, String deptName) {
         Map<String, Object> resMap = null;
         BigDecimal bigDecimal2 = new BigDecimal("0.00"); //统计符合列的数据
         //将首行的值存到session,
-        if (begin == cacheRow) {
+        if(sessionMap.containsKey("temp" + index)){
+            resMap = (Map) sessionMap.get("temp" + index);
+        }else{
             /*转成map*/
             Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
             paramMap.put("deptName", deptName);
             resMap = reportService.getDateByCondition(paramMap);
             sessionMap.put("temp" + index, resMap);
-        } else {
-            resMap = (Map) sessionMap.get("temp" + index);
         }
 
         BigDecimal colVal = null;
@@ -569,11 +574,11 @@ public class ReportController extends BaseController {
           /*
             统计第一行的合计值
              */
-        if (begin == cacheRow) {
-            sessionMap.put("sum" + index, bigDecimal2);
-        } else {
-            sessionMap.put("sum" + index, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + index))).add(colVal));
-        }
+          if(sessionMap.containsKey("sum" + index)){
+              sessionMap.put("sum" + index, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + index))).add(colVal));
+          }else{
+              sessionMap.put("sum" + index, bigDecimal2);
+          }
         return colVal;
     }
 
@@ -587,7 +592,7 @@ public class ReportController extends BaseController {
      * @param dataList   查询的数据
      * @param cellsetVal 设置值
      */
-    public Map getDateSum(String cellVal, int index, Map sessionMap, int begin, int cacheRow,String bAccCode, HSSFSheet sheet, List<ReportRsp> dataList, HSSFCell cellsetVal, String deptName) {
+    public Map getDateSum(String cellVal, int index, Map sessionMap, int begin,String bAccCode, HSSFSheet sheet, List<ReportRsp> dataList, HSSFCell cellsetVal, String deptName) {
         Map resMap = new HashMap();
         String splitFirst = "";//是否是sum
         String str = "";//获取()内的数据
@@ -621,11 +626,10 @@ public class ReportController extends BaseController {
                 cell2setValue.setCellStyle(cellsetVal.getCellStyle());
                 // if()
                 //将首行的值存到session,
-                if (begin == cacheRow) {
-                    sessionMap.put(String.valueOf(k), cellVal2);
-                } else {
+                if(sessionMap.containsKey(String.valueOf(k))){
                     cellVal2 = StringUtils.getObjStr(sessionMap.get(String.valueOf(k)));
-
+                }else{
+                    sessionMap.put(String.valueOf(k), cellVal2);
                 }
 
                 /*替换可能存在的中文字符*/
@@ -643,7 +647,7 @@ public class ReportController extends BaseController {
                     String[] split = cellVal2.split("\\+");
                     BigDecimal temp = new BigDecimal("0.00");
                     for (String s : split) {
-                        BigDecimal dateForJson = getDateForJson(s, k, sessionMap, begin, cacheRow, bAccCode, deptName);
+                        BigDecimal dateForJson = getDateForJson(s, k, sessionMap, begin, bAccCode, deptName);
                         temp = temp.add(dateForJson);
                     }
                     cell2setValue.setCellValue(temp.toString());
@@ -651,7 +655,7 @@ public class ReportController extends BaseController {
                     continue;
                 }
                 if (cellVal2.contains("{")) {//代表是json
-                    BigDecimal dateForJson = getDateForJson(cellVal2, k, sessionMap, begin, cacheRow,bAccCode, deptName);
+                    BigDecimal dateForJson = getDateForJson(cellVal2, k, sessionMap, begin,bAccCode, deptName);
                     cell2setValue.setCellValue(dateForJson.toString());
                     subtotal = subtotal.add(dateForJson);
                     //sum = sum.add(dateForJson);//将数量加到合计中
@@ -662,7 +666,7 @@ public class ReportController extends BaseController {
                  * 获取要小计的列数
                  */
                 if (cellVal2.contains("(")) { //代表小计
-                    Map dateSum = getDateSum(cellVal2, k, sessionMap, begin, cacheRow, bAccCode,sheet,dataList, cell2setValue, deptName);
+                    Map dateSum = getDateSum(cellVal2, k, sessionMap, begin, bAccCode,sheet,dataList, cell2setValue, deptName);
                     if (dateSum != null && dateSum.size() > 0) {
                         k = StringUtils.getObjInt(dateSum.get("index"));
                         subtotal = subtotal.add(new BigDecimal(StringUtils.getObjStr(dateSum.get("subtotal"))));
@@ -696,20 +700,20 @@ public class ReportController extends BaseController {
                   /*
                     统计第一行的合计值
                      */
-                if (begin == cacheRow) {
-                    sessionMap.put("sum" + k, bigDecimal2);
-                } else {
-                    sessionMap.put("sum" + k, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + k))).add(bigDecimal2));
-                }
+                  if (sessionMap.containsKey("sum" + k)){
+                      sessionMap.put("sum" + k, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + k))).add(bigDecimal2));
+                  }else {
+                      sessionMap.put("sum" + k, bigDecimal2);
+                  }
             }
           /*
                 统计第一行的合计值
                  */
-            if (begin == cacheRow) {
-                sessionMap.put("sum" + index, subtotal);
-            } else {
-                sessionMap.put("sum" + index, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + index))).add(subtotal));
-            }
+          if(sessionMap.containsKey("sum" + index)){
+              sessionMap.put("sum" + index, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + index))).add(subtotal));
+          }else{
+              sessionMap.put("sum" + index, subtotal);
+          }
             resMap.put("subtotal", subtotal);
             // sum = sum.add(subtotal);//将数量加到合计中
             //resMap.put("sum", sum);

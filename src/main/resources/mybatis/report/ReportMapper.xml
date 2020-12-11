@@ -3,6 +3,56 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.project.report.report.mapper.ReportMapper">
+    <sql id="condition">
+        <if test="acc_item1 != null and acc_item1 != ''">
+            and acc_item1 LIKE  #{acc_item1}
+        </if>
+        <if test="acc_item2 != null and acc_item2 != ''">
+            and acc_item2 LIKE  #{acc_item2}
+        </if>
+        <if test="acc_item3 != null and acc_item3 != ''">
+            and acc_item3 LIKE  #{acc_item3}
+        </if>
+        <if test="acc_item4 != null and acc_item4 != ''">
+            and acc_item4 LIKE  #{acc_item4}
+        </if>
+        <if test="acc_item5 != null and acc_item5 != ''">
+            and acc_item5 LIKE  #{acc_item5}
+        </if>
+        <if test="acc_item6 != null and acc_item6 != ''">
+            and acc_item6 LIKE  #{acc_item6}
+        </if>
+        <if test="acc_item7 != null and acc_item7 != ''">
+            and acc_item7 LIKE  #{acc_item7}
+        </if>
+        <if test="acc_item8 != null and acc_item8 != ''">
+            and acc_item8 LIKE  #{acc_item8}
+        </if>
+        <if test="acc_item9 != null and acc_item9 != ''">
+            and acc_item9 LIKE  #{acc_item9}
+        </if>
+        <if test="acc_item10 != null and acc_item10 != ''">
+            and acc_item10 LIKE  #{acc_item10}
+        </if>
+        <if test="acc_item11 != null and acc_item11 != ''">
+            and acc_item11 LIKE  #{acc_item11}
+        </if>
+        <if test="acc_item12 != null and acc_item12 != ''">
+            and acc_item12 LIKE  #{acc_item12}
+        </if>
+        <if test="acc_item13 != null and acc_item13 != ''">
+            and acc_item13 LIKE  #{acc_item13}
+        </if>
+        <if test="acc_item14 != null and acc_item14 != ''">
+            and acc_item14 LIKE  #{acc_item14}
+        </if>
+        <if test="acc_item15 != null and acc_item15 != ''">
+            and acc_item15 LIKE  #{acc_item15}
+        </if>
+        <if test="acc_item16 != null and acc_item16 != ''">
+            and acc_item16 LIKE  #{acc_item16}
+        </if>
+    </sql>
 
     <select id="getData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.report.domain.ReportRsp">
         select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from GL_BAL gb
@@ -32,9 +82,7 @@
                 <bind name="deptName" value="deptName+'%'"/>
                 and co_code Like #{deptName}
             </if>
-            <if test="acc_item1 != null and acc_item1 != ''">
-                and acc_item1 LIKE  #{acc_item1}
-            </if>
+         <include refid="condition"/>
         </where>
         group by gb.B_ACC_CODE
     </select>
@@ -62,9 +110,7 @@
             <bind name="deptName" value="deptName+'%'"/>
             and co_code Like #{deptName}
         </if>
-        <if test="acc_item1 != null and acc_item1 != ''">
-            and acc_item1 LIKE  #{acc_item1}
-        </if>
+        <include refid="condition"/>
     </select>
 
 </mapper>
