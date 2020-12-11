@@ -88,7 +88,7 @@
     </select>
 
     <select id="getDataByAccCode" parameterType="java.util.Map" resultType="java.util.Map">
-        select sum(gb.CR_AMT)  as crAmt from GL_BAL gb
+        select sum(gb.CR_AMT)  as "crAmt" from GL_BAL gb
         where 1=1
             <if test="acc_code != null and acc_code != ''">
                 <bind name="acc_code" value="acc_code+'%'"/>
@@ -101,7 +101,7 @@
     </select>
 
     <select id="getCRAmt" parameterType="java.util.Map" resultType="java.util.Map">
-        select sum(gb.CR_AMT)  as crAmt from GL_BAL gb where 1=1
+        select sum(gb.CR_AMT)  as "crAmt" from GL_BAL gb where 1=1
         <if test="acc_code != null and acc_code != ''">
             <bind name="acc_code" value="acc_code+'%'"/>
             and ACC_CODE LIKE #{acc_code}

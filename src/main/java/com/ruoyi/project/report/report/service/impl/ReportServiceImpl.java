@@ -124,7 +124,7 @@ public class ReportServiceImpl implements ReportService {
             Map<String, Object> crAmtMap = reportMapper.getCRAmt(paramMap);
             if (null != crAmtMap && 0 < crAmtMap.size()) {
                     String crAmt = StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt"));
-                    result = result.subtract(new BigDecimal(crAmt));
+                    result = result.add(new BigDecimal(crAmt));
                 }
         }
         return result.toString();
