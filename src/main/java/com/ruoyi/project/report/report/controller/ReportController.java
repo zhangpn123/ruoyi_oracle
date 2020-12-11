@@ -372,7 +372,7 @@ public class ReportController extends BaseController {
                                     String cellVal2 = ExcelUtil.getStringValueFromCell(cell2setValue);//获取列的内容
                                     cell2setValue.setCellStyle(cellsetVal.getCellStyle());
                                     if (cellVal2.contains("*")) {
-                                        cellVal2 = cellVal2.substring(1, cellVal.length() - 1);//获取值
+                                        cellVal2 = cellVal2.substring(1, cellVal2.length() - 1);//获取值
                                         Map paramsMap = new HashMap();
                                         paramsMap.put("acc_code", cellVal2);
                                         paramsMap.put("deptName", deptName);
