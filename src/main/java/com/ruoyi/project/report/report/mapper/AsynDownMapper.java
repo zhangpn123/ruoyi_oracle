@@ -29,4 +29,11 @@ public interface AsynDownMapper {
     AsynDown selectAsynDown(@Param("id") String id);
 
     int deleteAsynDownByIds(String[] idArr);
+
+    /**
+     * 更新
+     * @param asynDown
+     * @return
+     */
+    int updateFile(AsynDown asynDown);
 }

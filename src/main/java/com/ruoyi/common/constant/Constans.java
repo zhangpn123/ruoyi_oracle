@@ -24,4 +24,35 @@ public class  Constans {
             return value;
         }
     }
+
+    public enum AsynDownStatus{
+        PROCESSED_SUCC("1"),
+        PROCESSED_FAIL("2"),
+        PROCESSING("3");
+
+        private final String value;
+
+        AsynDownStatus(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public enum Unit{
+        UNIT_YUAN("1"), //元
+        UNIT_WANYUAN("2");  //万元
+
+        private final String value;
+
+        Unit(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
 }

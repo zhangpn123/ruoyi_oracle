@@ -2,8 +2,6 @@ package com.ruoyi.project.report.Z03.controller;
 
 import com.ruoyi.common.utils.PoiUtil;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.common.utils.UploadUtils;
-import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.aspectj.lang.annotation.Log;
 import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
@@ -11,11 +9,10 @@ import com.ruoyi.framework.config.RuoYiConfig;
 import com.ruoyi.framework.web.controller.BaseController;
 import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
-import com.ruoyi.project.report.Z03.domain.Z03Report;
+import com.ruoyi.project.report.dto.ReportCondition;
 import com.ruoyi.project.report.Z03.service.Z03Service;
 import com.ruoyi.project.system.dept.service.IDeptService;
 import com.ruoyi.project.system.dict.domain.DictData;
-import com.ruoyi.project.system.dict.domain.DictType;
 import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.dict.service.IDictTypeService;
 import com.ruoyi.project.system.user.domain.User;
@@ -27,13 +24,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.zip.CRC32;
 
 /**
  * @program: RuoYi
@@ -68,7 +61,7 @@ public class Z03Controller extends BaseController {
     @RequiresPermissions("report:Z03:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(Z03Report z03Report) {
+    public TableDataInfo list(ReportCondition reportCondition) {
         log.info("开始查询Z03报表数据");
 
         /*获取表头信息*/
@@ -102,13 +95,13 @@ public class Z03Controller extends BaseController {
             }
         }
 
-        if (StringUtils.isEmpty(z03Report.getDeptName())) {
+        if (StringUtils.isEmpty(reportCondition.getDeptName())) {
             /*取当前用户的所属部门*/
             User user = (User) SecurityUtils.getSubject().getPrincipal();
-            z03Report.setDeptName(iDeptService.selectDeptById(user.getDeptId()).getDeptName());
+            reportCondition.setDeptName(iDeptService.selectDeptById(user.getDeptId()).getDeptName());
         }
 
-        List<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, z03Report);
+        List<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
         return getDataTable(list);
     }
 
@@ -149,7 +142,7 @@ public class Z03Controller extends BaseController {
     @RequiresPermissions("report:Z03:export")
     @RequestMapping("/export")
     @ResponseBody
-    public AjaxResult exportReport(Z03Report z03Report) throws IOException {
+    public AjaxResult exportReport(ReportCondition reportCondition) throws IOException {
         log.info("Start generating reports");
         //构建Excel
         String fileName = System.currentTimeMillis() + ".xls";
@@ -190,7 +183,7 @@ public class Z03Controller extends BaseController {
         }
 
 
-        List<Map<String, Object>> resultList = z03Service.selectRoleList(fieldList, replaceMap, z03Report);
+        List<Map<String, Object>> resultList = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
         // titleList.addFirst("项目");
         // titleList.addFirst("项目");
         // fieldList.addFirst("bAccCode");

@@ -100,8 +100,8 @@ drop table sys_post;
 create table sys_post
 (
   post_id       number(20,0)      not null ,
-  post_code     varchar2(64)     not null       ,
-  post_name     varchar2(50)     not null       ,
+  post_code     varchar2(64)     not null   ,
+  post_name     varchar2(50)     not null    ,
   post_sort     number(10,0)          not null  ,
   status        char(1)         not null        ,
   create_by     varchar2(64)     default ''     ,

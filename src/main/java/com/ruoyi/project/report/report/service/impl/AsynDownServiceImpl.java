@@ -30,23 +30,9 @@ public class AsynDownServiceImpl implements AsynDownService {
     private AsynDownMapper asynDownMapper;
 
     @Override
-    public int saveFile(Map paramsMap) {
-        String filePath = StringUtils.getObjStr(paramsMap.get("filePath"));
-        String fileName = StringUtils.getObjStr(paramsMap.get("fileName"));
-        String status = StringUtils.getObjStr(paramsMap.get("status"));
-        String msg = StringUtils.getObjStr(paramsMap.get("msg"));
-        if(StringUtils.isEmpty(filePath) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(status) || StringUtils.isEmpty(msg)){
-            return -1;
-        }
-        AsynDown asynDown = new AsynDown();
-        asynDown.setId(IdUtils.simpleUUID());
-        asynDown.setFileName(fileName);
-        asynDown.setFilePath(filePath);
-        asynDown.setStatus(status);
-        asynDown.setMsg(msg);
+    public int saveFile(AsynDown asynDown) {
         asynDown.setCreateDate(DateUtils.curDateTime());
-
-        // asynDownMapper.
+        asynDown.setUpdateDate(DateUtils.curDateTime());
         asynDownMapper.save(asynDown);
         return 0;
     }
@@ -71,5 +57,11 @@ public class AsynDownServiceImpl implements AsynDownService {
             FileUtils.deleteFile(rootPath+asynDown.getFilePath()+asynDown.getFileName());
         }
         return asynDownMapper.deleteAsynDownByIds(idArr);
+    }
+
+    @Override
+    public int updateFile(AsynDown asynDown) {
+        asynDown.setUpdateDate(DateUtils.curDateTime());
+        return asynDownMapper.updateFile(asynDown);
     }
 }

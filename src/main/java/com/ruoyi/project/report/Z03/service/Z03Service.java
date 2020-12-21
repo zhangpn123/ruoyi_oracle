@@ -1,6 +1,6 @@
 package com.ruoyi.project.report.Z03.service;
 
-import com.ruoyi.project.report.Z03.domain.Z03Report;
+import com.ruoyi.project.report.dto.ReportCondition;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,6 @@ import java.util.Map;
  * @Date: 2020/9/18 10:37
  */
 public interface Z03Service {
-    List<Map<String, Object>> selectRoleList(List<String> fieldList, List<Map<String,Object>> replaceMap, Z03Report z03Report);
+    List<Map<String, Object>> selectRoleList(List<String> fieldList, List<Map<String,Object>> replaceMap, ReportCondition reportCondition);
 
 }

@@ -56,7 +56,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public String getDataByAccCode(Map paramsMap) {
+    public BigDecimal getDataByAccCode(Map paramsMap) {
         String accCode = StringUtils.getObjStr(paramsMap.get("acc_code"));
         BigDecimal sum = new BigDecimal("0.00");
         /*判断是否有多个数据拼接*/
@@ -90,11 +90,11 @@ public class ReportServiceImpl implements ReportService {
                     sum = sum.add(new BigDecimal(crAmt));
             }
         }
-        return sum.toString();
+        return sum;
     }
 
     @Override
-    public String getCRAmt(Map<String, Object> paramMap) {
+    public BigDecimal getCRAmt(Map<String, Object> paramMap) {
         BigDecimal result = new BigDecimal("0.00");
         String acc_code = StringUtils.getObjStr(paramMap.get("acc_code"));
         if (acc_code.contains("+")) {
@@ -127,7 +127,7 @@ public class ReportServiceImpl implements ReportService {
                     result = result.add(new BigDecimal(crAmt));
                 }
         }
-        return result.toString();
+        return result;
     }
 
 

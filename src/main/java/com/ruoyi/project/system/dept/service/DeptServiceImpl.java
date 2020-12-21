@@ -3,6 +3,8 @@ package com.ruoyi.project.system.dept.service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.ruoyi.project.system.user.domain.User;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,9 +37,12 @@ public class DeptServiceImpl implements IDeptService
      * @return 部门信息集合
      */
     @Override
-    @DataScope(deptAlias = "d")
+     // @DataScope(deptAlias = "d")
     public List<Dept> selectDeptList(Dept dept)
     {
+        // 获取当前的用户
+        User currentUser = ShiroUtils.getSysUser();
+        dept.setDeptId(currentUser.getDeptId());
         return deptMapper.selectDeptList(dept);
     }
 
@@ -48,9 +53,12 @@ public class DeptServiceImpl implements IDeptService
      * @return 所有部门信息
      */
     @Override
-    @DataScope(deptAlias = "d")
+    // @DataScope(deptAlias = "d")
     public List<Ztree> selectDeptTree(Dept dept)
     {
+        // 获取当前的用户
+        User currentUser = ShiroUtils.getSysUser();
+        dept.setDeptId(currentUser.getDeptId());
         List<Dept> deptList = deptMapper.selectDeptList(dept);
         List<Ztree> ztrees = initZtree(deptList);
         return ztrees;

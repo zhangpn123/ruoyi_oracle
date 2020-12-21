@@ -18,9 +18,11 @@ public class AsynDown {
 
     private String fileName;//文件名称
 
-    private String status;//处理状态 1: 成功 2:失败
+    private String status;//处理状态 1: 成功 2:失败 3:处理中
 
     private String msg;//处理 消息
+
+    private String updateDate;//更新时间
 
     private String createDate; //创建时间
 

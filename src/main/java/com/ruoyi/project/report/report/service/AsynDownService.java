@@ -15,7 +15,7 @@ public interface AsynDownService {
      *保存下载文件
      * @return
      */
-    int saveFile(Map paramsMap);
+    int saveFile(AsynDown asynDown);
 
     /**
      * 分页查询
@@ -37,4 +37,11 @@ public interface AsynDownService {
      * @return
      */
     int deleteUserByIds(String ids);
+
+    /**
+     * 更新
+     * @param asynDown
+     * @return
+     */
+    int updateFile(AsynDown asynDown);
 }

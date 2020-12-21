@@ -1,9 +1,12 @@
 package com.ruoyi.project.report.Z03.service.impl;
 
+import com.ruoyi.common.constant.Constans;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.project.report.Z03.domain.Z03Report;
+import com.ruoyi.common.utils.bean.Map2Bean;
+import com.ruoyi.project.report.dto.ReportCondition;
 import com.ruoyi.project.report.Z03.mapper.Z03Mapper;
 import com.ruoyi.project.report.Z03.service.Z03Service;
+import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +26,7 @@ public class Z03ServiceImpl implements Z03Service {
     private Z03Mapper z03Mapper;
 
     @Override
-    public List<Map<String, Object>> selectRoleList(List<String> fieldList, List<Map<String, Object>> replaceMap, Z03Report z03Report) {
+    public List<Map<String, Object>> selectRoleList(List<String> fieldList, List<Map<String, Object>> replaceMap, ReportCondition reportCondition) {
         Map paramsMap = new HashMap();
         List<Map<String, Object>> resultList = new LinkedList<>();
 
@@ -31,7 +34,7 @@ public class Z03ServiceImpl implements Z03Service {
         List<Map<String, Object>> bAccCodeList = z03Mapper.selBAccCode();
 
         /*初始化合计列*/
-        Map totalMap = new HashMap();
+        Map<String,Object> totalMap = new HashMap();
         for (String s : fieldList) {
             totalMap.put(s, "0.00");//初始化为0.00;
         }
@@ -40,16 +43,27 @@ public class Z03ServiceImpl implements Z03Service {
         for (Map<String, Object> map : bAccCodeList) {
             String bAccCode = map.get("bAccCode").toString();
             paramsMap.clear();
+            /*将实体类装成map*/
+            paramsMap = Map2Bean.transBean2Map(reportCondition);
             paramsMap.put("bAccCode", bAccCode);
-            if (!StringUtils.isEmpty(z03Report.getDeptName())) {
-                paramsMap.put("deptName", z03Report.getDeptName());
-            }
+
             List<Map<String, Object>> list = z03Mapper.selectReport(paramsMap);
             Map<String, Object> data = getData(list, fieldList, replaceMap, 4);
             if (!StringUtils.getObjStrBigDeci(data.get("total")).equals("0.00")) {
                 Set<String> keySet = data.keySet();
                 for (String key : keySet) {
                     totalMap.put(key, new BigDecimal(StringUtils.getObjStrBigDeci(totalMap.get(key))).add(new BigDecimal(StringUtils.getObjStrBigDeci(data.get(key))).setScale(2, BigDecimal.ROUND_HALF_UP)).toString());
+                }
+
+                /*判断数据是否要转成万元格式*/
+                if(reportCondition.getUnit().equalsIgnoreCase(Constans.Unit.UNIT_WANYUAN.getValue())){
+                    for (Map.Entry<String, Object> stringObjectEntry : data.entrySet()) {
+                        String temp = StringUtils.getObjStrBigDeci(stringObjectEntry.getValue());
+                        if (!temp.equalsIgnoreCase("0.00")){
+                            BigDecimal wanyun = new BigDecimal(temp).divide(new BigDecimal("10000")).setScale(2, BigDecimal.ROUND_HALF_EVEN);
+                            data.put(stringObjectEntry.getKey(),wanyun.toString());
+                        }
+                    }
                 }
                 data.put("bAccName",map.get("bAccName"));
                 data.put("bAccCode",map.get("bAccCode"));
@@ -59,6 +73,16 @@ public class Z03ServiceImpl implements Z03Service {
         }
         Map<String, Object> map = resultList.get(0);
         map.remove("bAccCode");
+        /*判断数据是否要转成万元格式*/
+        if(reportCondition.getUnit().equalsIgnoreCase(Constans.Unit.UNIT_WANYUAN.getValue())) {
+            for (Map.Entry<String, Object> o : map.entrySet()) {
+                String temp = StringUtils.getObjStrBigDeci(o.getValue());
+                if (!temp.equalsIgnoreCase("0.00")) {
+                    BigDecimal wanyun = new BigDecimal(temp).divide(new BigDecimal("10000")).setScale(2, BigDecimal.ROUND_HALF_EVEN);
+                    map.put(o.getKey(), wanyun.toString());
+                }
+            }
+        }
         map.put("bAccName","合计");
         return resultList;
     }

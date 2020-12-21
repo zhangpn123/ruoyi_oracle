@@ -1,8 +1,8 @@
 package com.ruoyi.project.report.report.service;
 
-import com.ruoyi.project.report.Z03.domain.Z03Report;
 import com.ruoyi.project.report.report.domain.ReportRsp;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -38,12 +38,12 @@ public interface ReportService {
      * @param paramsMap
      * @return
      */
-    String getDataByAccCode(Map paramsMap);
+    BigDecimal getDataByAccCode(Map paramsMap);
 
     /**
      * 获取金额
      * @param paramMap
      * @return
      */
-    String getCRAmt(Map<String, Object> paramMap);
+    BigDecimal getCRAmt(Map<String, Object> paramMap);
 }
