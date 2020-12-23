@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('Z03报表')"/>
+    <th:block th:include="include :: header('全部报表')"/>
 </head>
 <body class="gray-bg">
 <div class="container-div">
@@ -23,7 +23,21 @@
                             <option value="">全部</option>
                             <option value="1">成功</option>
                             <option value="2">失败</option>
+                            <option value="3">处理中</option>
                         </select>
+                        </li>
+                        <li>
+                            单位：<select name="unit">
+<!--                            <option value="">全部</option>-->
+                            <option value="1">元</option>
+                            <option value="2">万元</option>
+                        </select>
+                        </li>
+                        <li class="select-time-month">
+                            <label>创建时间： </label>
+                            <input type="text" class="time-input-month" id="startTimeMonth" placeholder="开始时间" name="beginTime"/>
+                            <span>-</span>
+                            <input type="text" class="time-input-month" id="endTimeMonth" placeholder="结束时间" name="endTime"/>
                         </li>
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
@@ -37,13 +51,13 @@
         </div>
 
         <div class="btn-group-sm" id="toolbar" role="group">
-            <a class="btn btn-warning" onclick="exportExcel()" shiro:hasPermission="report:export">
+            <a class="btn btn-warning" onclick="exportExcel()" shiro:hasPermission="report:report:export">
                 <i class="fa fa-download"></i> 创建异步导出报表任务
             </a>
-            <a class="btn btn-info" onclick="importExcel()" shiro:hasPermission="report:export">
+            <a class="btn btn-info" onclick="importExcel()" shiro:hasPermission="report:report:import">
                 <i class="fa fa-upload"></i> 导入报表模板
             </a>
-            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="report:remove">
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="report:report:remove">
                 <i class="fa fa-remove"></i> 删除
             </a>
         </div>
@@ -56,8 +70,8 @@
 <th:block th:include="include :: footer"/>
 <script th:inline="javascript">
 
-    var editFlag = [[${@permission.hasPermi('system:role:edit')}]];
-    var removeFlag = [[${@permission.hasPermi('system:role:remove')}]];
+    // var editFlag = [[${@permission.hasPermi('report:report:edit')}]];
+    // var removeFlag = [[${@permission.hasPermi('system:role:remove')}]];
     var prefix = ctx + "report";
 
     $(function () {
@@ -91,12 +105,18 @@
                             return '<span class="btn btn-info btn-xs">成功</span>';
                         } else if (item.status == '2') {
                             return '<span class="btn btn-danger btn-xs">失败</span>';
+                        } else if (item.status == '3') {
+                            return '<span class="btn btn-normal btn-xs">处理中</span>';
                         }
                     }
                 },
                 {
                     field: 'msg',
                     title: '处理消息'
+                },
+                {
+                    field: 'updateDate',
+                    title: '更新时间'
                 },
                 {
                     field: 'createDate',

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.project.report.Z05.mapper.Z05Mapper">
+<mapper namespace="com.ruoyi.project.report.Z04.mapper.Z05Mapper">
 
     <select id="selectByCondition" resultType="java.util.Map" parameterType="java.util.Map">
         select sum(gb.CR_AMT) as "crAmt" from GL_BAL gb

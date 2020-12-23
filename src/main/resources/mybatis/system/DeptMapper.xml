@@ -47,9 +47,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="status != null and status != ''">
 			AND status = #{status}
 		</if>
-		<!-- 数据范围过滤 -->
-		${params.dataScope}
+		<if test="deptId != null and deptId != ''">
+			START WITH d.dept_id = #{deptId}
+			CONNECT BY PRIOR d.DEPT_ID = d.PARENT_ID
+		</if>
 		order by d.parent_id, d.order_num
+		<!-- 数据范围过滤 -->
+		-- 		${params.dataScope}
     </select>
 	
 	<select id="checkDeptExistUser" parameterType="Long" resultType="int">
@@ -145,7 +149,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	 </update>
 
 	<delete id="deleteDeptById" parameterType="Long">
--- 		update sys_dept set del_flag = '2' where dept_id = #{deptId}
 		delete from sys_dept  where dept_id = #{deptId}
 	</delete>
 	
