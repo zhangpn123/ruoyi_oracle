@@ -12,7 +12,9 @@
         <if test="status != null and status != ''">status,</if>
         <if test="msg != null and msg != ''">msg,</if>
         <if test="createDate != null and createDate != ''">createDate,</if>
-        <if test="updateDate != null and updateDate != ''">updateDate</if>
+        <if test="updateDate != null and updateDate != ''">updateDate,</if>
+        <if test="deptName != null and deptName != ''">deptName,</if>
+        <if test="timeInterval != null and timeInterval != ''">timeInterval</if>
         )values(
         <if test="id != null and id != ''">#{id},</if>
         <if test="filePath != null and filePath != ''">#{filePath},</if>
@@ -20,22 +22,29 @@
         <if test="status != null and status != ''">#{status},</if>
         <if test="msg != null and msg != ''">#{msg},</if>
         <if test="createDate != null and createDate != ''">#{createDate},</if>
-        <if test="updateDate != null and updateDate != ''">#{updateDate}</if>
+        <if test="updateDate != null and updateDate != ''">#{updateDate},</if>
+        <if test="deptName != null and deptName != ''">#{deptName},</if>
+        <if test="timeInterval != null and timeInterval != ''">#{timeInterval}</if>
         )
     </insert>
 
 
     <select id="selectAsynDownList" parameterType="com.ruoyi.project.report.report.domain.AsynDown"
             resultType="com.ruoyi.project.report.report.domain.AsynDown">
-        select id, filePath,fileName,status,msg,createDate,updateDate from sys_asynDown
-        where 1=1
-        <if test="status != null and status != ''">
-            and status = #{status}
-        </if>
+        select  filePath,fileName,status,msg,createDate,updateDate,timeInterval from sys_asynDown
+        <where>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="deptName != null and deptName != ''">
+            <bind name="deptName" value="deptName +'%'"/>
+                and deptName like #{deptName}
+            </if>
+        </where>
     </select>
 
     <select id="selectAsynDown" parameterType="java.lang.String" resultType="com.ruoyi.project.report.report.domain.AsynDown">
-         select id, filePath,fileName,status,msg,createDate from sys_asynDown
+         select id,filePath,fileName,status,msg,createDate from sys_asynDown
         where id = #{id}
     </select>
 

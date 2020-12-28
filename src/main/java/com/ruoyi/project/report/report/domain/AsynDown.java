@@ -26,4 +26,8 @@ public class AsynDown {
 
     private String createDate; //创建时间
 
+    private String deptName;//部门ID
+
+    private String timeInterval;//统计时间的区间
+
 }

@@ -1,8 +1,10 @@
 package com.ruoyi.project.report.report.controller;
 
 import com.ruoyi.common.constant.Constans;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.UploadUtils;
+import com.ruoyi.common.utils.bean.Map2Bean;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.utils.uuid.IdUtils;
@@ -27,6 +29,7 @@ import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -78,6 +81,9 @@ public class ReportController extends BaseController {
     @ResponseBody
     public TableDataInfo list(AsynDown asynDown) {
         log.info("开始查询导出报表数据");
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        String deptName = iDeptService.selectDeptById(user.getDeptId()).getDeptName();
+        asynDown.setDeptName(deptName);
         startPage();
         List<AsynDown> list = asynDownService.selectAsynDownList(asynDown);
         return getDataTable(list);
@@ -156,12 +162,30 @@ public class ReportController extends BaseController {
     @ResponseBody
     public AjaxResult exportReport(ReportCondition reportCondition) {
 
+
+        String deptName = "";
+        if (StringUtils.isEmpty(reportCondition.getDeptName())) {
+            /*取当前用户的所属部门*/
+            User user = (User) SecurityUtils.getSubject().getPrincipal();
+            deptName = iDeptService.selectDeptById(user.getDeptId()).getDeptName();
+        } else {
+            deptName = reportCondition.getDeptName();
+        }
+        /*设置默认的日期时间*/
+        Date date = new Date();
+        if (StringUtils.isEmpty(reportCondition.getBeginTime())) {
+            reportCondition.setBeginTime(DateUtils.getCntDtStr(date,"yyyy")+"-01");
+        }
+        if (StringUtils.isEmpty(reportCondition.getEndTime())) {
+            reportCondition.setEndTime(DateUtils.getCntDtStr(date,"yyyy-MM"));
+        }
+
         /*保存到本地的信息*/
-        String fileName = System.currentTimeMillis() + ".xls";
+        // String fileName = System.currentTimeMillis() + ".xls";
+        String fileName = reportCondition.getEndTime().substring(0, 4) + "_" + deptName + "_" + DateUtils.dateTime() + ".xls";
         String rootPath = RuoYiConfig.getProfile();//根路径
         String filePath = RuoYiConfig.getAsynDown();
         String excelPath = rootPath + filePath + fileName;
-
 
         AsynDown asynDown = new AsynDown();
         String asynID = IdUtils.simpleUUID();
@@ -170,6 +194,8 @@ public class ReportController extends BaseController {
         asynDown.setFilePath(filePath);
         asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
         asynDown.setMsg("处理中...");
+        asynDown.setDeptName(deptName);
+        asynDown.setTimeInterval(reportCondition.getBeginTime() + "至" + reportCondition.getEndTime());
         asynDownService.saveFile(asynDown);
 
         /*启动一个单独的线程  处理任务*/
@@ -180,23 +206,20 @@ public class ReportController extends BaseController {
                 String tempFileName = "ReportTemp.xls";
                 String exportTempPath = RuoYiConfig.getReportPath() + tempFileName;
 
-                String deptName = "";
-                if (StringUtils.isEmpty(reportCondition.getDeptName())) {
-                    /*取当前用户的所属部门*/
-                    User user = (User) SecurityUtils.getSubject().getPrincipal();
-                    deptName = iDeptService.selectDeptById(user.getDeptId()).getDeptName();
-                } else {
-                    deptName = reportCondition.getDeptName();
-                }
-
-
                 Map sessionMap = new HashMap();
 
                 try (FileInputStream fis = new FileInputStream(exportTempPath)) {
 
                     log.info("Start generating reports");
                     //构建Excel
-
+                    String deptName = "";
+                    if (StringUtils.isEmpty(reportCondition.getDeptName())) {
+                        /*取当前用户的所属部门*/
+                        User user = (User) SecurityUtils.getSubject().getPrincipal();
+                        deptName = iDeptService.selectDeptById(user.getDeptId()).getDeptName();
+                    } else {
+                        deptName = reportCondition.getDeptName();
+                    }
 
                     //读取本地的导出模板
                     HSSFWorkbook workBook = new HSSFWorkbook(fis);
@@ -205,7 +228,8 @@ public class ReportController extends BaseController {
                     style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00"));
 
                     style.setAlignment(HorizontalAlignment.RIGHT);// 靠右
-                    style.setVerticalAlignment(VerticalAlignment.CENTER);;//垂直
+                    style.setVerticalAlignment(VerticalAlignment.CENTER);
+                    ;//垂直
                     /*边框*/
                     style.setBorderBottom(BorderStyle.THIN); //下边框
                     style.setBorderLeft(BorderStyle.THIN);//左边框
@@ -216,10 +240,14 @@ public class ReportController extends BaseController {
                     style.setTopBorderColor(IndexedColors.BLACK.getIndex());
                     style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
 
+
+
+                    /*bean转成map*/
+                    Map<String, Object> paramsMap = Map2Bean.transBean2Map(reportCondition);
+
                     for (int m = 0; m < workBook.getNumberOfSheets(); m++) {
                         //获取对应的sheet
                         HSSFSheet sheet = workBook.getSheetAt(m);
-
 
 
                         String sheetName = sheet.getSheetName();
@@ -244,7 +272,7 @@ public class ReportController extends BaseController {
                         ) {
                             continue;
                         }
-                        log.info("开始处理{}表",sheetName);
+                        log.info("开始处理{}表", sheetName);
 
                         DictData dictData = new DictData();
                         dictData.setDictLabel(sheetName);
@@ -281,13 +309,14 @@ public class ReportController extends BaseController {
                                     cellBAccCode.setCellValue(bAccCode);
                                     //sheet.getRow(i + beginRow+ delete).getCell(3).setCellValue(bAccName);
 
-                                    Map paramsMap = new HashMap();
+                                    // Map<String, Object> paramsMap = new HashMap();
+                                    // paramsMap = Map2Bean.transBean2Map(reportCondition);
                                     paramsMap.put("bAccCode", bAccCode);
                                     paramsMap.put("deptName", deptName);
                                     List<ReportRsp> dataList = reportService.getData(paramsMap);
 
                                     /*遍历表中的列*/
-                                    Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptName, bAccCode, sessionMap, style, true, dataList);
+                                    Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptName, bAccCode, sessionMap, style, true, dataList, reportCondition);
 
                                     int total = StringUtils.getObjInt(resultMap.get("total"));
                                     BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
@@ -326,7 +355,8 @@ public class ReportController extends BaseController {
                                     String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
                                     if (cellVal.contains("*")) {
                                         cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
-                                        Map paramsMap = new HashMap();
+                                        // Map<String, Object> paramsMap = new HashMap();
+                                        // paramsMap = Map2Bean.transBean2Map(reportCondition);
                                         paramsMap.put("acc_code", cellVal);
                                         paramsMap.put("deptName", deptName);
                                         BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
@@ -383,7 +413,7 @@ public class ReportController extends BaseController {
                                             String cellVal2 = ExcelUtil.getStringValueFromCell(cell2setValue);//获取列的内容
                                             if (cellVal2.contains("*")) {
                                                 cellVal2 = cellVal2.substring(1, cellVal2.length() - 1);//获取值
-                                                Map paramsMap = new HashMap();
+                                                // Map paramsMap = new HashMap();
                                                 paramsMap.put("acc_code", cellVal2);
                                                 paramsMap.put("deptName", deptName);
                                                 BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
@@ -399,7 +429,7 @@ public class ReportController extends BaseController {
                                     }
                                     if (cellVal.contains("*")) {
                                         cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
-                                        Map paramsMap = new HashMap();
+                                        // Map paramsMap = new HashMap();
                                         paramsMap.put("acc_code", cellVal);
                                         paramsMap.put("deptName", deptName);
                                         BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
@@ -410,6 +440,7 @@ public class ReportController extends BaseController {
                                     if (cellVal.contains("{")) {//代表是json
                                         Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
                                         paramMap.put("deptName", deptName);
+                                        paramMap.putAll(paramsMap);
                                         BigDecimal result = reportService.getCRAmt(paramMap);
                                         cellsetVal.setCellValue(result.doubleValue());
                                         cellsetVal.setCellStyle(style);
@@ -432,7 +463,7 @@ public class ReportController extends BaseController {
                 } catch (Exception e) {
                     log.error("导出数据失败!", e);
                     asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_FAIL.getValue());
-                    asynDown.setMsg( e.toString());
+                    asynDown.setMsg(e.toString());
                 } finally {
                     asynDownService.updateFile(asynDown);
                 }
@@ -443,7 +474,20 @@ public class ReportController extends BaseController {
 
     }
 
-    public Map getCellVal(HSSFSheet sheet, int beginRow, int beginClo, String deptName, String bAccCode, Map sessionMap, CellStyle style, boolean IsCache, List<ReportRsp> dataList) {
+    /**
+     * @param sheet           工作sheet
+     * @param beginRow        操作开始行
+     * @param beginClo        操作开始列
+     * @param deptName        用户所属机构名
+     * @param bAccCode
+     * @param sessionMap      缓存Map
+     * @param style           excel格式
+     * @param IsCache         是否缓存
+     * @param dataList        查询的数据
+     * @param reportCondition 首页筛选条件
+     * @return
+     */
+    public Map getCellVal(HSSFSheet sheet, int beginRow, int beginClo, String deptName, String bAccCode, Map sessionMap, CellStyle style, boolean IsCache, List<ReportRsp> dataList, ReportCondition reportCondition) {
 
         Map resMap = new HashMap();//返回结果集
         BigDecimal sum = new BigDecimal("0.00");
@@ -495,7 +539,7 @@ public class ReportController extends BaseController {
                 String[] split = cellVal.split("\\+");
                 BigDecimal temp = new BigDecimal("0.00");
                 for (String s : split) {
-                    BigDecimal dateForJson = getDateForJson(s, j, sessionMap, bAccCode, deptName);
+                    BigDecimal dateForJson = getDateForJson(s, j, sessionMap, bAccCode, deptName, reportCondition);
                     temp = temp.add(dateForJson);
                 }
                 cellsetVal.setCellValue(temp.doubleValue());
@@ -503,7 +547,7 @@ public class ReportController extends BaseController {
                 continue;
             }
             if (cellVal.contains("{")) {//代表是json
-                BigDecimal dateForJson = getDateForJson(cellVal, j, sessionMap, bAccCode, deptName);
+                BigDecimal dateForJson = getDateForJson(cellVal, j, sessionMap, bAccCode, deptName, reportCondition);
                 cellsetVal.setCellValue(dateForJson.doubleValue());
                 sum = sum.add(dateForJson);//将数量加到合计中
                 continue;
@@ -513,7 +557,7 @@ public class ReportController extends BaseController {
              * 获取要小计的列数
              */
             if (cellVal.contains("(")) { //代表小计
-                Map dateSum = getDateSum(cellVal, j, sessionMap, beginRow, bAccCode, sheet, dataList, cellsetVal, deptName);
+                Map dateSum = getDateSum(cellVal, j, sessionMap, beginRow, bAccCode, sheet, dataList, cellsetVal, deptName, reportCondition);
                 if (dateSum != null && dateSum.size() > 0) {
                     j = StringUtils.getObjInt(dateSum.get("index"));
                     sum = sum.add(new BigDecimal(StringUtils.getObjStr(dateSum.get("subtotal"))));
@@ -560,13 +604,17 @@ public class ReportController extends BaseController {
     /**
      * 获取json的方法
      *
-     * @param cellVal    当前clo的值
-     * @param index      当前列的索引
+     * @param cellVal         当前clo的值
+     * @param index           当前列的索引
      * @param sessionMap
-     * @param bAccCode   当前的模板值
+     * @param bAccCode        当前的模板值
+     * @param reportCondition 首页筛选条件
      * @return 返回这一列的值
      */
-    public BigDecimal getDateForJson(String cellVal, int index, Map sessionMap, String bAccCode, String deptName) {
+    public BigDecimal getDateForJson(String cellVal, int index, Map sessionMap, String bAccCode, String deptName, ReportCondition reportCondition) {
+        /*bean转成map*/
+        Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
+
         Map<String, Object> resMap = null;
         BigDecimal bigDecimal2 = new BigDecimal("0.00"); //统计符合列的数据
         //将首行的值存到session,
@@ -575,6 +623,7 @@ public class ReportController extends BaseController {
         } else {
             /*转成map*/
             Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
+            paramMap.putAll(beanMap);
             paramMap.put("deptName", deptName);
             resMap = reportService.getDateByCondition(paramMap);
             sessionMap.put("temp" + index, resMap);
@@ -599,16 +648,20 @@ public class ReportController extends BaseController {
     }
 
     /**
-     * @param cellVal    当前clo的值
-     * @param index      当前列的索引
+     * @param cellVal         当前clo的值
+     * @param index           当前列的索引
      * @param sessionMap
-     * @param begin      开始的行数
-     * @param bAccCode   当前的模板值
+     * @param begin           开始的行数
+     * @param bAccCode        当前的模板值
      * @param sheet
-     * @param dataList   查询的数据
-     * @param cellsetVal 设置值
+     * @param dataList        查询的数据
+     * @param cellsetVal      设置值
+     * @param reportCondition 首页筛选条件
      */
-    public Map getDateSum(String cellVal, int index, Map sessionMap, int begin, String bAccCode, HSSFSheet sheet, List<ReportRsp> dataList, HSSFCell cellsetVal, String deptName) {
+    public Map getDateSum(String cellVal, int index, Map sessionMap, int begin, String bAccCode, HSSFSheet sheet, List<ReportRsp> dataList, HSSFCell cellsetVal, String deptName, ReportCondition reportCondition) {
+        /*bean转成map*/
+        Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
+
         Map resMap = new HashMap();
         String splitFirst = "";//是否是sum
         String str = "";//获取()内的数据
@@ -664,7 +717,7 @@ public class ReportController extends BaseController {
                     String[] split = cellVal2.split("\\+");
                     BigDecimal temp = new BigDecimal("0.00");
                     for (String s : split) {
-                        BigDecimal dateForJson = getDateForJson(s, k, sessionMap, bAccCode, deptName);
+                        BigDecimal dateForJson = getDateForJson(s, k, sessionMap, bAccCode, deptName, reportCondition);
                         temp = temp.add(dateForJson);
                     }
                     cell2setValue.setCellValue(temp.doubleValue());
@@ -672,7 +725,7 @@ public class ReportController extends BaseController {
                     continue;
                 }
                 if (cellVal2.contains("{")) {//代表是json
-                    BigDecimal dateForJson = getDateForJson(cellVal2, k, sessionMap, bAccCode, deptName);
+                    BigDecimal dateForJson = getDateForJson(cellVal2, k, sessionMap, bAccCode, deptName, reportCondition);
                     cell2setValue.setCellValue(dateForJson.doubleValue());
                     subtotal = subtotal.add(dateForJson);
                     //sum = sum.add(dateForJson);//将数量加到合计中
@@ -683,7 +736,7 @@ public class ReportController extends BaseController {
                  * 获取要小计的列数
                  */
                 if (cellVal2.contains("(")) { //代表小计
-                    Map dateSum = getDateSum(cellVal2, k, sessionMap, begin, bAccCode, sheet, dataList, cell2setValue, deptName);
+                    Map dateSum = getDateSum(cellVal2, k, sessionMap, begin, bAccCode, sheet, dataList, cell2setValue, deptName, reportCondition);
                     if (dateSum != null && dateSum.size() > 0) {
                         k = StringUtils.getObjInt(dateSum.get("index"));
                         subtotal = subtotal.add(new BigDecimal(StringUtils.getObjStr(dateSum.get("subtotal"))));

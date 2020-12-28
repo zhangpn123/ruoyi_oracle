@@ -66,6 +66,12 @@
                 <bind name="deptName" value="deptName+'%'"/>
                 and gb.co_code Like #{deptName}
             </if>
+            <if test="beginTime != null and beginTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+            </if>
         </where>
         group by gb.B_ACC_CODE, gb.ACC_CODE
     </select>
@@ -81,6 +87,12 @@
             <if test="deptName != null and deptName != ''">
                 <bind name="deptName" value="deptName+'%'"/>
                 and co_code Like #{deptName}
+            </if>
+            <if test="beginTime != null and beginTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
             </if>
          <include refid="condition"/>
         </where>
@@ -98,6 +110,12 @@
                 <bind name="deptName" value="deptName+'%'"/>
                 and co_code Like #{deptName}
             </if>
+            <if test="beginTime != null and beginTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+            </if>
     </select>
 
     <select id="getCRAmt" parameterType="java.util.Map" resultType="java.util.Map">
@@ -109,6 +127,12 @@
         <if test="deptName != null and deptName != ''">
             <bind name="deptName" value="deptName+'%'"/>
             and co_code Like #{deptName}
+        </if>
+        <if test="beginTime != null and beginTime != '' ">
+            AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null and endTime != '' ">
+            AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
         </if>
         <include refid="condition"/>
     </select>
