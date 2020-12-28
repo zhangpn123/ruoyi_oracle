@@ -1,6 +1,7 @@
 package com.ruoyi.project.report.Z03.service.impl;
 
 import com.ruoyi.common.constant.Constans;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.Map2Bean;
 import com.ruoyi.project.report.dto.ReportCondition;
@@ -43,6 +44,14 @@ public class Z03ServiceImpl implements Z03Service {
         for (Map<String, Object> map : bAccCodeList) {
             String bAccCode = map.get("bAccCode").toString();
             paramsMap.clear();
+            /*设置默认的日期时间*/
+            Date date = new Date();
+            if (StringUtils.isEmpty(reportCondition.getBeginTime())) {
+                reportCondition.setBeginTime(DateUtils.getCntDtStr(date,"yyyy")+"-01");
+            }
+            if (StringUtils.isEmpty(reportCondition.getEndTime())) {
+                reportCondition.setEndTime(DateUtils.getCntDtStr(date,"yyyy-MM"));
+            }
             /*将实体类装成map*/
             paramsMap = Map2Bean.transBean2Map(reportCondition);
             paramsMap.put("bAccCode", bAccCode);
