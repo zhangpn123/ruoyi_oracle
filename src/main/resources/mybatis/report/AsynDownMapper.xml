@@ -31,7 +31,7 @@
 
     <select id="selectAsynDownList" parameterType="com.ruoyi.project.report.report.domain.AsynDown"
             resultType="com.ruoyi.project.report.report.domain.AsynDown">
-        select  filePath,fileName,status,msg,createDate,updateDate,timeInterval from sys_asynDown
+        select  id,filePath,fileName,status,msg,createDate,updateDate,timeInterval from sys_asynDown
         <where>
             <if test="status != null and status != ''">
                 and status = #{status}
