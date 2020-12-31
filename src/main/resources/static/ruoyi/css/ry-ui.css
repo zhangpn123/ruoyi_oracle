@@ -651,6 +651,12 @@ label {
 	}
 }
 
+/*@media ( min-width : 768px) {*/
+/*	.select-list-custom li {*/
+/*		float: right;*/
+/*	}*/
+/*}*/
+
 .select-list li {
 	color: #333;
 	margin: 5px 15px 5px 0px;

@@ -29,7 +29,6 @@ import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -174,10 +173,10 @@ public class ReportController extends BaseController {
         /*设置默认的日期时间*/
         Date date = new Date();
         if (StringUtils.isEmpty(reportCondition.getBeginTime())) {
-            reportCondition.setBeginTime(DateUtils.getCntDtStr(date,"yyyy")+"-01");
+            reportCondition.setBeginTime(DateUtils.getCntDtStr(date, "yyyy") + "-01");
         }
         if (StringUtils.isEmpty(reportCondition.getEndTime())) {
-            reportCondition.setEndTime(DateUtils.getCntDtStr(date,"yyyy-MM"));
+            reportCondition.setEndTime(DateUtils.getCntDtStr(date, "yyyy-MM"));
         }
 
         /*保存到本地的信息*/
@@ -229,7 +228,6 @@ public class ReportController extends BaseController {
 
                     style.setAlignment(HorizontalAlignment.RIGHT);// 靠右
                     style.setVerticalAlignment(VerticalAlignment.CENTER);
-                    ;//垂直
                     /*边框*/
                     style.setBorderBottom(BorderStyle.THIN); //下边框
                     style.setBorderLeft(BorderStyle.THIN);//左边框
@@ -606,7 +604,7 @@ public class ReportController extends BaseController {
      *
      * @param cellVal         当前clo的值
      * @param index           当前列的索引
-     * @param sessionMap
+     * @param sessionMap      缓存Map
      * @param bAccCode        当前的模板值
      * @param reportCondition 首页筛选条件
      * @return 返回这一列的值
@@ -650,10 +648,10 @@ public class ReportController extends BaseController {
     /**
      * @param cellVal         当前clo的值
      * @param index           当前列的索引
-     * @param sessionMap
+     * @param sessionMap      缓存Map
      * @param begin           开始的行数
      * @param bAccCode        当前的模板值
-     * @param sheet
+     * @param sheet           工作sheet
      * @param dataList        查询的数据
      * @param cellsetVal      设置值
      * @param reportCondition 首页筛选条件

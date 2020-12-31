@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('自定义sql查询')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="custom-form">
+                <div class="select-list" >
+                    <ul style="width: 85%">
+                        <li style="width: 100%">
+                            <div class="input-group" style="width: 100%">
+                                <input name="customSql"  id="customSql" type="text" placeholder="请输入SQL语句"   style="height: 50px;width: 100%" >
+                            </div>
+                        </li>
+                    </ul>
+                    <ul >
+                        <li >
+                            <a class="btn btn-primary btn-rounded btn-sm" id="search" ><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" id="refresh"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+
+    var prefix = ctx + "report/custom";
+    $("#refresh").click(function () {
+        document.location.reload();//重新加载当前页面
+    })
+   //动态获取表头信息
+    $("#search").click(function () {
+        var params = $("#customSql").val();
+        $.ajax({
+            url: "/report/custom/getHeaderList", // //请求路径
+            type: "post",// "post", //请求方式
+            dataType: 'json', //期望获得的返回值类型
+            data: {customSql: params},
+            async: false, //是否异步
+            success: function (result) {
+                if (result.code == web_status.SUCCESS) {
+                    $("#bootstrap-table").bootstrapTable('destroy');
+                    var clos = [];
+                    if ( result.rows.length > 0){
+                        for (key in result.rows[0]){
+                            clos.push({title: key, field: key, align: 'center'})
+                        }
+                    }
+                    //重新加载表
+                    $(function () {
+                        var options = {
+                            url:  prefix + "/getData",
+                            pagination: true,
+                            columns: [clos]
+                        };
+                        $.table.init(options);
+                    });
+                } else if (result.code == web_status.WARNING) {
+                    // layer.close(index);
+                    // $.modal.enable();
+                    $.modal.alertWarning(result.msg)
+                } else {
+                    // layer.close(index);
+                    // $.modal.enable();
+                    $.modal.alertError(result.msg);
+                }
+            }
+        });
+    })
+
+
+    // $('#custom-table').bootstrapTable({
+    //     method : 'post',
+    //     url : "/report/custom/execute",
+    //     cache : false,
+    //     pagination : true,
+    //     root : 'workers',
+    //     total : 'totalElements',
+    //     sidePagination : 'server',
+    //     columns : [ {
+    //         field : 'address',
+    //         title : 'Address',
+    //         align : 'center',
+    //         valign : 'middle'
+    //     }, {
+    //         field : 'state',
+    //         title : 'State',
+    //         align : 'center',
+    //         valign : 'middle',
+    //     } ]
+    // });
+
+    $(window).resize(function() {
+        $('#custom-table').bootstrapTable('resetView');
+    });
+
+
+</script>
+</body>
+</html>
