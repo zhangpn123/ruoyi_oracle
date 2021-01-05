@@ -15,16 +15,19 @@ public class Dept extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 部门ID */
-    private Long deptId;
+    private String deptId;
 
     /** 父部门ID */
-    private Long parentId;
+    private String parentId;
 
     /** 祖级列表 */
     private String ancestors;
 
     /** 部门名称 */
     private String deptName;
+
+    /**部门全名称*/
+    private  String deptFulname;
 
     /** 显示顺序 */
     private String orderNum;
@@ -47,22 +50,22 @@ public class Dept extends BaseEntity
     /** 父部门名称 */
     private String parentName;
 
-    public Long getDeptId()
+    public String getDeptId()
     {
         return deptId;
     }
 
-    public void setDeptId(Long deptId)
+    public void setDeptId(String deptId)
     {
         this.deptId = deptId;
     }
 
-    public Long getParentId()
+    public String getParentId()
     {
         return parentId;
     }
 
-    public void setParentId(Long parentId)
+    public void setParentId(String parentId)
     {
         this.parentId = parentId;
     }
@@ -163,6 +166,14 @@ public class Dept extends BaseEntity
         this.parentName = parentName;
     }
 
+    public String getDeptFulname() {
+        return deptFulname;
+    }
+
+    public void setDeptFulname(String deptFulname) {
+        this.deptFulname = deptFulname;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -170,6 +181,7 @@ public class Dept extends BaseEntity
             .append("parentId", getParentId())
             .append("ancestors", getAncestors())
             .append("deptName", getDeptName())
+            .append("deptFulname", getDeptFulname())
             .append("orderNum", getOrderNum())
             .append("leader", getLeader())
             .append("phone", getPhone())

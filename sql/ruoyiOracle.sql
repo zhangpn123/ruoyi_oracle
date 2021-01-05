@@ -10,10 +10,11 @@ create sequence seq_sys_dept
  
 drop table sys_dept;
 create table sys_dept (
-  dept_id           number(20,0)      not null ,
-  parent_id         number(20,0)      default 0   ,
-  ancestors         varchar2(50)     default ''  ,
-  dept_name         varchar2(30)     default ''  ,
+  dept_id            varchar2(100)      not null ,
+  parent_id         varchar2(200)     default 0   ,
+  ancestors         varchar2(500)     default ''  ,
+  dept_name         varchar2(200)     default '',
+  dept_fulname    varchar2(200)     default '' ,
   order_num         number(10,0)          default 0   ,
   leader            varchar2(20)     default null,
   phone             varchar2(11)     default null,
@@ -23,9 +24,9 @@ create table sys_dept (
   create_by         varchar2(64)     default ''  ,
   create_time 	    date                    ,
   update_by         varchar2(64)     default ''  ,
-  update_time       date                    
+  update_time       date ,
+  constraint pk_sys_dept primary key (dept_id)
 );
-alter table sys_dept add constraint pk_sys_dept primary key (dept_id);
 
 
 -- ----------------------------
@@ -843,6 +844,7 @@ COMMENT ON TABLE LEARN.SYS_ASYNDOWN IS '异步下载表';
 
 ALTER TABLE SYS_ASYNDOWN
     ADD UPDATEDATE VARCHAR2(50);
+    ADD DEPTNAME VARCHAR2(100);
     ADD TIMEINTERVAL VARCHAR2(50);
 
 commit;

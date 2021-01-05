@@ -11,7 +11,6 @@ import com.ruoyi.common.utils.uuid.IdUtils;
 import com.ruoyi.framework.aspectj.lang.annotation.Log;
 import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
 import com.ruoyi.framework.config.RuoYiConfig;
-import com.ruoyi.framework.config.ThreadPoolConfig;
 import com.ruoyi.framework.web.controller.BaseController;
 import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
@@ -57,11 +56,10 @@ public class ReportController extends BaseController {
     private ReportService reportService;
 
     @Autowired
-    private AsynDownService asynDownService;
-
-    @Autowired
     private IDeptService iDeptService;
 
+    @Autowired
+    private AsynDownService asynDownService;
 
     @Autowired
     private IDictDataService dictDataService;
@@ -81,8 +79,8 @@ public class ReportController extends BaseController {
     public TableDataInfo list(AsynDown asynDown) {
         log.info("开始查询导出报表数据");
         User user = (User) SecurityUtils.getSubject().getPrincipal();
-        String deptName = iDeptService.selectDeptById(user.getDeptId()).getDeptName();
-        asynDown.setDeptName(deptName);
+        /*由于刚开始设计有问题  此处deptName 就是 deptId*/
+        asynDown.setDeptName(user.getDeptId());
         startPage();
         List<AsynDown> list = asynDownService.selectAsynDownList(asynDown);
         return getDataTable(list);
@@ -162,12 +160,15 @@ public class ReportController extends BaseController {
     public AjaxResult exportReport(ReportCondition reportCondition) {
 
 
+        String deptId = "";
         String deptName = "";
-        if (StringUtils.isEmpty(reportCondition.getDeptName())) {
+        if (StringUtils.isEmpty(reportCondition.getDeptId())) {
             /*取当前用户的所属部门*/
             User user = (User) SecurityUtils.getSubject().getPrincipal();
+            deptId =user.getDeptId();
             deptName = iDeptService.selectDeptById(user.getDeptId()).getDeptName();
         } else {
+            deptId = reportCondition.getDeptId();
             deptName = reportCondition.getDeptName();
         }
         /*设置默认的日期时间*/
@@ -193,7 +194,7 @@ public class ReportController extends BaseController {
         asynDown.setFilePath(filePath);
         asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
         asynDown.setMsg("处理中...");
-        asynDown.setDeptName(deptName);
+        asynDown.setDeptName(deptId);
         asynDown.setTimeInterval(reportCondition.getBeginTime() + "至" + reportCondition.getEndTime());
         asynDownService.saveFile(asynDown);
 
@@ -211,13 +212,13 @@ public class ReportController extends BaseController {
 
                     log.info("Start generating reports");
                     //构建Excel
-                    String deptName = "";
-                    if (StringUtils.isEmpty(reportCondition.getDeptName())) {
+                    String deptId = "";
+                    if (StringUtils.isEmpty(reportCondition.getDeptId())) {
                         /*取当前用户的所属部门*/
                         User user = (User) SecurityUtils.getSubject().getPrincipal();
-                        deptName = iDeptService.selectDeptById(user.getDeptId()).getDeptName();
+                        deptId = user.getDeptId();
                     } else {
-                        deptName = reportCondition.getDeptName();
+                        deptId = reportCondition.getDeptId();
                     }
 
                     //读取本地的导出模板
@@ -310,11 +311,11 @@ public class ReportController extends BaseController {
                                     // Map<String, Object> paramsMap = new HashMap();
                                     // paramsMap = Map2Bean.transBean2Map(reportCondition);
                                     paramsMap.put("bAccCode", bAccCode);
-                                    paramsMap.put("deptName", deptName);
+                                    paramsMap.put("deptName", deptId);
                                     List<ReportRsp> dataList = reportService.getData(paramsMap);
 
                                     /*遍历表中的列*/
-                                    Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptName, bAccCode, sessionMap, style, true, dataList, reportCondition);
+                                    Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, bAccCode, sessionMap, style, true, dataList, reportCondition);
 
                                     int total = StringUtils.getObjInt(resultMap.get("total"));
                                     BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
@@ -356,7 +357,7 @@ public class ReportController extends BaseController {
                                         // Map<String, Object> paramsMap = new HashMap();
                                         // paramsMap = Map2Bean.transBean2Map(reportCondition);
                                         paramsMap.put("acc_code", cellVal);
-                                        paramsMap.put("deptName", deptName);
+                                        paramsMap.put("deptName", deptId);
                                         BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
                                         cellsetVal.setCellValue(FTempResult.doubleValue());
                                         cellsetVal.setCellStyle(style);
@@ -413,7 +414,7 @@ public class ReportController extends BaseController {
                                                 cellVal2 = cellVal2.substring(1, cellVal2.length() - 1);//获取值
                                                 // Map paramsMap = new HashMap();
                                                 paramsMap.put("acc_code", cellVal2);
-                                                paramsMap.put("deptName", deptName);
+                                                paramsMap.put("deptName", deptId);
                                                 BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
                                                 cell2setValue.setCellValue(FTempResult.doubleValue());
                                                 cell2setValue.setCellStyle(style);
@@ -429,7 +430,7 @@ public class ReportController extends BaseController {
                                         cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
                                         // Map paramsMap = new HashMap();
                                         paramsMap.put("acc_code", cellVal);
-                                        paramsMap.put("deptName", deptName);
+                                        paramsMap.put("deptName", deptId);
                                         BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
                                         cellsetVal.setCellValue(FTempResult.doubleValue());
                                         cellsetVal.setCellStyle(style);
@@ -437,7 +438,7 @@ public class ReportController extends BaseController {
                                     }
                                     if (cellVal.contains("{")) {//代表是json
                                         Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
-                                        paramMap.put("deptName", deptName);
+                                        paramMap.put("deptName", deptId);
                                         paramMap.putAll(paramsMap);
                                         BigDecimal result = reportService.getCRAmt(paramMap);
                                         cellsetVal.setCellValue(result.doubleValue());

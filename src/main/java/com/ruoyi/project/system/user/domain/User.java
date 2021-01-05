@@ -29,10 +29,10 @@ public class User extends BaseEntity
 
     /** 部门ID */
     @Excel(name = "部门编号", type = Type.IMPORT)
-    private Long deptId;
+    private String deptId;
 
     /** 部门父ID */
-    private Long parentId;
+    private String parentId;
 
     /** 角色ID */
     private Long roleId;
@@ -129,22 +129,22 @@ public class User extends BaseEntity
         return userId != null && 1L == userId;
     }
 
-    public Long getDeptId()
+    public String getDeptId()
     {
         return deptId;
     }
 
-    public void setDeptId(Long deptId)
+    public void setDeptId(String deptId)
     {
         this.deptId = deptId;
     }
 
-    public Long getParentId()
+    public String getParentId()
     {
         return parentId;
     }
 
-    public void setParentId(Long parentId)
+    public void setParentId(String parentId)
     {
         this.parentId = parentId;
     }

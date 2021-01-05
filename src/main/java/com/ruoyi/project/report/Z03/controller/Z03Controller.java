@@ -95,10 +95,10 @@ public class Z03Controller extends BaseController {
             }
         }
 
-        if (StringUtils.isEmpty(reportCondition.getDeptName())) {
+        if (StringUtils.isEmpty(reportCondition.getDeptId())) {
             /*取当前用户的所属部门*/
             User user = (User) SecurityUtils.getSubject().getPrincipal();
-            reportCondition.setDeptName(iDeptService.selectDeptById(user.getDeptId()).getDeptName());
+            reportCondition.setDeptId(user.getDeptId());
         }
 
         List<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);

@@ -1,6 +1,8 @@
 package com.ruoyi.project.system.dept.controller;
 
 import java.util.List;
+
+import com.ruoyi.framework.web.domain.ZtreeStr;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,7 +58,7 @@ public class DeptController extends BaseController
      * 新增部门
      */
     @GetMapping("/add/{parentId}")
-    public String add(@PathVariable("parentId") Long parentId, ModelMap mmap)
+    public String add(@PathVariable("parentId") String parentId, ModelMap mmap)
     {
         mmap.put("dept", deptService.selectDeptById(parentId));
         return prefix + "/add";
@@ -82,10 +84,10 @@ public class DeptController extends BaseController
      * 修改
      */
     @GetMapping("/edit/{deptId}")
-    public String edit(@PathVariable("deptId") Long deptId, ModelMap mmap)
+    public String edit(@PathVariable("deptId") String deptId, ModelMap mmap)
     {
         Dept dept = deptService.selectDeptById(deptId);
-        if (StringUtils.isNotNull(dept) && 100L == deptId)
+        if (StringUtils.isNotNull(dept) && "141".equalsIgnoreCase(deptId))//141现有的项目的顶级机构
         {
             dept.setParentName("无");
         }
@@ -125,7 +127,7 @@ public class DeptController extends BaseController
     @RequiresPermissions("system:dept:remove")
     @GetMapping("/remove/{deptId}")
     @ResponseBody
-    public AjaxResult remove(@PathVariable("deptId") Long deptId)
+    public AjaxResult remove(@PathVariable("deptId") String deptId)
     {
         if (deptService.selectDeptCount(deptId) > 0)
         {
@@ -155,7 +157,7 @@ public class DeptController extends BaseController
      * @param excludeId 排除ID
      */
     @GetMapping(value = { "/selectDeptTree/{deptId}", "/selectDeptTree/{deptId}/{excludeId}" })
-    public String selectDeptTree(@PathVariable("deptId") Long deptId,
+    public String selectDeptTree(@PathVariable("deptId") String deptId,
             @PathVariable(value = "excludeId", required = false) String excludeId, ModelMap mmap)
     {
         mmap.put("dept", deptService.selectDeptById(deptId));
@@ -168,9 +170,9 @@ public class DeptController extends BaseController
      */
     @GetMapping("/treeData")
     @ResponseBody
-    public List<Ztree> treeData()
+    public List<ZtreeStr> treeData()
     {
-        List<Ztree> ztrees = deptService.selectDeptTree(new Dept());
+        List<ZtreeStr> ztrees = deptService.selectDeptTree(new Dept());
         return ztrees;
     }
 
@@ -179,11 +181,11 @@ public class DeptController extends BaseController
      */
     @GetMapping("/treeData/{excludeId}")
     @ResponseBody
-    public List<Ztree> treeDataExcludeChild(@PathVariable(value = "excludeId", required = false) Long excludeId)
+    public List<ZtreeStr> treeDataExcludeChild(@PathVariable(value = "excludeId", required = false) String excludeId)
     {
         Dept dept = new Dept();
         dept.setDeptId(excludeId);
-        List<Ztree> ztrees = deptService.selectDeptTreeExcludeChild(dept);
+        List<ZtreeStr> ztrees = deptService.selectDeptTreeExcludeChild(dept);
         return ztrees;
     }
 
@@ -192,9 +194,9 @@ public class DeptController extends BaseController
      */
     @GetMapping("/roleDeptTreeData")
     @ResponseBody
-    public List<Ztree> deptTreeData(Role role)
+    public List<ZtreeStr> deptTreeData(Role role)
     {
-        List<Ztree> ztrees = deptService.roleDeptTreeData(role);
+        List<ZtreeStr> ztrees = deptService.roleDeptTreeData(role);
         return ztrees;
     }
 }

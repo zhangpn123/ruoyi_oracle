@@ -1,5 +1,6 @@
 package com.ruoyi.common.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -122,6 +123,26 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
      */
     public static boolean isEmpty(String str) {
         return isNull(str) || NULLSTR.equals(str.trim());
+    }
+    /**
+     * 字符串左补0操作
+     *
+     * @param str 待补空格的字符串
+     * @param len 补空格之后的字符串长度
+     * @return 补空格之后的字符串内容
+     * @throws UnsupportedEncodingException
+     */
+    public static String addZeroLeft(String str, int len) {
+        StringBuffer s = new StringBuffer();
+        s.append(str);
+        try {
+            while (s.toString().getBytes("GBK").length < len) {
+                s.insert(0, "0");
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return s.toString();
     }
 
     /**

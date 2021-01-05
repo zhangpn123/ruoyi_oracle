@@ -13,7 +13,8 @@ import lombok.Data;
 public class ReportCondition extends BaseEntity {
     private static final long serialVersionUID = 1L;
     private String unit;//展示单位
-    private String deptName; //部门ID
+    private String deptId;//部门ID
+    private String deptName; //部门名称
     private String beginTime;//开始时间
     private String endTime;//结束时间
 }

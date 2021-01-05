@@ -1,6 +1,8 @@
 package com.ruoyi.project.system.dept.mapper;
 
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 import com.ruoyi.project.system.dept.domain.Dept;
 
@@ -25,7 +27,7 @@ public interface DeptMapper
      * @param deptId 部门ID
      * @return 结果
      */
-    public int checkDeptExistUser(Long deptId);
+    public int checkDeptExistUser(String deptId);
 
     /**
      * 查询部门管理数据
@@ -41,7 +43,7 @@ public interface DeptMapper
      * @param deptId 部门ID
      * @return 结果
      */
-    public int deleteDeptById(Long deptId);
+    public int deleteDeptById(String deptId);
 
     /**
      * 新增部门信息
@@ -73,7 +75,7 @@ public interface DeptMapper
      * @param deptId 部门ID
      * @return 部门信息
      */
-    public Dept selectDeptById(Long deptId);
+    public Dept selectDeptById(String deptId);
 
     /**
      * 校验部门名称是否唯一
@@ -82,7 +84,7 @@ public interface DeptMapper
      * @param parentId 父部门ID
      * @return 结果
      */
-    public Dept checkDeptNameUnique(@Param("deptName") String deptName, @Param("parentId") Long parentId);
+    public Dept checkDeptNameUnique(@Param("deptName") String deptName, @Param("parentId") String parentId);
 
     /**
      * 根据角色ID查询部门
@@ -105,7 +107,7 @@ public interface DeptMapper
      * @param deptId 部门ID
      * @return 部门列表
      */
-    public List<Dept> selectChildrenDeptById(Long deptId);
+    public List<Dept> selectChildrenDeptById(String deptId);
 
     /**
      * 根据ID查询所有子部门（正常状态）
@@ -113,5 +115,13 @@ public interface DeptMapper
      * @param deptId 部门ID
      * @return 子部门数
      */
-    public int selectNormalChildrenDeptById(Long deptId);
+    public int selectNormalChildrenDeptById(String deptId);
+
+    /**
+     * 获取下一个最大的部门ID
+     * @param parentId
+     * @return
+     */
+    String selectMaxId(@Param("parentId") String parentId);
+
 }

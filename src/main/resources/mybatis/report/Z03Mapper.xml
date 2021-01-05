@@ -14,9 +14,9 @@
             <if test="accCode != null and accCode != ''">
                 and ACC_CODE = #{accCode}
             </if>
-            <if test="deptName != null and deptName != ''">
-                <bind name="deptName" value="deptName+'%'"/>
-                and gb.co_code Like #{deptName}
+            <if test="deptId != null and deptId != ''">
+                <bind name="deptId" value="deptId+'%'"/>
+                and gb.co_code Like #{deptId}
             </if>
             <if test="beginTime != null and beginTime != '' ">
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
