@@ -242,7 +242,7 @@ public class ReportController extends BaseController {
 
 
                     /*bean转成map*/
-                    Map<String, Object> paramsMap = Map2Bean.transBean2Map(reportCondition);
+                    Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
 
                     for (int m = 0; m < workBook.getNumberOfSheets(); m++) {
                         //获取对应的sheet
@@ -250,10 +250,10 @@ public class ReportController extends BaseController {
 
 
                         String sheetName = sheet.getSheetName();
-                        if (!sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
+                        if ( !sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
                                 && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
                                 && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
-                                && !sheetName.equalsIgnoreCase("Z04 支出决算明细表(财决05表)")
+                                && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
                                 && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
                                 && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
                                 && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
@@ -297,7 +297,7 @@ public class ReportController extends BaseController {
                                     /*获取baccCode*/
                                     // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
                                     String bAccCode = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccCode"));
-                                    //String bAccName = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccName"));
+                                    String bAccName = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccName"));
 
                                     if (StringUtils.isEmpty(bAccCode)) {
                                         continue;
@@ -306,12 +306,13 @@ public class ReportController extends BaseController {
                                     HSSFCell cellBAccCode = sheet.getRow(i + beginRow + delete).getCell(0);
                                     cellBAccCode.setCellStyle(style);
                                     cellBAccCode.setCellValue(bAccCode);
-                                    //sheet.getRow(i + beginRow+ delete).getCell(3).setCellValue(bAccName);
+                                    sheet.getRow(i + beginRow+ delete).getCell(3).setCellValue(bAccName);
 
-                                    // Map<String, Object> paramsMap = new HashMap();
+                                    Map<String, Object> paramsMap = new HashMap();
                                     // paramsMap = Map2Bean.transBean2Map(reportCondition);
+                                    paramsMap.putAll(beanMap);//添加查询条件
                                     paramsMap.put("bAccCode", bAccCode);
-                                    paramsMap.put("deptName", deptId);
+                                    // paramsMap.put("deptName", deptId);
                                     List<ReportRsp> dataList = reportService.getData(paramsMap);
 
                                     /*遍历表中的列*/
@@ -354,10 +355,11 @@ public class ReportController extends BaseController {
                                     String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
                                     if (cellVal.contains("*")) {
                                         cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
-                                        // Map<String, Object> paramsMap = new HashMap();
+                                         Map<String, Object> paramsMap = new HashMap();
                                         // paramsMap = Map2Bean.transBean2Map(reportCondition);
+                                        paramsMap.putAll(beanMap);//添加筛选条件
                                         paramsMap.put("acc_code", cellVal);
-                                        paramsMap.put("deptName", deptId);
+                                        // paramsMap.put("deptName", deptId);
                                         BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
                                         cellsetVal.setCellValue(FTempResult.doubleValue());
                                         cellsetVal.setCellStyle(style);
@@ -412,9 +414,10 @@ public class ReportController extends BaseController {
                                             String cellVal2 = ExcelUtil.getStringValueFromCell(cell2setValue);//获取列的内容
                                             if (cellVal2.contains("*")) {
                                                 cellVal2 = cellVal2.substring(1, cellVal2.length() - 1);//获取值
-                                                // Map paramsMap = new HashMap();
+                                                Map paramsMap = new HashMap();
+                                                paramsMap.putAll(beanMap);//添加筛选条件
                                                 paramsMap.put("acc_code", cellVal2);
-                                                paramsMap.put("deptName", deptId);
+                                                // paramsMap.put("deptName", deptId);
                                                 BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
                                                 cell2setValue.setCellValue(FTempResult.doubleValue());
                                                 cell2setValue.setCellStyle(style);
@@ -428,9 +431,10 @@ public class ReportController extends BaseController {
                                     }
                                     if (cellVal.contains("*")) {
                                         cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
-                                        // Map paramsMap = new HashMap();
+                                        Map paramsMap = new HashMap();
+                                        paramsMap.putAll(beanMap);//添加筛选条件
                                         paramsMap.put("acc_code", cellVal);
-                                        paramsMap.put("deptName", deptId);
+                                        // paramsMap.put("deptName", deptId);
                                         BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
                                         cellsetVal.setCellValue(FTempResult.doubleValue());
                                         cellsetVal.setCellStyle(style);
@@ -438,8 +442,9 @@ public class ReportController extends BaseController {
                                     }
                                     if (cellVal.contains("{")) {//代表是json
                                         Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
-                                        paramMap.put("deptName", deptId);
-                                        paramMap.putAll(paramsMap);
+                                        // paramMap.put("deptName", deptId);
+                                        // paramMap.putAll(paramsMap);
+                                        paramMap.putAll(beanMap);//添加筛选条件
                                         BigDecimal result = reportService.getCRAmt(paramMap);
                                         cellsetVal.setCellValue(result.doubleValue());
                                         cellsetVal.setCellStyle(style);

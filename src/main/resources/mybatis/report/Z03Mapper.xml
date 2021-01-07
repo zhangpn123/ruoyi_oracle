@@ -30,10 +30,9 @@
 
 
     <select id="selBAccCode" resultType="java.util.Map" parameterType="java.util.Map">
---         select distinct(gb.B_ACC_CODE) as "bAccCode" from GL_BAL gb where gb.B_ACC_CODE  != '*'
-select t.B_ACC_CODE as "bAccCode" , bac.B_ACC_NAME as "bAccName" from
+        select t.B_ACC_CODE as "bAccCode" , bac.B_ACC_NAME as "bAccName" from
             (select distinct(gb.B_ACC_CODE)  from GL_BAL gb  where gb.B_ACC_CODE  != '*' ) t
-             LEFT JOIN B_ACC_CODE bac ON t.B_ACC_CODE = bac.B_ACC_CODE
+             LEFT JOIN MA_BACC bac ON t.B_ACC_CODE = bac.B_ACC_CODE
             GROUP BY t.B_ACC_CODE ,bac.B_ACC_NAME
     </select>
 
