@@ -249,7 +249,7 @@ public class RoleServiceImpl implements IRoleService
         int rows = 1;
         // 新增角色与部门（数据权限）管理
         List<RoleDept> list = new ArrayList<RoleDept>();
-        for (Long deptId : role.getDeptIds())
+        for (String deptId : role.getDeptIds())
         {
             RoleDept rd = new RoleDept();
             rd.setRoleId(role.getRoleId());
