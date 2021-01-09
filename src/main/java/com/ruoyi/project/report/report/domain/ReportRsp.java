@@ -12,5 +12,6 @@ import lombok.Data;
 public class ReportRsp {
     private String caAmt;
     private String bAccCode;
+    private String itemCode;
     private String accCode;
 }

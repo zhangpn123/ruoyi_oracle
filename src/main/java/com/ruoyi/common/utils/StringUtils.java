@@ -36,6 +36,16 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     }
 
     /**
+     * 将obj转换为Boolean
+     *
+     * @param obj
+     * @return
+     */
+    public static boolean getobjBoolean(Object obj) {
+        return obj == null ? false : (boolean) obj;
+    }
+
+    /**
      * 空字符串
      */
     private static final String NULLSTR = "";

@@ -14,6 +14,35 @@ import java.util.*;
  * 2019年8月16日
  */
 public class PoiUtil {
+
+    /**
+     * 新增行
+     * @param sheet
+     * @param startRow 开始行
+     * @param rows 行数
+     */
+    public  static void insertRow(HSSFSheet sheet, int startRow, int rows,int beginRow) {
+        sheet.shiftRows(startRow, sheet.getLastRowNum(), rows, true, false);
+
+
+        for (int i = 0; i < rows; i++) {
+            HSSFRow sourceRow = null;//原始位置
+            HSSFRow targetRow = null;//移动后位置
+            HSSFCell sourceCell = null;
+            HSSFCell targetCell = null;
+            sourceRow = sheet.createRow(startRow);
+            targetRow = sheet.getRow(beginRow);
+            sourceRow.setHeight(targetRow.getHeight());
+
+            for (int m = targetRow.getFirstCellNum(); m < targetRow.getPhysicalNumberOfCells(); m++) {
+                    sourceCell = sourceRow.createCell(m);
+                    targetCell = targetRow.getCell(m);
+                    sourceCell.setCellStyle(targetCell.getCellStyle());
+                    sourceCell.setCellType(targetCell.getCellType());
+            }
+            startRow++;
+        }
+    }
     private PoiUtil() {
     }
 

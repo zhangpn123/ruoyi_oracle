@@ -12,7 +12,8 @@ public class  Constans {
 
         STYLE_ONE("1"),
         STYLE_TWO("2"),
-        STYLE_THREE("3");
+        STYLE_THREE("3"),
+        STYLE_FOUR("4");
 
         private final String value;
 

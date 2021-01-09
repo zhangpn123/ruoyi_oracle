@@ -1,5 +1,6 @@
 package com.ruoyi.project.report.report.service;
 
+import com.ruoyi.project.report.report.domain.ReportItemCodeRsp;
 import com.ruoyi.project.report.report.domain.ReportRsp;
 
 import java.math.BigDecimal;
@@ -46,4 +47,13 @@ public interface ReportService {
      * @return
      */
     BigDecimal getCRAmt(Map<String, Object> paramMap);
+
+    /**
+     * 获取item_code
+     * @return
+     */
+    List<Map<String, Object>> getItemCode();
+
+
+    List<ReportRsp> getItemCodeData(Map<String, Object> paramsMap);
 }
