@@ -17,7 +17,6 @@ import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.report.dto.ReportCondition;
 import com.ruoyi.project.report.report.domain.AsynDown;
-import com.ruoyi.project.report.report.domain.ReportItemCodeRsp;
 import com.ruoyi.project.report.report.domain.ReportRsp;
 import com.ruoyi.project.report.report.service.AsynDownService;
 import com.ruoyi.project.report.report.service.ReportService;
@@ -251,26 +250,24 @@ public class ReportController extends BaseController {
                         //获取对应的sheet
                         HSSFSheet sheet = workBook.getSheetAt(m);
                         String sheetName = sheet.getSheetName();
-                        if (
-                            //  !sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
-                            //  &&!sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
-                            //  && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
-                            //  && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
-                            //  && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
-                            //  && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
-                            //  && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
-                            //  && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
-                            //  && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
-                            // && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
-                            //  && !sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
-                            //  && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
-                            //  && !sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
-                            //  &&
-                                !sheetName.equalsIgnoreCase("QB12 资产负债简表")
-                            // && !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
-                            // && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
-                            // && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
-                            // && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
+                        if (!sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
+                             &&!sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
+                             && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
+                             && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
+                             && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
+                             && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
+                             && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
+                             && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
+                             && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
+                            && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
+                             &&!sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
+                             && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
+                             &&!sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
+                            &&  !sheetName.equalsIgnoreCase("QB12 资产负债简表")
+                            && !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
+                            && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
+                            && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
+                            && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
                         ) {
                             continue;
                         }
@@ -301,7 +298,7 @@ public class ReportController extends BaseController {
                                     //获取行数
                                     int lastRowNum = sheet.getLastRowNum();
                                     int nextRowNum = i + beginRow + delete;
-                                    if (lastRowNum - nextRowNum < 3) {
+                                    if (lastRowNum - nextRowNum <= 3) {
                                         //添加行
                                         PoiUtil.insertRow(sheet, nextRowNum, 1, beginRow);
                                         sheet.addMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 0, 2));
@@ -354,7 +351,13 @@ public class ReportController extends BaseController {
                             }
                             sessionMap.clear();
                         } else if (Constans.reportCss.STYLE_TWO.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                            for (int i = beginRow; i < sheet.getLastRowNum() - 1; i++) {
+                            for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
+                                // 删除空行
+                                Row row = sheet.getRow(i);
+                                if (null == row) {
+                                   continue; //针对空行
+                                }
+
                                 for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
                                     HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
                                     String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
@@ -373,7 +376,12 @@ public class ReportController extends BaseController {
                                 }
                             }
                         } else if (Constans.reportCss.STYLE_THREE.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                            for (int i = beginRow; i < sheet.getLastRowNum() - 1; i++) {
+                            for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
+                                // 删除空行
+                                Row row = sheet.getRow(i);
+                                if (null == row) {
+                                    continue; //针对空行
+                                }
                                 for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
                                     HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
                                     String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容

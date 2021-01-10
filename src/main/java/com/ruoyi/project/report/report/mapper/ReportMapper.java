@@ -1,8 +1,6 @@
 package com.ruoyi.project.report.report.mapper;
 
-import com.ruoyi.project.report.report.domain.ReportItemCodeRsp;
 import com.ruoyi.project.report.report.domain.ReportRsp;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
