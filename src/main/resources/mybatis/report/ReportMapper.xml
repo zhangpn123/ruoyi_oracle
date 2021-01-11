@@ -193,6 +193,7 @@
             FROM
                 GL_BAL gb
                 INNER JOIN ITEM_CODE ic ON gb.ITEM_CODE = ic.ITEM_CODE
+                WHERE gb.ACC_CODE = 7201020503 AND ic.FISCAL = '2020'
             GROUP BY
                 gb.ITEM_CODE,
                 gb.B_ACC_CODE,
