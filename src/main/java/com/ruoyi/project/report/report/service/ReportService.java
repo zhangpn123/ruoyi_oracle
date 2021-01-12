@@ -3,6 +3,7 @@ package com.ruoyi.project.report.report.service;
 import com.ruoyi.project.report.report.domain.ReportRsp;
 
 import java.math.BigDecimal;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,8 +52,10 @@ public interface ReportService {
      * 获取item_code
      * @return
      */
-    List<Map<String, Object>> getItemCode();
+    LinkedList<Map<String, Object>> getItemCode(Map<String, Object> beanMap);
 
 
     List<ReportRsp> getItemCodeData(Map<String, Object> paramsMap);
+
+    String selectItemNameByItemCode( Map<String, Object> paramsMap);
 }

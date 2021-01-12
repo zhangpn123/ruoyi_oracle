@@ -219,6 +219,7 @@ public class ReportController extends BaseController {
                         /*取当前用户的所属部门*/
                         User user = (User) SecurityUtils.getSubject().getPrincipal();
                         deptId = user.getDeptId();
+                        reportCondition.setDeptId(deptId);
                     } else {
                         deptId = reportCondition.getDeptId();
                     }
@@ -251,23 +252,23 @@ public class ReportController extends BaseController {
                         HSSFSheet sheet = workBook.getSheetAt(m);
                         String sheetName = sheet.getSheetName();
                         if (!sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
-                             &&!sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
-                             && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
-                             && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
-                             && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
-                             && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
-                             && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
-                             && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
-                             && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
-                            && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
-                             &&!sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
-                             && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
-                             &&!sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
-                            &&  !sheetName.equalsIgnoreCase("QB12 资产负债简表")
-                            && !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
-                            && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
-                            && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
-                            && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
+                                && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
+                                && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
+                                && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
+                                && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
+                                && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
+                                && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
+                                && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
+                                && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
+                                && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
+                                && !sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
+                                && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
+                                && !sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
+                                && !sheetName.equalsIgnoreCase("QB12 资产负债简表")
+                                && !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
+                                && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
+                                && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
+                                && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
                         ) {
                             continue;
                         }
@@ -355,7 +356,7 @@ public class ReportController extends BaseController {
                                 // 删除空行
                                 Row row = sheet.getRow(i);
                                 if (null == row) {
-                                   continue; //针对空行
+                                    continue; //针对空行
                                 }
 
                                 for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
@@ -466,23 +467,28 @@ public class ReportController extends BaseController {
                                 }
                             }
                         } else if (Constans.reportCss.STYLE_FOUR.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                            List<Map<String, Object>> itemCodeList = reportService.getItemCode();
-                            // if (sheet.getLastRowNum() - beginRow < itemCodeList.size()) {
-                            //     int addRow = itemCodeList.size() - (sheet.getLastRowNum() - beginRow);
-                            //     log.error("{}:表列的行数量不够", sheetName);
-                            //     asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_FAIL.getValue());
-                            //     asynDown.setMsg("导出数据失败, " + sheetName + ":表列的行数量不够,需增加" + addRow + "行");
-                            //     return;
-                            // }
-
+                            LinkedList<Map<String, Object>> itemCodeList = reportService.getItemCode(beanMap);
                             if (itemCodeList != null && itemCodeList.size() > 0) {
+                                Map paramMap = new HashMap();
+                                String year =  StringUtils.getObjStr(beanMap.get("beginTime")).substring(0,4);
+                                paramMap.put("year",year);
+                                //根据item_code 获取对应的item_name
                                 /*遍历表中的行的*/
                                 for (int i = 0; i < itemCodeList.size(); i++) {
                                     /*获取baccCode*/
                                     // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
                                     String bAccCode = StringUtils.getObjStr(itemCodeList.get(i).get("bAccCode"));
                                     String itemCode = StringUtils.getObjStr(itemCodeList.get(i).get("itemCode"));
-                                    String itemName = StringUtils.getObjStr(itemCodeList.get(i).get("itemName"));
+                                    String itemName = "*";
+                                    //根据item_code 获取对应的item_name
+                                    paramMap.put("itemCode",itemCode);
+                                    if(!"*".equalsIgnoreCase(itemCode)) {
+                                        itemName = reportService.selectItemNameByItemCode(paramMap);
+                                        if (StringUtils.isEmpty(itemName)){
+                                            paramMap.put("itemCode",itemCode.substring(0,itemCode.length() - 2));
+                                            itemName = reportService.selectItemNameByItemCode(paramMap);
+                                        }
+                                    }
 
                                     if (StringUtils.isEmpty(itemCode)) {
                                         continue;
@@ -505,13 +511,14 @@ public class ReportController extends BaseController {
                                     Map<String, Object> paramsMap = new HashMap();
                                     // paramsMap = Map2Bean.transBean2Map(reportCondition);
                                     paramsMap.putAll(beanMap);//添加查询条件
-                                    // paramsMap.put("bAccCode", bAccCode);
+                                    paramsMap.put("bAccCode", bAccCode);
                                     paramsMap.put("itemCode", itemCode);
+                                    // List<ReportRsp> dataList = reportService.getItemCodeData(paramsMap);
                                     List<ReportRsp> dataList = reportService.getItemCodeData(paramsMap);
 
 
                                     /*遍历表中的列*/
-                                    Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, "", itemCode, sessionMap, style, true, dataList, reportCondition);
+                                    Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, bAccCode, itemCode, sessionMap, style, true, dataList, reportCondition);
 
                                     int total = StringUtils.getObjInt(resultMap.get("total"));
                                     BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
@@ -720,7 +727,8 @@ public class ReportController extends BaseController {
             Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
             paramMap.putAll(beanMap);
             paramMap.put("deptName", deptName);
-            if (StringUtils.isEmpty(bAccCode)) {
+            paramMap.put("itemCode", itemCode);
+            if (!StringUtils.isEmpty(itemCode)) {
                 paramMap.put("isItemCode", true);
             } else {
                 paramMap.put("isItemCode", false);
@@ -730,9 +738,9 @@ public class ReportController extends BaseController {
         }
 
         BigDecimal colVal = null;
-        if (StringUtils.isEmpty(bAccCode)) {
-            if (resMap.containsKey(itemCode)) {
-                colVal = new BigDecimal(StringUtils.getObjStr(resMap.get(itemCode))).setScale(2, BigDecimal.ROUND_HALF_UP);
+        if (!StringUtils.isEmpty(itemCode)) {
+            if (resMap.containsKey(bAccCode + "/" + itemCode)) {
+                colVal = new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode + "/" + itemCode))).setScale(2, BigDecimal.ROUND_HALF_UP);
             } else {
                 colVal = new BigDecimal("0").setScale(2, BigDecimal.ROUND_HALF_UP);
             }

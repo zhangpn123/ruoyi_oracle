@@ -44,12 +44,13 @@ public class ReportServiceImpl implements ReportService {
             /*封装数据*/
             if (dateByCondition != null && dateByCondition.size() > 0) {
                 for (Map<String, Object> map : dateByCondition) {
+                    String bAccCode = StringUtils.getObjStr(map.get("bAccCode"));
                     String itemCode = StringUtils.getObjStr(map.get("itemCode"));
                     BigDecimal caAmt = new BigDecimal(StringUtils.getObjStrBigDeci(map.get("caAmt")));
-                    if (resMap.containsKey(itemCode)) {
-                        resMap.put(itemCode, new BigDecimal(StringUtils.getObjStr(resMap.get(itemCode))).add(caAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                    if (resMap.containsKey(bAccCode+"/"+itemCode)) {
+                        resMap.put(bAccCode+"/"+itemCode, new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode+"/"+itemCode))).add(caAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
                     } else {
-                        resMap.put(itemCode, caAmt);
+                        resMap.put(bAccCode+"/"+itemCode, caAmt);
                     }
                 }
             }
@@ -148,13 +149,18 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<Map<String, Object>> getItemCode() {
-        return reportMapper.getItemCode();
+    public LinkedList<Map<String, Object>> getItemCode(Map<String, Object> beanMap) {
+        return reportMapper.getItemCode(beanMap);
     }
 
     @Override
     public List<ReportRsp> getItemCodeData(Map<String, Object> paramsMap) {
         return reportMapper.getItemCodeData(paramsMap);
+    }
+
+    @Override
+    public String selectItemNameByItemCode(Map<String, Object> paramsMap) {
+        return reportMapper.selectItemNameByItemCode(paramsMap);
     }
 
 

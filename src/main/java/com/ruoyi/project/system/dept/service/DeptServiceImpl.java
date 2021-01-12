@@ -3,6 +3,7 @@ package com.ruoyi.project.system.dept.service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import com.ruoyi.framework.web.domain.ZtreeStr;
 import com.ruoyi.project.system.user.domain.User;
@@ -41,7 +42,17 @@ public class DeptServiceImpl implements IDeptService {
     public List<Dept> selectDeptList(Dept dept) {
         // 获取当前的用户
         User currentUser = ShiroUtils.getSysUser();
-        dept.setDeptId(currentUser.getDeptId());
+        if (StringUtils.isEmpty(dept.getDeptId())) {
+            dept.setDeptId(currentUser.getDeptId());
+        } else {
+            if (dept.getDeptId().length() < currentUser.getDeptId().length()) {
+                return new ArrayList<Dept>();
+            } else {
+                if (!dept.getDeptId().startsWith(currentUser.getDeptId())) {
+                    return new ArrayList<Dept>();
+                }
+            }
+        }
         return deptMapper.selectDeptList(dept);
     }
 
@@ -76,7 +87,7 @@ public class DeptServiceImpl implements IDeptService {
         Iterator<Dept> it = deptList.iterator();
         while (it.hasNext()) {
             Dept d = (Dept) it.next();
-            if (d.getDeptId() == deptId  || ArrayUtils.contains(StringUtils.split(d.getAncestors(), ","), deptId + "")) {
+            if (d.getDeptId() == deptId || ArrayUtils.contains(StringUtils.split(d.getAncestors(), ","), deptId + "")) {
                 it.remove();
             }
         }
@@ -197,7 +208,7 @@ public class DeptServiceImpl implements IDeptService {
             temp = maxId.substring(maxId.length() - 3, maxId.length());
         }
         int next = Integer.parseInt(temp) + 1;
-        String deptId = parentId + StringUtils.addZeroLeft(String.valueOf(next ), 3);
+        String deptId = parentId + StringUtils.addZeroLeft(String.valueOf(next), 3);
 
         dept.setDeptId(deptId);
         dept.setCreateBy(ShiroUtils.getLoginName());

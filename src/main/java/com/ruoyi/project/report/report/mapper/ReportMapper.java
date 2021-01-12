@@ -1,7 +1,9 @@
 package com.ruoyi.project.report.report.mapper;
 
 import com.ruoyi.project.report.report.domain.ReportRsp;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +26,9 @@ public interface ReportMapper {
 
     Map<String, Object> getCRAmt(Map<String, Object> paramMap);
 
-    List<Map<String, Object>> getItemCode();
+    LinkedList<Map<String, Object>> getItemCode(Map<String, Object> beanMap);
 
     List<ReportRsp> getItemCodeData(Map<String, Object> paramsMap);
+
+    String selectItemNameByItemCode(Map<String, Object> paramsMap);
 }

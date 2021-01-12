@@ -66,6 +66,9 @@
                 <bind name="deptId" value="deptId+'%'"/>
                 and gb.co_code Like #{deptId}
             </if>
+            <if test="itemCode != null and itemCode != '' ">
+                AND gb.ITEM_CODE = #{itemCode}
+            </if>
             <if test="beginTime != null and beginTime != '' ">
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
             </if>
@@ -77,18 +80,18 @@
     </select>
 
     <select id="getItemCodeData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.report.domain.ReportRsp">
-        select sum(gb.CR_AMT) as "caAmt", gb.ITEM_CODE as "itemCode",gb.ACC_CODE as "accCode" from GL_BAL gb
+        select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from GL_BAL gb
         <where>
             <if test="bAccCode != null and bAccCode != ''">
                 <bind name="bAccCode" value="bAccCode + '%'"/>
-                and gb.B_ACC_CODE LIKE #{bAccCode}
-            </if>
-            <if test="itemCode != null and itemCode != ''">
-                and gb.ITEM_CODE =  #{itemCode}
+                and B_ACC_CODE LIKE #{bAccCode}
             </if>
             <if test="deptId != null and deptId != ''">
                 <bind name="deptId" value="deptId+'%'"/>
                 and gb.co_code Like #{deptId}
+            </if>
+            <if test="itemCode != null and itemCode != '' ">
+                AND gb.ITEM_CODE = #{itemCode}
             </if>
             <if test="beginTime != null and beginTime != '' ">
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
@@ -97,7 +100,7 @@
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
             </if>
         </where>
-        group by gb.ITEM_CODE, gb.ACC_CODE
+        group by gb.B_ACC_CODE, gb.ACC_CODE
     </select>
 
     <select id="getDateByCondition" parameterType="java.util.Map" resultType="java.util.Map">
@@ -124,7 +127,7 @@
     </select>
 
     <select id="getItemCodeDateByCondition" parameterType="java.util.Map" resultType="java.util.Map">
-        select sum(gb.CR_AMT) as "caAmt", gb.ITEM_CODE as "itemCode" from GL_BAL gb
+        select sum(gb.CR_AMT) as "caAmt", gb.ITEM_CODE as "itemCode",gb.B_ACC_CODE as "bAccCode" from GL_BAL gb
         <where>
             <if test="acc_code != null and acc_code != ''">
                 <bind name="acc_code" value="acc_code+'%'"/>
@@ -142,7 +145,7 @@
             </if>
             <include refid="condition"/>
         </where>
-        group by gb.ITEM_CODE
+        group by gb.ITEM_CODE,gb.B_ACC_CODE
     </select>
 
     <select id="getDataByAccCode" parameterType="java.util.Map" resultType="java.util.Map">
@@ -150,11 +153,11 @@
         where 1=1
             <if test="acc_code != null and acc_code != ''">
                 <bind name="acc_code" value="acc_code+'%'"/>
-                and ACC_CODE LIKE #{acc_code}
+                and gb.ACC_CODE LIKE #{acc_code}
             </if>
             <if test="deptId != null and deptId != ''">
                 <bind name="deptId" value="deptId+'%'"/>
-                and co_code Like #{deptId}
+                and gb.co_code Like #{deptId}
             </if>
             <if test="beginTime != null and beginTime != '' ">
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
@@ -169,11 +172,11 @@
         select sum(gb.CR_AMT)  as "crAmt" from GL_BAL gb where 1=1
         <if test="acc_code != null and acc_code != ''">
             <bind name="acc_code" value="acc_code+'%'"/>
-            and ACC_CODE LIKE #{acc_code}
+            and gb.ACC_CODE LIKE #{acc_code}
         </if>
         <if test="deptId != null and deptId != ''">
             <bind name="deptId" value="deptId+'%'"/>
-            and co_code Like #{deptId}
+            and gb.co_code Like #{deptId}
         </if>
         <if test="beginTime != null and beginTime != '' ">
             AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
@@ -186,17 +189,33 @@
 
 
     <select id="getItemCode" resultType="java.util.Map" parameterType="java.util.Map">
-            SELECT
+           SELECT
                 gb.B_ACC_CODE AS "bAccCode",
-                gb.ITEM_CODE AS "itemCode",
-                ic.ITEM_NAME AS "itemName"
+                gb.ITEM_CODE AS "itemCode"
             FROM
                 GL_BAL gb
-                INNER JOIN ITEM_CODE ic ON gb.ITEM_CODE = ic.ITEM_CODE
-                WHERE gb.ACC_CODE = 7201020503 AND ic.FISCAL = '2020'
+            <where>
+                <if test="deptId != null and deptId != ''">
+                    <bind name="deptId" value="deptId+'%'"/>
+                    and gb.co_code Like #{deptId}
+                </if>
+                <if test="beginTime != null and beginTime != '' ">
+                    AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+                </if>
+                <if test="endTime != null and endTime != '' ">
+                    AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+                </if>
+            </where>
             GROUP BY
                 gb.ITEM_CODE,
-                gb.B_ACC_CODE,
-                ic.ITEM_NAME
+                gb.B_ACC_CODE
+            ORDER BY
+                gb.ITEM_CODE,
+                gb.B_ACC_CODE
     </select>
+
+    <select id="selectItemNameByItemCode" resultType="string" parameterType="map">
+        select  ic.ITEM_NAME as "itemName" from GL_MA_ITEM ic where ic.ITEM_CODE = #{itemCode} and ic.FISCAL = #{year}
+    </select>
+
 </mapper>

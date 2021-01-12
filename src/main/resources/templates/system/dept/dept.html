@@ -14,6 +14,9 @@
 								部门名称：<input type="text" name="deptName"/>
 							</li>
 							<li>
+								部门CODE：<input type="text" name="deptId"/>
+							</li>
+							<li>
 								部门状态：<select name="status" th:with="type=${@dict.getType('sys_normal_disable')}">
 									<option value="">所有</option>
 									<option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
@@ -69,8 +72,14 @@
                  {
 		            field: 'deptName',
 		            title: '部门名称',
-		            align: "left"
+		            align: "left",
+					 width:'500px'
 		        },
+				{
+					field: 'deptId',
+					title: '部门CODE',
+					align: "left"
+				},
 		        {
 		            field: 'orderNum',
 		            title: '排序',
