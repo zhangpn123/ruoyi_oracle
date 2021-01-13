@@ -27,12 +27,12 @@ public class Z03ServiceImpl implements Z03Service {
     private Z03Mapper z03Mapper;
 
     @Override
-    public List<Map<String, Object>> selectRoleList(List<String> fieldList, List<Map<String, Object>> replaceMap, ReportCondition reportCondition) {
+    public LinkedList<Map<String, Object>> selectRoleList(List<String> fieldList, List<Map<String, Object>> replaceMap, ReportCondition reportCondition) {
         Map paramsMap = new HashMap();
-        List<Map<String, Object>> resultList = new LinkedList<>();
+        LinkedList<Map<String, Object>> resultList = new LinkedList<>();
 
         /*获取bAccCode*/
-        List<Map<String, Object>> bAccCodeList = z03Mapper.selBAccCode();
+        LinkedList<Map<String, Object>> bAccCodeList = z03Mapper.selBAccCode();
 
         /*初始化合计列*/
         Map<String,Object> totalMap = new HashMap();

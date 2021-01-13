@@ -103,7 +103,7 @@ public class Z04Controller extends BaseController {
             reportCondition.setDeptName(user.getDeptId());
         }
 
-        List<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
+        LinkedList<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
         return getDataTable(list);
     }
 

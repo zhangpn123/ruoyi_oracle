@@ -101,7 +101,7 @@ public class Z03Controller extends BaseController {
             reportCondition.setDeptId(user.getDeptId());
         }
 
-        List<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
+        LinkedList<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
         return getDataTable(list);
     }
 
@@ -183,7 +183,7 @@ public class Z03Controller extends BaseController {
         }
 
 
-        List<Map<String, Object>> resultList = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
+        LinkedList<Map<String, Object>> resultList = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
         // titleList.addFirst("项目");
         // titleList.addFirst("项目");
         // fieldList.addFirst("bAccCode");

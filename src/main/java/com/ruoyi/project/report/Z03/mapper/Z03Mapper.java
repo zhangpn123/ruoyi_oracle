@@ -1,5 +1,6 @@
 package com.ruoyi.project.report.Z03.mapper;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ import java.util.Map;
  */
 public interface Z03Mapper {
 
-    List<Map<String, Object>> selBAccCode();
+    LinkedList<Map<String, Object>> selBAccCode();
 
     List<Map<String, Object>> selectReport(Map paramsMap);
 

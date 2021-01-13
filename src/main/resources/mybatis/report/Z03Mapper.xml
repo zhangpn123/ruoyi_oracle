@@ -34,6 +34,7 @@
             (select distinct(gb.B_ACC_CODE)  from GL_BAL gb  where gb.B_ACC_CODE  != '*' ) t
              LEFT JOIN MA_BACC bac ON t.B_ACC_CODE = bac.B_ACC_CODE
             GROUP BY t.B_ACC_CODE ,bac.B_ACC_NAME
+            order by t.B_ACC_CODE
     </select>
 
 

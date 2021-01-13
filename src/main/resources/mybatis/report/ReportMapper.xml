@@ -215,7 +215,7 @@
     </select>
 
     <select id="selectItemNameByItemCode" resultType="string" parameterType="map">
-        select  ic.ITEM_NAME as "itemName" from GL_MA_ITEM ic where ic.ITEM_CODE = #{itemCode} and ic.FISCAL = #{year}
+        select  ic.ITEM_NAME as "itemName" from GL_ITEM ic where ic.ITEM_CODE = #{itemCode} and ic.FISCAL = #{year} and ic.co_code=#{deptId} and rownum <![CDATA[  <= ]]> 1
     </select>
 
 </mapper>

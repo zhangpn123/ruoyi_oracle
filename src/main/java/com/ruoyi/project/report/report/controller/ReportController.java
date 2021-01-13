@@ -472,6 +472,7 @@ public class ReportController extends BaseController {
                                 Map paramMap = new HashMap();
                                 String year =  StringUtils.getObjStr(beanMap.get("beginTime")).substring(0,4);
                                 paramMap.put("year",year);
+                                paramMap.put("deptId",deptId);
                                 //根据item_code 获取对应的item_name
                                 /*遍历表中的行的*/
                                 for (int i = 0; i < itemCodeList.size(); i++) {
