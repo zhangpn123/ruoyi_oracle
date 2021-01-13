@@ -84,8 +84,19 @@ public class ReportServiceImpl implements ReportService {
                 paramsMap.put("acc_code", split[i]);
                 Map<String, Object> resMap = reportMapper.getDataByAccCode(paramsMap);
                 if (null != resMap && 0 < resMap.size()) {
-                     String crAmt = StringUtils.getObjStrBigDeci(resMap.get("crAmt"));
-                     sum = sum.add(new BigDecimal(crAmt));
+                    BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
+                    BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
+                    switch (accCode.substring(0,1)){
+                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                    }
+                     sum = sum.add(crAmt);
                     }
             }
         } else if (accCode.contains("-")) {
@@ -94,18 +105,40 @@ public class ReportServiceImpl implements ReportService {
                 paramsMap.put("acc_code", split[i]);
                 Map<String, Object> resMap = reportMapper.getDataByAccCode(paramsMap);
                 if (null != resMap && 0 < resMap.size()) {
-                        String crAmt = StringUtils.getObjStrBigDeci(resMap.get("crAmt"));
+                    BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
+                    BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
+                    switch (accCode.substring(0,1)){
+                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                    }
                         if (i == 0) {
-                            sum = sum.add(new BigDecimal(crAmt));
+                            sum = sum.add(crAmt);
                         }
-                        sum = sum.subtract(new BigDecimal(crAmt));
+                        sum = sum.subtract(crAmt);
                 }
             }
         } else {
            Map<String, Object> resMap = reportMapper.getDataByAccCode(paramsMap);
             if (null != resMap && 0 < resMap.size()) {
-                    String crAmt = StringUtils.getObjStrBigDeci(resMap.get("crAmt"));
-                    sum = sum.add(new BigDecimal(crAmt));
+                BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
+                BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
+                    switch (accCode.substring(0,1)){
+                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                    }
+                    sum = sum.add(crAmt);
             }
         }
         return sum;
@@ -121,8 +154,20 @@ public class ReportServiceImpl implements ReportService {
                 paramMap.put("acc_code", split[i]);
                 Map<String, Object> crAmtMap = reportMapper.getCRAmt(paramMap);
                 if (null != crAmtMap && 0 < crAmtMap.size()) {
-                        String crAmt = StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt"));
-                        result = result.add(new BigDecimal(crAmt));
+                        // String crAmt = StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt"));
+                    BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt")));
+                    BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("drAmt")));
+                    switch (acc_code.substring(0,1)){
+                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                    }
+                        result = result.add(crAmt);
                 }
             }
         } else if (acc_code.contains("-")) {
@@ -131,18 +176,40 @@ public class ReportServiceImpl implements ReportService {
                 paramMap.put("acc_code", split[i]);
                 Map<String, Object> crAmtMap = reportMapper.getCRAmt(paramMap);
                 if (null != crAmtMap && 0 < crAmtMap.size()) {
-                        String crAmt = StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt"));
+                    BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt")));
+                    BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("drAmt")));
+                    switch (acc_code.substring(0,1)){
+                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                            break;
+                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                            break;
+                    }
                         if (i == 0) {
-                            result = result.add(new BigDecimal(crAmt));
+                            result = result.add(crAmt);
                         }
-                        result = result.subtract(new BigDecimal(crAmt));
+                        result = result.subtract(crAmt);
                 }
             }
         } else {
             Map<String, Object> crAmtMap = reportMapper.getCRAmt(paramMap);
             if (null != crAmtMap && 0 < crAmtMap.size()) {
-                    String crAmt = StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt"));
-                    result = result.add(new BigDecimal(crAmt));
+                BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt")));
+                BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("drAmt")));
+                switch (acc_code.substring(0,1)){
+                    case  "4" :  crAmt = crAmt.subtract(drAmt);
+                        break;
+                    case  "6" :   crAmt = crAmt.subtract(drAmt);
+                        break;
+                    case  "5" :   crAmt = drAmt.subtract(crAmt);
+                        break;
+                    case  "7" :   crAmt = drAmt.subtract(crAmt);
+                        break;
+                }
+                    result = result.add(crAmt);
                 }
         }
         return result;

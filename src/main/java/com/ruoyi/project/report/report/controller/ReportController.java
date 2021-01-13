@@ -251,26 +251,24 @@ public class ReportController extends BaseController {
                         //获取对应的sheet
                         HSSFSheet sheet = workBook.getSheetAt(m);
                         String sheetName = sheet.getSheetName();
-                        if (
-                                // !sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
-                                // && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
-                                // && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
-                                // && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
-                                // && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
-                                // && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
-                                // && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
-                                // && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
-                                // && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
-                                // && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
-                                // && !sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
-                                // && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
-                                // && !sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
-                                // && !sheetName.equalsIgnoreCase("QB12 资产负债简表")
-                                // &&
-                        !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
-                                // && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
-                                // && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
-                                // && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
+                        if ( !sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
+                                && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
+                                && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
+                                && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
+                                && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
+                                && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
+                                && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
+                                && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
+                                && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
+                                && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
+                                && !sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
+                                && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
+                                && !sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
+                                && !sheetName.equalsIgnoreCase("QB12 资产负债简表")
+                                && !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
+                                && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
+                                && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
+                                && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
                         ) {
                             continue;
                         }
@@ -729,8 +727,8 @@ public class ReportController extends BaseController {
             /*转成map*/
             Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
             paramMap.putAll(beanMap);
-            paramMap.put("deptName", deptName);
-            paramMap.put("itemCode", itemCode);
+            // paramMap.put("deptName", deptName);
+            // paramMap.put("itemCode", itemCode);
             if (!StringUtils.isEmpty(itemCode)) {
                 paramMap.put("isItemCode", true);
             } else {
