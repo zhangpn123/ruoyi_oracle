@@ -9,13 +9,19 @@ body.signin {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    color: rgba(255, 255, 255, .95)
+    color: black;
 }
 
 .signinpanel {
     width: 750px;
-    margin: 10% auto 0
+    /*margin-left: 67%;*/
+    /*margin-bottom:36%;*/
+    position:absolute;
+    right:-10%;
+    bottom:8%;
+
 }
+
 
 .signinpanel .logopanel {
     float: none;
@@ -56,7 +62,7 @@ body.signin {
 }
 
 .signinpanel form {
-    background: rgba(255, 255, 255, .2);
+    background: #d2d3d5;
     border: 1px solid rgba(255, 255, 255, .3);
     -moz-box-shadow: 0 3px 0 rgba(12, 12, 12, .03);
     -webkit-box-shadow: 0 3px 0 rgba(12, 12, 12, .03);
@@ -64,7 +70,7 @@ body.signin {
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
-    padding: 30px
+    padding: 15px
 }
 
 .signup-footer {

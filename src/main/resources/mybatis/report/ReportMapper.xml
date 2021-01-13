@@ -58,6 +58,7 @@
         select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from GL_BAL gb
         <where>
             gb.B_ACC_CODE != '*'
+            AND gb.ACCOUNT_ID = '001'
             <if test="bAccCode != null and bAccCode != ''">
             <bind name="bAccCode" value="bAccCode + '%'"/>
                 and B_ACC_CODE LIKE #{bAccCode}
@@ -65,9 +66,6 @@
             <if test="deptId != null and deptId != ''">
                 <bind name="deptId" value="deptId+'%'"/>
                 and gb.co_code Like #{deptId}
-            </if>
-            <if test="itemCode != null and itemCode != '' ">
-                AND gb.ITEM_CODE = #{itemCode}
             </if>
             <if test="beginTime != null and beginTime != '' ">
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
@@ -82,6 +80,7 @@
     <select id="getItemCodeData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.report.domain.ReportRsp">
         select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from GL_BAL gb
         <where>
+             gb.ACCOUNT_ID = '001'
             <if test="bAccCode != null and bAccCode != ''">
                 <bind name="bAccCode" value="bAccCode + '%'"/>
                 and B_ACC_CODE LIKE #{bAccCode}
@@ -107,6 +106,7 @@
         select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode" from GL_BAL gb
         <where>
             gb.B_ACC_CODE != '*'
+            and gb.ACCOUNT_ID = '001'
             <if test="acc_code != null and acc_code != ''">
                 <bind name="acc_code" value="acc_code+'%'"/>
                 and ACC_CODE LIKE #{acc_code}
@@ -129,6 +129,7 @@
     <select id="getItemCodeDateByCondition" parameterType="java.util.Map" resultType="java.util.Map">
         select sum(gb.CR_AMT) as "caAmt", gb.ITEM_CODE as "itemCode",gb.B_ACC_CODE as "bAccCode" from GL_BAL gb
         <where>
+            gb.ACCOUNT_ID = '001'
             <if test="acc_code != null and acc_code != ''">
                 <bind name="acc_code" value="acc_code+'%'"/>
                 and ACC_CODE LIKE #{acc_code}
@@ -150,7 +151,7 @@
 
     <select id="getDataByAccCode" parameterType="java.util.Map" resultType="java.util.Map">
         select sum(gb.CR_AMT)  as "crAmt" from GL_BAL gb
-        where 1=1
+        where gb.ACCOUNT_ID = '001'
             <if test="acc_code != null and acc_code != ''">
                 <bind name="acc_code" value="acc_code+'%'"/>
                 and gb.ACC_CODE LIKE #{acc_code}
@@ -169,7 +170,7 @@
 
 
     <select id="getCRAmt" parameterType="java.util.Map" resultType="java.util.Map">
-        select sum(gb.CR_AMT)  as "crAmt" from GL_BAL gb where 1=1
+        select sum(gb.CR_AMT)  as "crAmt" from GL_BAL gb where gb.ACCOUNT_ID = '001'
         <if test="acc_code != null and acc_code != ''">
             <bind name="acc_code" value="acc_code+'%'"/>
             and gb.ACC_CODE LIKE #{acc_code}
@@ -195,6 +196,7 @@
             FROM
                 GL_BAL gb
             <where>
+                gb.ACCOUNT_ID = '001'
                 <if test="deptId != null and deptId != ''">
                     <bind name="deptId" value="deptId+'%'"/>
                     and gb.co_code Like #{deptId}

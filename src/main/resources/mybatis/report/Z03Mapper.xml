@@ -8,6 +8,7 @@
         select sum(gb.CR_AMT) as "caAmt", gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from GL_BAL gb
         <where>
             gb.B_ACC_CODE != '*'
+            and gb.ACCOUNT_ID = '001'
             <if test="bAccCode != null and bAccCode != ''">
                 and B_ACC_CODE = #{bAccCode}
             </if>
@@ -31,7 +32,7 @@
 
     <select id="selBAccCode" resultType="java.util.Map" parameterType="java.util.Map">
         select t.B_ACC_CODE as "bAccCode" , bac.B_ACC_NAME as "bAccName" from
-            (select distinct(gb.B_ACC_CODE)  from GL_BAL gb  where gb.B_ACC_CODE  != '*' ) t
+            (select distinct(gb.B_ACC_CODE)  from GL_BAL gb  where gb.B_ACC_CODE  != '*' and gb.ACCOUNT_ID = '001' ) t
              LEFT JOIN MA_BACC bac ON t.B_ACC_CODE = bac.B_ACC_CODE
             GROUP BY t.B_ACC_CODE ,bac.B_ACC_NAME
             order by t.B_ACC_CODE
