@@ -188,7 +188,7 @@ public class ReportController extends BaseController {
      * 报表导出
      */
     @Log(title = "报表统计", businessType = BusinessType.EXPORT)
-    @RequiresPermissions("report:report:export")
+    // @RequiresPermissions("report:report:export")
     @RequestMapping("/export")
     @ResponseBody
     public AjaxResult exportReport(ReportCondition reportCondition) {
