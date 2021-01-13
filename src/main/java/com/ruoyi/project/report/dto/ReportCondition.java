@@ -17,4 +17,5 @@ public class ReportCondition extends BaseEntity {
     private String deptName; //部门名称
     private String beginTime;//开始时间
     private String endTime;//结束时间
+    private String id;//文件ID
 }

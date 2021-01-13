@@ -124,4 +124,5 @@ public interface DeptMapper
      */
     String selectMaxId(@Param("parentId") String parentId);
 
+    List<Dept> selectDeptIdList();
 }

@@ -19,6 +19,11 @@ body.signin {
     position:absolute;
     right:-10%;
     bottom:8%;
+    height: auto;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 
 }
 

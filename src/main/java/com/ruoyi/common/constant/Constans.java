@@ -29,6 +29,7 @@ public class  Constans {
     public enum AsynDownStatus{
         PROCESSED_SUCC("1"),
         PROCESSED_FAIL("2"),
+        PROCESSED_INIT("4"),
         PROCESSING("3");
 
         private final String value;

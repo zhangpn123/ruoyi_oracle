@@ -44,4 +44,10 @@ public interface AsynDownService {
      * @return
      */
     int updateFile(AsynDown asynDown);
+
+    /**
+     * 删除所有
+     * @return
+     */
+    int deleteAll();
 }

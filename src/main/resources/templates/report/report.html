@@ -27,12 +27,12 @@
                         </select>
                         </li>
 
-                        <li class="select-time-month">
-                            <label>创建时间： </label>
-                            <input type="text" class="time-input-month" id="startTimeMonth" placeholder="开始时间" name="beginTime" value="2020-01"/>
-                            <span>-</span>
-                            <input type="text" class="time-input-month" id="endTimeMonth" placeholder="结束时间" name="endTime" value="2020-12"/>
-                        </li>
+<!--                        <li class="select-time-month">-->
+<!--                            <label>创建时间： </label>-->
+<!--                            <input type="text" class="time-input-month" id="startTimeMonth" placeholder="开始时间" name="beginTime" value="2020-01"/>-->
+<!--                            <span>-</span>-->
+<!--                            <input type="text" class="time-input-month" id="endTimeMonth" placeholder="结束时间" name="endTime" value="2020-12"/>-->
+<!--                        </li>-->
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
                                     class="fa fa-search"></i>&nbsp;搜索</a>
@@ -45,8 +45,11 @@
         </div>
 
         <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="exportTask()" shiro:hasPermission="report:report:task">
+                <i class="fa fa-download"></i> 初始化任务
+            </a>
             <a class="btn btn-warning" onclick="exportExcel()" shiro:hasPermission="report:report:export">
-                <i class="fa fa-download"></i> 创建异步导出报表任务
+                <i class="fa fa-refresh"></i> 更新全部报表
             </a>
             <a class="btn btn-info" onclick="importExcel()" shiro:hasPermission="report:report:import">
                 <i class="fa fa-upload"></i> 导入报表模板
@@ -75,6 +78,7 @@
             importUrl: prefix + "/import",
             downFile: prefix + "/downFile",
             removeUrl: prefix + "/remove",
+            createTast: prefix + "/task",
             sortName: "createdate",
             sortOrder: "desc",
             modalName: "报表",
@@ -114,6 +118,8 @@
                             return '<span class="btn btn-danger btn-xs">失败</span>';
                         } else if (item.status == '3') {
                             return '<span class="btn btn-normal btn-xs">处理中</span>';
+                        }else if(item.status == '4'){
+                            return '<span class="btn btn-normal btn-xs">待更新</span>';
                         }
                     }
                 },
@@ -122,10 +128,19 @@
                     title: '处理消息',
                     width:'500px'
                 },
+                // {
+                //     title: '更新',
+                //     formatter: function (value, row, index) {
+                //         var actions = [];
+                //             actions.push('<a class="btn btn-info btn-xs " href="javascript:void(0)" onclick="updateExcel(\'' + row.id + '\')">更新</a> ');
+                //         return actions.join('');
+                //     }
+                // },
                 {
                     title: '操作',
                     formatter: function (value, row, index) {
                         var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs " href="javascript:void(0)" onclick="updateExcel(\'' + row.id + '\')">更新</a> ');
                         if (row.status == '1') {
                             actions.push('<a class="btn btn-info btn-xs " href="javascript:void(0)" onclick="importTemplate(\'' + row.id + '\')">下载</a> ');
                          }else {
@@ -239,10 +254,54 @@
         });
     }
 
+    function exportTask(formId) {
+        table.set();
+        $.modal.confirm("确定初始化任务吗？", function () {
+            var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
+            var params = $("#" + table.options.id).bootstrapTable('getOptions');
+            var dataParam = $("#" + currentId).serializeArray();
+            dataParam.push({"name": "orderByColumn", "value": params.sortName});
+            dataParam.push({"name": "isAsc", "value": params.sortOrder});
+            $.modal.loading("正在执行，请稍后...");
+            $.post(table.options.createTast, dataParam, function (result) {
+                if (result.code == web_status.SUCCESS) {
+                    $.modal.alertWarning(result.msg)
+                } else if (result.code == web_status.WARNING) {
+                    $.modal.alertWarning(result.msg)
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+                $.modal.reload();
+            });
+        });
+    }
+
     // 下载文件
     function importTemplate(id) {
         table.set();
         window.location.href = table.options.downFile+"?id="+id;
+    }
+    //更新文件
+    function updateExcel(id,formId) {
+        console.log(id)
+        table.set();
+        var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
+        var dataParam = $("#" + currentId).serializeArray();
+        dataParam.push({"name":"id","value": id});
+        $.modal.loading("正在执行，请稍后...");
+        console.log(dataParam)
+        $.post(table.options.exportUrl, dataParam, function (result) {
+            if (result.code == web_status.SUCCESS) {
+                $.modal.alertWarning(result.msg)
+            } else if (result.code == web_status.WARNING) {
+                $.modal.alertWarning(result.msg)
+            } else {
+                $.modal.alertError(result.msg);
+            }
+            $.modal.closeLoading();
+            $.modal.reload();
+        });
     }
 </script>
 </body>

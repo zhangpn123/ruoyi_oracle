@@ -107,4 +107,10 @@ public interface IDeptService
      * @return 结果
      */
     public String checkDeptNameUnique(Dept dept);
+
+    /**
+     * 获取所有部门ID
+     * @return
+     */
+    List<Dept> selectDeptIdList();
 }

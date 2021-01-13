@@ -64,4 +64,9 @@ public class AsynDownServiceImpl implements AsynDownService {
         asynDown.setUpdateDate(DateUtils.curDateTime());
         return asynDownMapper.updateFile(asynDown);
     }
+
+    @Override
+    public int deleteAll() {
+        return asynDownMapper.deleteAll();
+    }
 }

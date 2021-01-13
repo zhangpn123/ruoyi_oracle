@@ -36,4 +36,7 @@ public interface AsynDownMapper {
      * @return
      */
     int updateFile(AsynDown asynDown);
+
+    int deleteAll();
+
 }
