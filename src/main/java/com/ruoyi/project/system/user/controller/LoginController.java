@@ -2,6 +2,8 @@ package com.ruoyi.project.system.user.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.common.utils.DateUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -44,7 +46,12 @@ public class LoginController extends BaseController
         try
         {
             subject.login(token);
-            return success();
+            if (DateUtils.getDate().compareTo("2021-03-31") == 1) {
+                return error("试用版时间已到期, 请购买正版!");
+            } else {
+                return success();
+            }
+
         }
         catch (AuthenticationException e)
         {
