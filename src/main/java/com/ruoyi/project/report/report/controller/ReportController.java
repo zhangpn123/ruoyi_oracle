@@ -213,379 +213,7 @@ public class ReportController extends BaseController {
             threadPoolTaskExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    //导出模板的路径
-                    String tempFileName = "ReportTemp.xls";
-                    String exportTempPath = RuoYiConfig.getReportPath() + tempFileName;
-
-                    Map sessionMap = new HashMap();
-
-                    try (FileInputStream fis = new FileInputStream(exportTempPath)) {
-
-                        log.info("Start generating reports");
-                        //构建Excel
-                        // String deptId = "";
-                        // if (StringUtils.isEmpty(reportCondition.getDeptId())) {
-                        //     /*取当前用户的所属部门*/
-                        //     User user = (User) SecurityUtils.getSubject().getPrincipal();
-                        //     deptId = user.getDeptId();
-                        //     reportCondition.setDeptId(deptId);
-                        // } else {
-                        //     deptId = reportCondition.getDeptId();
-                        // }
-                        String deptId = asynDown.getDeptId();
-                        reportCondition.setDeptId(deptId);
-                        //读取本地的导出模板
-                        HSSFWorkbook workBook = new HSSFWorkbook(fis);
-                        /*设置单元格格式*/
-                        CellStyle style = workBook.createCellStyle();
-                        style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00"));
-
-                        style.setAlignment(HorizontalAlignment.RIGHT);// 靠右
-                        style.setVerticalAlignment(VerticalAlignment.CENTER);
-                        /*边框*/
-                        style.setBorderBottom(BorderStyle.THIN); //下边框
-                        style.setBorderLeft(BorderStyle.THIN);//左边框
-                        style.setBorderTop(BorderStyle.THIN);//上边框
-                        style.setBorderRight(BorderStyle.THIN);//右边框
-                        style.setRightBorderColor(IndexedColors.BLACK.getIndex());
-                        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-                        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
-                        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-
-
-
-                        /*bean转成map*/
-                        Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
-
-                        for (int m = 0; m < workBook.getNumberOfSheets(); m++) {
-                            //获取对应的sheet
-                            HSSFSheet sheet = workBook.getSheetAt(m);
-                            String sheetName = sheet.getSheetName();
-                            if (!sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
-                                    && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
-                                    && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
-                                    && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
-                                    && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
-                                    && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
-                                    && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
-                                    && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
-                                    && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
-                                    && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
-                                    && !sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
-                                    && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
-                                    && !sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
-                                    && !sheetName.equalsIgnoreCase("QB12 资产负债简表")
-                                    && !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
-                                    && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
-                                    && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
-                                    && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
-                            ) {
-                                continue;
-                            }
-                            log.info("开始处理{}表", sheetName);
-
-                            DictData dictData = new DictData();
-                            dictData.setDictLabel(sheetName);
-                            dictData = dictDataService.selectByDictLaber(dictData);
-                            String dictValue = dictData.getDictValue();
-                            int beginRow = StringUtils.getObjInt(dictValue.split("/")[0]);
-                            int beginClo = StringUtils.getObjInt(dictValue.split("/")[1]);//开始写的第一列数据
-                            int delete = 0; //是否有删除的行
-
-                            if (Constans.reportCss.STYLE_ONE.getValue().equalsIgnoreCase(dictData.getCssClass())) {//判断模板类型
-                                List<Map<String, Object>> bAccCodeList = reportService.getBAccCode();
-
-                                if (bAccCodeList != null && bAccCodeList.size() > 0) {
-                                    /*遍历表中的行的*/
-                                    for (int i = 0; i < bAccCodeList.size(); i++) {
-                                        /*获取baccCode*/
-                                        // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
-                                        String bAccCode = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccCode"));
-                                        String bAccName = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccName"));
-
-                                        if (StringUtils.isEmpty(bAccCode)) {
-                                            continue;
-                                        }
-                                        //获取行数
-                                        int lastRowNum = sheet.getLastRowNum();
-                                        int nextRowNum = i + beginRow + delete;
-                                        if (lastRowNum - nextRowNum <= 3) {
-                                            //添加行
-                                            PoiUtil.insertRow(sheet, nextRowNum, 1, beginRow);
-                                            sheet.addMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 0, 2));
-                                        }
-
-                                        HSSFCell cellBAccCode = sheet.getRow(i + beginRow + delete).getCell(0);
-                                        ;
-                                        cellBAccCode.setCellStyle(style);
-                                        cellBAccCode.setCellValue(bAccCode);
-                                        sheet.getRow(i + beginRow + delete).getCell(3).setCellValue(bAccName);
-
-                                        Map<String, Object> paramsMap = new HashMap();
-                                        // paramsMap = Map2Bean.transBean2Map(reportCondition);
-                                        paramsMap.putAll(beanMap);//添加查询条件
-                                        paramsMap.put("bAccCode", bAccCode);
-                                        // paramsMap.put("deptName", deptId);
-                                        List<ReportRsp> dataList = reportService.getData(paramsMap);
-
-                                        /*遍历表中的列*/
-                                        Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, bAccCode, "", sessionMap, style, true, dataList, reportCondition);
-
-                                        int total = StringUtils.getObjInt(resultMap.get("total"));
-                                        BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
-
-                                        if (total != 0) { //如果total为零  则认为没有这一列
-                                            if (sum.compareTo(BigDecimal.ZERO) == 0) {
-                                                if (i == bAccCodeList.size() - 1) { //针对最后一行
-                                                    ExcelUtil.removeRow(sheet, i + beginRow + delete);
-                                                }
-                                                delete--;
-                                            } else {
-                                                HSSFCell cellSum = sheet.getRow(i + beginRow + delete).getCell(total);
-                                                cellSum.setCellStyle(style);
-                                                cellSum.setCellValue(sum.doubleValue());
-                                            }
-                                            /*  统计第一行的合计值*/
-                                            if (sessionMap.containsKey("sum" + total)) {
-                                                sessionMap.put("sum" + total, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + total))).add(sum));
-                                            } else {
-                                                sessionMap.put("sum" + total, sum);
-                                            }
-                                        }
-                                    }
-                                }else{
-                                    ExcelUtil.removeRow(sheet, beginRow);
-                                }
-                                /*  给第一行的合计值 赋值*/
-                                for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
-                                    HSSFCell cellTotal = sheet.getRow(beginRow - 1).getCell(i);
-                                    cellTotal.setCellStyle(style);
-                                    cellTotal.setCellValue(new BigDecimal(StringUtils.getObjStrBigDeci(sessionMap.get("sum" + i))).doubleValue());//给合计赋值
-                                }
-                                sessionMap.clear();
-                            } else if (Constans.reportCss.STYLE_TWO.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                                for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
-                                    // 删除空行
-                                    Row row = sheet.getRow(i);
-                                    if (null == row) {
-                                        continue; //针对空行
-                                    }
-
-                                    for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
-                                        HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
-                                        String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
-                                        if (cellVal.contains("*")) {
-                                            cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
-                                            Map<String, Object> paramsMap = new HashMap();
-                                            // paramsMap = Map2Bean.transBean2Map(reportCondition);
-                                            paramsMap.putAll(beanMap);//添加筛选条件
-                                            paramsMap.put("acc_code", cellVal);
-                                            // paramsMap.put("deptName", deptId);
-                                            BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
-                                            cellsetVal.setCellValue(FTempResult.doubleValue());
-                                            cellsetVal.setCellStyle(style);
-                                        }
-                                        continue;
-                                    }
-                                }
-                            } else if (Constans.reportCss.STYLE_THREE.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                                for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
-                                    // 删除空行
-                                    Row row = sheet.getRow(i);
-                                    if (null == row) {
-                                        continue; //针对空行
-                                    }
-                                    for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
-                                        HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
-                                        String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
-                                        if (StringUtils.isEmpty(cellVal)) {
-                                            continue;
-                                        }
-                                        /*替换可能存在的中文字符*/
-                                        cellVal.replace("（", "(");
-                                        cellVal.replace("）", ")");
-                                        cellVal.replace("，", ",");
-                                        cellVal.replace("：", ":");
-                                        cellVal.replace("，", ",");
-
-                                        if (cellVal.contains("(")) {
-                                            String splitFirst = "";//是否是sum
-                                            String str = "";//获取()内的数据
-                                            if (cellVal.split("\\(").length > 1) {
-                                                splitFirst = cellVal.split("\\(")[0];
-                                                //说明是 ( 这个符号(英文)
-                                                //获取里面的值
-                                                int start = cellVal.indexOf("(") + 1;//截取开始值
-                                                int end = cellVal.indexOf(")");//截取结束值
-                                                str = cellVal.substring(start, end);//获取()内的数据
-                                            } else {
-                                                log.warn("{}格式不正确", cellVal);
-                                                continue;
-                                            }
-                                            int size = 0;//小计长度
-                                            if (str.split(",").length > 1) {
-                                                size = StringUtils.getObjInt(str.split(",")[1]) - StringUtils.getObjInt(str.split(",")[0]) + 1;
-                                            } else {
-                                                log.warn("{}格式不正确", cellVal);
-                                                continue;
-                                            }
-                                            size += j;//小计的长度
-                                            BigDecimal subtotal = new BigDecimal("0.00");//小计金额
-
-                                            /**
-                                             * 小计这段的数据的操作
-                                             */
-                                            for (int k = j + 1; k < size + 1; k++) {
-                                                HSSFCell cell2setValue = sheet.getRow(i).getCell(k);
-                                                String cellVal2 = ExcelUtil.getStringValueFromCell(cell2setValue);//获取列的内容
-                                                if (cellVal2.contains("*")) {
-                                                    cellVal2 = cellVal2.substring(1, cellVal2.length() - 1);//获取值
-                                                    Map paramsMap = new HashMap();
-                                                    paramsMap.putAll(beanMap);//添加筛选条件
-                                                    paramsMap.put("acc_code", cellVal2);
-                                                    // paramsMap.put("deptName", deptId);
-                                                    BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
-                                                    cell2setValue.setCellValue(FTempResult.doubleValue());
-                                                    cell2setValue.setCellStyle(style);
-                                                    subtotal = subtotal.add(FTempResult);
-                                                }
-                                            }
-                                            j = size;
-                                            cellsetVal.setCellValue(subtotal.doubleValue());
-                                            cellsetVal.setCellStyle(style);
-                                            continue;
-                                        }
-                                        if (cellVal.contains("*")) {
-                                            cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
-                                            Map paramsMap = new HashMap();
-                                            paramsMap.putAll(beanMap);//添加筛选条件
-                                            paramsMap.put("acc_code", cellVal);
-                                            // paramsMap.put("deptName", deptId);
-                                            BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
-                                            cellsetVal.setCellValue(FTempResult.doubleValue());
-                                            cellsetVal.setCellStyle(style);
-                                            continue;
-                                        }
-                                        if (cellVal.contains("{")) {//代表是json
-                                            Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
-                                            // paramMap.put("deptName", deptId);
-                                            // paramMap.putAll(paramsMap);
-                                            paramMap.putAll(beanMap);//添加筛选条件
-                                            BigDecimal result = reportService.getCRAmt(paramMap);
-                                            cellsetVal.setCellValue(result.doubleValue());
-                                            cellsetVal.setCellStyle(style);
-                                            continue;
-                                        }
-                                    }
-                                }
-                            } else if (Constans.reportCss.STYLE_FOUR.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                                LinkedList<Map<String, Object>> itemCodeList = reportService.getItemCode(beanMap);
-                                if (itemCodeList != null && itemCodeList.size() > 0) {
-                                    Map paramMap = new HashMap();
-                                    String year = StringUtils.getObjStr(beanMap.get("beginTime")).substring(0, 4);
-                                    // String year = "2020";
-                                    paramMap.put("year", year);
-                                    paramMap.put("deptId", deptId);
-                                    //根据item_code 获取对应的item_name
-                                    /*遍历表中的行的*/
-                                    for (int i = 0; i < itemCodeList.size(); i++) {
-                                        /*获取baccCode*/
-                                        // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
-                                        String bAccCode = StringUtils.getObjStr(itemCodeList.get(i).get("bAccCode"));
-                                        String itemCode = StringUtils.getObjStr(itemCodeList.get(i).get("itemCode"));
-                                        String itemName = "*";
-                                        //根据item_code 获取对应的item_name
-                                        paramMap.put("itemCode", itemCode);
-                                        if (!"*".equalsIgnoreCase(itemCode)) {
-                                            itemName = reportService.selectItemNameByItemCode(paramMap);
-                                            if (StringUtils.isEmpty(itemName)) {
-                                                paramMap.put("itemCode", itemCode.substring(0, itemCode.length() - 2));
-                                                itemName = reportService.selectItemNameByItemCode(paramMap);
-                                            }
-                                        }
-
-                                        if (StringUtils.isEmpty(itemCode)) {
-                                            continue;
-                                        }
-
-                                        //获取行数
-                                        int lastRowNum = sheet.getLastRowNum();
-                                        int nextRowNum = i + beginRow + delete;
-                                        if (lastRowNum - nextRowNum < 3) {
-                                            //添加行
-                                            PoiUtil.insertRow(sheet, nextRowNum, 1, beginRow);
-                                            sheet.addMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 0, 2));
-                                        }
-                                        HSSFCell cellBAccCode = sheet.getRow(i + beginRow + delete).getCell(0);
-                                        cellBAccCode.setCellStyle(style);
-                                        cellBAccCode.setCellValue(bAccCode);
-                                        sheet.getRow(i + beginRow + delete).getCell(3).setCellValue(itemName);
-                                        sheet.getRow(i + beginRow + delete).getCell(4).setCellValue(itemCode);
-
-                                        Map<String, Object> paramsMap = new HashMap();
-                                        // paramsMap = Map2Bean.transBean2Map(reportCondition);
-                                        paramsMap.putAll(beanMap);//添加查询条件
-                                        paramsMap.put("bAccCode", bAccCode);
-                                        paramsMap.put("itemCode", itemCode);
-                                        // List<ReportRsp> dataList = reportService.getItemCodeData(paramsMap);
-                                        List<ReportRsp> dataList = reportService.getItemCodeData(paramsMap);
-
-
-                                        /*遍历表中的列*/
-                                        Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, bAccCode, itemCode, sessionMap, style, true, dataList, reportCondition);
-
-                                        int total = StringUtils.getObjInt(resultMap.get("total"));
-                                        BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
-
-                                        if (total != 0) { //如果total为零  则认为没有这一列
-                                            if (sum.compareTo(BigDecimal.ZERO) == 0) {
-                                                if (i == itemCodeList.size() - 1) { //针对最后一行
-                                                    ExcelUtil.removeRow(sheet, i + beginRow + delete);
-                                                }
-                                                delete--;
-                                            } else {
-                                                HSSFCell cellSum = sheet.getRow(i + beginRow + delete).getCell(total);
-                                                cellSum.setCellStyle(style);
-                                                cellSum.setCellValue(sum.doubleValue());
-                                            }
-                                            /*  统计第一行的合计值*/
-                                            if (sessionMap.containsKey("sum" + total)) {
-                                                sessionMap.put("sum" + total, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + total))).add(sum));
-                                            } else {
-                                                sessionMap.put("sum" + total, sum);
-                                            }
-                                        }
-                                    }
-                                }else{
-                                    /*删除模板*/
-                                    ExcelUtil.removeRow(sheet, beginRow);
-                                }
-                                /*  给第一行的合计值 赋值*/
-                                for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
-                                    HSSFCell cellTotal = sheet.getRow(beginRow - 1).getCell(i);
-                                    cellTotal.setCellStyle(style);
-                                    cellTotal.setCellValue(new BigDecimal(StringUtils.getObjStrBigDeci(sessionMap.get("sum" + i))).doubleValue());//给合计赋值
-                                }
-                                sessionMap.clear();
-                            }
-                        }
-
-                        FileUtils.judeDirExists(rootPath + filePath);
-                        FileUtils.judeFileExists(excelPath);
-                        try (FileOutputStream out = new FileOutputStream(excelPath)) {
-                            workBook.write(out); //写回数据
-                        }
-
-                        asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_SUCC.getValue());
-                        asynDown.setMsg("处理成功");
-
-                    } catch (Exception e) {
-                        log.error("导出数据失败!", e);
-                        asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_FAIL.getValue());
-                        asynDown.setMsg(e.toString());
-                    } finally {
-                        asynDownService.updateFile(asynDown);
-                    }
+                    executeTask(asynDown, reportCondition, rootPath + filePath, excelPath);
                 }
             });
         } else {
@@ -595,7 +223,6 @@ public class ReportController extends BaseController {
                 return AjaxResult.error("文件不存在");
             }
             for (AsynDown asynDown : asynDowns) {
-
                 String excelPath = rootPath + filePath + asynDown.getFileName();
                 asynDown.setFilePath(filePath);
                 asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
@@ -605,387 +232,393 @@ public class ReportController extends BaseController {
                 threadPoolTaskExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        //导出模板的路径
-                        String tempFileName = "ReportTemp.xls";
-                        String exportTempPath = RuoYiConfig.getReportPath() + tempFileName;
-
-                        Map sessionMap = new HashMap();
-
-                        try (FileInputStream fis = new FileInputStream(exportTempPath)) {
-
-                            log.info("Start generating reports");
-                            //构建Excel
-
-                            // String deptId = "";
-                            // if (StringUtils.isEmpty(reportCondition.getDeptId())) {
-                            //     /*取当前用户的所属部门*/
-                            //     User user = (User) SecurityUtils.getSubject().getPrincipal();
-                            //     deptId = user.getDeptId();
-                            //     reportCondition.setDeptId(deptId);
-                            // } else {
-                            //     deptId = reportCondition.getDeptId();
-                            // }
-                            String deptId = asynDown.getDeptId();
-                            reportCondition.setDeptId(deptId);
-                            //读取本地的导出模板
-                            HSSFWorkbook workBook = new HSSFWorkbook(fis);
-                            /*设置单元格格式*/
-                            CellStyle style = workBook.createCellStyle();
-                            style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00"));
-
-                            style.setAlignment(HorizontalAlignment.RIGHT);// 靠右
-                            style.setVerticalAlignment(VerticalAlignment.CENTER);
-                            /*边框*/
-                            style.setBorderBottom(BorderStyle.THIN); //下边框
-                            style.setBorderLeft(BorderStyle.THIN);//左边框
-                            style.setBorderTop(BorderStyle.THIN);//上边框
-                            style.setBorderRight(BorderStyle.THIN);//右边框
-                            style.setRightBorderColor(IndexedColors.BLACK.getIndex());
-                            style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-                            style.setTopBorderColor(IndexedColors.BLACK.getIndex());
-                            style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-
-
-
-                            /*bean转成map*/
-                            Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
-
-                            for (int m = 0; m < workBook.getNumberOfSheets(); m++) {
-                                //获取对应的sheet
-                                HSSFSheet sheet = workBook.getSheetAt(m);
-                                String sheetName = sheet.getSheetName();
-                                if (!sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
-                                        && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
-                                        && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
-                                        && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
-                                        && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
-                                        && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
-                                        && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
-                                        && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
-                                        && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
-                                        && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
-                                        && !sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
-                                        && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
-                                        && !sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
-                                        && !sheetName.equalsIgnoreCase("QB12 资产负债简表")
-                                        && !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
-                                        && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
-                                        && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
-                                        && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
-                                ) {
-                                    continue;
-                                }
-                                log.info("开始处理{}表", sheetName);
-
-                                DictData dictData = new DictData();
-                                dictData.setDictLabel(sheetName);
-                                dictData = dictDataService.selectByDictLaber(dictData);
-                                String dictValue = dictData.getDictValue();
-                                int beginRow = StringUtils.getObjInt(dictValue.split("/")[0]);
-                                int beginClo = StringUtils.getObjInt(dictValue.split("/")[1]);//开始写的第一列数据
-                                int delete = 0; //是否有删除的行
-
-                                if (Constans.reportCss.STYLE_ONE.getValue().equalsIgnoreCase(dictData.getCssClass())) {//判断模板类型
-                                    List<Map<String, Object>> bAccCodeList = reportService.getBAccCode();
-
-                                    if (bAccCodeList != null && bAccCodeList.size() > 0) {
-                                        /*遍历表中的行的*/
-                                        for (int i = 0; i < bAccCodeList.size(); i++) {
-                                            /*获取baccCode*/
-                                            // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
-                                            String bAccCode = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccCode"));
-                                            String bAccName = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccName"));
-
-                                            if (StringUtils.isEmpty(bAccCode)) {
-                                                continue;
-                                            }
-                                            //获取行数
-                                            int lastRowNum = sheet.getLastRowNum();
-                                            int nextRowNum = i + beginRow + delete;
-                                            if (lastRowNum - nextRowNum <= 3) {
-                                                //添加行
-                                                PoiUtil.insertRow(sheet, nextRowNum, 1, beginRow);
-                                                sheet.addMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 0, 2));
-                                            }
-
-                                            HSSFCell cellBAccCode = sheet.getRow(i + beginRow + delete).getCell(0);
-                                            ;
-                                            cellBAccCode.setCellStyle(style);
-                                            cellBAccCode.setCellValue(bAccCode);
-                                            sheet.getRow(i + beginRow + delete).getCell(3).setCellValue(bAccName);
-
-                                            Map<String, Object> paramsMap = new HashMap();
-                                            // paramsMap = Map2Bean.transBean2Map(reportCondition);
-                                            paramsMap.putAll(beanMap);//添加查询条件
-                                            paramsMap.put("bAccCode", bAccCode);
-                                            // paramsMap.put("deptName", deptId);
-                                            List<ReportRsp> dataList = reportService.getData(paramsMap);
-
-                                            /*遍历表中的列*/
-                                            Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, bAccCode, "", sessionMap, style, true, dataList, reportCondition);
-
-                                            int total = StringUtils.getObjInt(resultMap.get("total"));
-                                            BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
-
-                                            if (total != 0) { //如果total为零  则认为没有这一列
-                                                if (sum.compareTo(BigDecimal.ZERO) == 0) {
-                                                    if (i == bAccCodeList.size() - 1) { //针对最后一行
-                                                        ExcelUtil.removeRow(sheet, i + beginRow + delete);
-                                                    }
-                                                    delete--;
-                                                } else {
-                                                    HSSFCell cellSum = sheet.getRow(i + beginRow + delete).getCell(total);
-                                                    cellSum.setCellStyle(style);
-                                                    cellSum.setCellValue(sum.doubleValue());
-                                                }
-                                                /*  统计第一行的合计值*/
-                                                if (sessionMap.containsKey("sum" + total)) {
-                                                    sessionMap.put("sum" + total, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + total))).add(sum));
-                                                } else {
-                                                    sessionMap.put("sum" + total, sum);
-                                                }
-                                            }
-                                        }
-                                    }else{
-                                        //删除模板行数据
-                                        ExcelUtil.removeRow(sheet,  beginRow);
-                                    }
-
-                                    /*  给第一行的合计值 赋值*/
-                                    for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
-                                        HSSFCell cellTotal = sheet.getRow(beginRow - 1).getCell(i);
-                                        cellTotal.setCellStyle(style);
-                                        cellTotal.setCellValue(new BigDecimal(StringUtils.getObjStrBigDeci(sessionMap.get("sum" + i))).doubleValue());//给合计赋值
-                                    }
-                                    sessionMap.clear();
-                                } else if (Constans.reportCss.STYLE_TWO.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                                    for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
-                                        // 删除空行
-                                        Row row = sheet.getRow(i);
-                                        if (null == row) {
-                                            continue; //针对空行
-                                        }
-
-                                        for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
-                                            HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
-                                            String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
-                                            if (cellVal.contains("*")) {
-                                                cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
-                                                Map<String, Object> paramsMap = new HashMap();
-                                                // paramsMap = Map2Bean.transBean2Map(reportCondition);
-                                                paramsMap.putAll(beanMap);//添加筛选条件
-                                                paramsMap.put("acc_code", cellVal);
-                                                // paramsMap.put("deptName", deptId);
-                                                BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
-                                                cellsetVal.setCellValue(FTempResult.doubleValue());
-                                                cellsetVal.setCellStyle(style);
-                                            }
-                                            continue;
-                                        }
-                                    }
-                                } else if (Constans.reportCss.STYLE_THREE.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                                    for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
-                                        // 删除空行
-                                        Row row = sheet.getRow(i);
-                                        if (null == row) {
-                                            continue; //针对空行
-                                        }
-                                        for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
-                                            HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
-                                            String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
-                                            if (StringUtils.isEmpty(cellVal)) {
-                                                continue;
-                                            }
-                                            /*替换可能存在的中文字符*/
-                                            cellVal.replace("（", "(");
-                                            cellVal.replace("）", ")");
-                                            cellVal.replace("，", ",");
-                                            cellVal.replace("：", ":");
-                                            cellVal.replace("，", ",");
-
-                                            if (cellVal.contains("(")) {
-                                                String splitFirst = "";//是否是sum
-                                                String str = "";//获取()内的数据
-                                                if (cellVal.split("\\(").length > 1) {
-                                                    splitFirst = cellVal.split("\\(")[0];
-                                                    //说明是 ( 这个符号(英文)
-                                                    //获取里面的值
-                                                    int start = cellVal.indexOf("(") + 1;//截取开始值
-                                                    int end = cellVal.indexOf(")");//截取结束值
-                                                    str = cellVal.substring(start, end);//获取()内的数据
-                                                } else {
-                                                    log.warn("{}格式不正确", cellVal);
-                                                    continue;
-                                                }
-                                                int size = 0;//小计长度
-                                                if (str.split(",").length > 1) {
-                                                    size = StringUtils.getObjInt(str.split(",")[1]) - StringUtils.getObjInt(str.split(",")[0]) + 1;
-                                                } else {
-                                                    log.warn("{}格式不正确", cellVal);
-                                                    continue;
-                                                }
-                                                size += j;//小计的长度
-                                                BigDecimal subtotal = new BigDecimal("0.00");//小计金额
-
-                                                /**
-                                                 * 小计这段的数据的操作
-                                                 */
-                                                for (int k = j + 1; k < size + 1; k++) {
-                                                    HSSFCell cell2setValue = sheet.getRow(i).getCell(k);
-                                                    String cellVal2 = ExcelUtil.getStringValueFromCell(cell2setValue);//获取列的内容
-                                                    if (cellVal2.contains("*")) {
-                                                        cellVal2 = cellVal2.substring(1, cellVal2.length() - 1);//获取值
-                                                        Map paramsMap = new HashMap();
-                                                        paramsMap.putAll(beanMap);//添加筛选条件
-                                                        paramsMap.put("acc_code", cellVal2);
-                                                        // paramsMap.put("deptName", deptId);
-                                                        BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
-                                                        cell2setValue.setCellValue(FTempResult.doubleValue());
-                                                        cell2setValue.setCellStyle(style);
-                                                        subtotal = subtotal.add(FTempResult);
-                                                    }
-                                                }
-                                                j = size;
-                                                cellsetVal.setCellValue(subtotal.doubleValue());
-                                                cellsetVal.setCellStyle(style);
-                                                continue;
-                                            }
-                                            if (cellVal.contains("*")) {
-                                                cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
-                                                Map paramsMap = new HashMap();
-                                                paramsMap.putAll(beanMap);//添加筛选条件
-                                                paramsMap.put("acc_code", cellVal);
-                                                // paramsMap.put("deptName", deptId);
-                                                BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
-                                                cellsetVal.setCellValue(FTempResult.doubleValue());
-                                                cellsetVal.setCellStyle(style);
-                                                continue;
-                                            }
-                                            if (cellVal.contains("{")) {//代表是json
-                                                Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
-                                                // paramMap.put("deptName", deptId);
-                                                // paramMap.putAll(paramsMap);
-                                                paramMap.putAll(beanMap);//添加筛选条件
-                                                BigDecimal result = reportService.getCRAmt(paramMap);
-                                                cellsetVal.setCellValue(result.doubleValue());
-                                                cellsetVal.setCellStyle(style);
-                                                continue;
-                                            }
-                                        }
-                                    }
-                                } else if (Constans.reportCss.STYLE_FOUR.getValue().equalsIgnoreCase(dictData.getCssClass())) {
-                                    LinkedList<Map<String, Object>> itemCodeList = reportService.getItemCode(beanMap);
-                                    if (itemCodeList != null && itemCodeList.size() > 0) {
-                                        Map paramMap = new HashMap();
-                                        String year = StringUtils.getObjStr(beanMap.get("beginTime")).substring(0, 4);
-                                        paramMap.put("year", year);
-                                        paramMap.put("deptId", deptId);
-                                        //根据item_code 获取对应的item_name
-                                        /*遍历表中的行的*/
-                                        for (int i = 0; i < itemCodeList.size(); i++) {
-                                            /*获取baccCode*/
-                                            // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
-                                            String bAccCode = StringUtils.getObjStr(itemCodeList.get(i).get("bAccCode"));
-                                            String itemCode = StringUtils.getObjStr(itemCodeList.get(i).get("itemCode"));
-                                            String itemName = "*";
-                                            //根据item_code 获取对应的item_name
-                                            paramMap.put("itemCode", itemCode);
-                                            if (!"*".equalsIgnoreCase(itemCode)) {
-                                                itemName = reportService.selectItemNameByItemCode(paramMap);
-                                                if (StringUtils.isEmpty(itemName)) {
-                                                    paramMap.put("itemCode", itemCode.substring(0, itemCode.length() - 2));
-                                                    itemName = reportService.selectItemNameByItemCode(paramMap);
-                                                }
-                                            }
-
-                                            if (StringUtils.isEmpty(itemCode)) {
-                                                continue;
-                                            }
-
-                                            //获取行数
-                                            int lastRowNum = sheet.getLastRowNum();
-                                            int nextRowNum = i + beginRow + delete;
-                                            if (lastRowNum - nextRowNum < 3) {
-                                                //添加行
-                                                PoiUtil.insertRow(sheet, nextRowNum, 1, beginRow);
-                                                sheet.addMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 0, 2));
-                                            }
-                                            HSSFCell cellBAccCode = sheet.getRow(i + beginRow + delete).getCell(0);
-                                            cellBAccCode.setCellStyle(style);
-                                            cellBAccCode.setCellValue(bAccCode);
-                                            sheet.getRow(i + beginRow + delete).getCell(3).setCellValue(itemName);
-                                            sheet.getRow(i + beginRow + delete).getCell(4).setCellValue(itemCode);
-
-                                            Map<String, Object> paramsMap = new HashMap();
-                                            // paramsMap = Map2Bean.transBean2Map(reportCondition);
-                                            paramsMap.putAll(beanMap);//添加查询条件
-                                            paramsMap.put("bAccCode", bAccCode);
-                                            paramsMap.put("itemCode", itemCode);
-                                            // List<ReportRsp> dataList = reportService.getItemCodeData(paramsMap);
-                                            List<ReportRsp> dataList = reportService.getItemCodeData(paramsMap);
-
-
-                                            /*遍历表中的列*/
-                                            Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, bAccCode, itemCode, sessionMap, style, true, dataList, reportCondition);
-
-                                            int total = StringUtils.getObjInt(resultMap.get("total"));
-                                            BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
-
-                                            if (total != 0) { //如果total为零  则认为没有这一列
-                                                if (sum.compareTo(BigDecimal.ZERO) == 0) {
-                                                    if (i == itemCodeList.size() - 1) { //针对最后一行
-                                                        ExcelUtil.removeRow(sheet, i + beginRow + delete);
-                                                    }
-                                                    delete--;
-                                                } else {
-                                                    HSSFCell cellSum = sheet.getRow(i + beginRow + delete).getCell(total);
-                                                    cellSum.setCellStyle(style);
-                                                    cellSum.setCellValue(sum.doubleValue());
-                                                }
-                                                /*  统计第一行的合计值*/
-                                                if (sessionMap.containsKey("sum" + total)) {
-                                                    sessionMap.put("sum" + total, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + total))).add(sum));
-                                                } else {
-                                                    sessionMap.put("sum" + total, sum);
-                                                }
-                                            }
-                                        }
-                                    }else{
-                                        ExcelUtil.removeRow(sheet,  beginRow);
-                                    }
-                                    /*  给第一行的合计值 赋值*/
-                                    for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
-                                        HSSFCell cellTotal = sheet.getRow(beginRow - 1).getCell(i);
-                                        cellTotal.setCellStyle(style);
-                                        cellTotal.setCellValue(new BigDecimal(StringUtils.getObjStrBigDeci(sessionMap.get("sum" + i))).doubleValue());//给合计赋值
-                                    }
-                                    sessionMap.clear();
-                                }
-                            }
-
-                            FileUtils.judeDirExists(rootPath + filePath);
-                            FileUtils.judeFileExists(excelPath);
-                            try (FileOutputStream out = new FileOutputStream(excelPath)) {
-                                workBook.write(out); //写回数据
-                            }
-
-                            asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_SUCC.getValue());
-                            asynDown.setMsg("处理成功");
-
-                        } catch (Exception e) {
-                            log.error("导出数据失败!", e);
-                            asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_FAIL.getValue());
-                            asynDown.setMsg(e.toString());
-                        } finally {
-                            asynDownService.updateFile(asynDown);
-                        }
+                        executeTask(asynDown, reportCondition, rootPath + filePath, excelPath);
                     }
                 });
-
             }
 
         }
         return AjaxResult.success();
+    }
+
+    /**
+     * 导出excel任务
+     *
+     * @param asynDown        文件信息
+     * @param reportCondition 条件信息
+     * @param folderPath      文件夹路径
+     * @param excelPath       文件路径
+     */
+    private void executeTask(AsynDown asynDown, ReportCondition reportCondition, String folderPath, String excelPath) {
+        //导出模板的路径
+        String tempFileName = "ReportTemp.xls";
+        String exportTempPath = RuoYiConfig.getReportPath() + tempFileName;
+
+        Map sessionMap = new HashMap();
+
+        try (FileInputStream fis = new FileInputStream(exportTempPath)) {
+
+            log.info("Start generating reports");
+            //构建Excel
+            String deptId = asynDown.getDeptId();
+            reportCondition.setDeptId(deptId);
+            //读取本地的导出模板
+            HSSFWorkbook workBook = new HSSFWorkbook(fis);
+            /*设置单元格格式*/
+            CellStyle style = workBook.createCellStyle();
+            style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00"));
+
+            style.setAlignment(HorizontalAlignment.RIGHT);// 靠右
+            style.setVerticalAlignment(VerticalAlignment.CENTER);
+            /*边框*/
+            style.setBorderBottom(BorderStyle.THIN); //下边框
+            style.setBorderLeft(BorderStyle.THIN);//左边框
+            style.setBorderTop(BorderStyle.THIN);//上边框
+            style.setBorderRight(BorderStyle.THIN);//右边框
+            style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+            style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+            style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+            style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+
+
+
+            /*bean转成map*/
+            Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
+
+            for (int m = 0; m < workBook.getNumberOfSheets(); m++) {
+                //获取对应的sheet
+                HSSFSheet sheet = workBook.getSheetAt(m);
+                String sheetName = sheet.getSheetName();
+                if (!sheetName.equalsIgnoreCase("Z08 一般公共预算财政拨款支出决算明细表(财决08表)")
+                        && !sheetName.equalsIgnoreCase("Z03 收入决算表(财决03表)")
+                        && !sheetName.equalsIgnoreCase("Z04 支出决算表(财决04表)")
+                        && !sheetName.equalsIgnoreCase("Z05 支出决算明细表(财决05表)")
+                        && !sheetName.equalsIgnoreCase("Z05_1 基本支出决算明细表(财决05-1表)")
+                        && !sheetName.equalsIgnoreCase("Z05_2 项目支出决算明细表(财决05-2表)")
+                        && !sheetName.equalsIgnoreCase("Z05_3 经营支出决算明细表(财决05-3表)")
+                        && !sheetName.equalsIgnoreCase("Z07 一般公共预算财政拨款收入支出决算表(财决07表)")
+                        && !sheetName.equalsIgnoreCase("Z08_1 一般公共预算财政拨款基本支出决算明细表(财决08-")
+                        && !sheetName.equalsIgnoreCase("Z08_2 一般公共预算财政拨款项目支出决算明细表(财决08-")
+                        && !sheetName.equalsIgnoreCase("F01 预算支出相关信息表(财决附01表)")
+                        && !sheetName.equalsIgnoreCase("F03 机构运行信息表(财决附03表)")
+                        && !sheetName.equalsIgnoreCase("CS03 其他收入等明细情况表")
+                        && !sheetName.equalsIgnoreCase("QB12 资产负债简表")
+                        && !sheetName.equalsIgnoreCase("QB01 非中央财政拨款收入明细表")
+                        && !sheetName.equalsIgnoreCase("QB03 非中央财政拨款支出决算明细表")
+                        && !sheetName.equalsIgnoreCase("QB04中央财政拨款人员经费明细表")
+                        && !sheetName.equalsIgnoreCase("QB05人员公用支出明细表")
+                ) {
+                    continue;
+                }
+                log.info("开始处理{}表", sheetName);
+
+                DictData dictData = new DictData();
+                dictData.setDictLabel(sheetName);
+                dictData = dictDataService.selectByDictLaber(dictData);
+                String dictValue = dictData.getDictValue();
+                int beginRow = StringUtils.getObjInt(dictValue.split("/")[0]);
+                int beginClo = StringUtils.getObjInt(dictValue.split("/")[1]);//开始写的第一列数据
+                int delete = 0; //是否有删除的行
+
+                if (Constans.reportCss.STYLE_ONE.getValue().equalsIgnoreCase(dictData.getCssClass())) {//判断模板类型
+                    List<Map<String, Object>> bAccCodeList = reportService.getBAccCode();
+
+                    if (bAccCodeList != null && bAccCodeList.size() > 0) {
+                        /*遍历表中的行的*/
+                        for (int i = 0; i < bAccCodeList.size(); i++) {
+                            /*获取baccCode*/
+                            // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
+                            String bAccCode = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccCode"));
+                            String bAccName = StringUtils.getObjStr(bAccCodeList.get(i).get("bAccName"));
+
+                            if (StringUtils.isEmpty(bAccCode)) {
+                                continue;
+                            }
+                            //获取行数
+                            int lastRowNum = sheet.getLastRowNum();
+                            int nextRowNum = i + beginRow + delete;
+                            if (lastRowNum - nextRowNum <= 3) {
+                                //添加行
+                                PoiUtil.insertRow(sheet, nextRowNum, 1, beginRow);
+                                sheet.addMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 0, 2));
+                            }
+
+                            HSSFCell cellBAccCode = sheet.getRow(i + beginRow + delete).getCell(0);
+                            cellBAccCode.setCellStyle(style);
+                            cellBAccCode.setCellValue(bAccCode);
+                            sheet.getRow(i + beginRow + delete).getCell(3).setCellValue(bAccName);
+
+                            Map<String, Object> paramsMap = new HashMap();
+                            // paramsMap = Map2Bean.transBean2Map(reportCondition);
+                            paramsMap.putAll(beanMap);//添加查询条件
+                            paramsMap.put("bAccCode", bAccCode);
+                            // paramsMap.put("deptName", deptId);
+                            List<ReportRsp> dataList = reportService.getData(paramsMap);
+
+                            /*遍历表中的列*/
+                            Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, bAccCode, "", sessionMap, style, true, dataList, reportCondition);
+
+                            int total = StringUtils.getObjInt(resultMap.get("total"));
+                            BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
+
+                            // if (total != 0) { //如果total为零  则认为没有这一列
+
+                            if (sum.compareTo(BigDecimal.ZERO) == 0) {
+                                if (i == bAccCodeList.size() - 1) { //针对最后一行
+                                    ExcelUtil.removeRow(sheet, i + beginRow + delete);
+                                }
+                                delete--;
+                            } else {
+                                if (total != 0) { //如果total为零  则认为没有这一列
+                                    HSSFCell cellSum = sheet.getRow(i + beginRow + delete).getCell(total);
+                                    cellSum.setCellStyle(style);
+                                    cellSum.setCellValue(sum.doubleValue());
+
+                                    /*  统计第一行的合计值*/
+                                    if (sessionMap.containsKey("sum" + total)) {
+                                        sessionMap.put("sum" + total, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + total))).add(sum));
+                                    } else {
+                                        sessionMap.put("sum" + total, sum);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        //删除模板行数据
+                        ExcelUtil.removeRow(sheet, beginRow);
+                    }
+
+                    /*  给第一行的合计值 赋值*/
+                    for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
+                        HSSFCell cellTotal = sheet.getRow(beginRow - 1).getCell(i);
+                        cellTotal.setCellStyle(style);
+                        cellTotal.setCellValue(new BigDecimal(StringUtils.getObjStrBigDeci(sessionMap.get("sum" + i))).doubleValue());//给合计赋值
+                    }
+                    sessionMap.clear();
+                } else if (Constans.reportCss.STYLE_TWO.getValue().equalsIgnoreCase(dictData.getCssClass())) {
+                    for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
+                        // 删除空行
+                        Row row = sheet.getRow(i);
+                        if (null == row) {
+                            continue; //针对空行
+                        }
+
+                        for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
+                            HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
+                            String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
+                            if (cellVal.contains("*")) {
+                                cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
+                                Map<String, Object> paramsMap = new HashMap();
+                                // paramsMap = Map2Bean.transBean2Map(reportCondition);
+                                paramsMap.putAll(beanMap);//添加筛选条件
+                                paramsMap.put("acc_code", cellVal);
+                                // paramsMap.put("deptName", deptId);
+                                BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
+                                cellsetVal.setCellValue(FTempResult.doubleValue());
+                                cellsetVal.setCellStyle(style);
+                            }
+                            continue;
+                        }
+                    }
+                } else if (Constans.reportCss.STYLE_THREE.getValue().equalsIgnoreCase(dictData.getCssClass())) {
+                    for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
+                        // 删除空行
+                        Row row = sheet.getRow(i);
+                        if (null == row) {
+                            continue; //针对空行
+                        }
+                        for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
+                            HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
+                            String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
+                            if (StringUtils.isEmpty(cellVal)) {
+                                continue;
+                            }
+                            /*替换可能存在的中文字符*/
+                            cellVal.replace("（", "(");
+                            cellVal.replace("）", ")");
+                            cellVal.replace("，", ",");
+                            cellVal.replace("：", ":");
+                            cellVal.replace("，", ",");
+
+                            if (cellVal.contains("(")) {
+                                String splitFirst = "";//是否是sum
+                                String str = "";//获取()内的数据
+                                if (cellVal.split("\\(").length > 1) {
+                                    splitFirst = cellVal.split("\\(")[0];
+                                    //说明是 ( 这个符号(英文)
+                                    //获取里面的值
+                                    int start = cellVal.indexOf("(") + 1;//截取开始值
+                                    int end = cellVal.indexOf(")");//截取结束值
+                                    str = cellVal.substring(start, end);//获取()内的数据
+                                } else {
+                                    log.warn("{}格式不正确", cellVal);
+                                    continue;
+                                }
+                                int size = 0;//小计长度
+                                if (str.split(",").length > 1) {
+                                    size = StringUtils.getObjInt(str.split(",")[1]) - StringUtils.getObjInt(str.split(",")[0]) + 1;
+                                } else {
+                                    log.warn("{}格式不正确", cellVal);
+                                    continue;
+                                }
+                                size += j;//小计的长度
+                                BigDecimal subtotal = new BigDecimal("0.00");//小计金额
+
+                                /**
+                                 * 小计这段的数据的操作
+                                 */
+                                for (int k = j + 1; k < size + 1; k++) {
+                                    HSSFCell cell2setValue = sheet.getRow(i).getCell(k);
+                                    String cellVal2 = ExcelUtil.getStringValueFromCell(cell2setValue);//获取列的内容
+                                    if (cellVal2.contains("*")) {
+                                        cellVal2 = cellVal2.substring(1, cellVal2.length() - 1);//获取值
+                                        Map paramsMap = new HashMap();
+                                        paramsMap.putAll(beanMap);//添加筛选条件
+                                        paramsMap.put("acc_code", cellVal2);
+                                        // paramsMap.put("deptName", deptId);
+                                        BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
+                                        cell2setValue.setCellValue(FTempResult.doubleValue());
+                                        cell2setValue.setCellStyle(style);
+                                        subtotal = subtotal.add(FTempResult);
+                                    }
+                                }
+                                j = size;
+                                cellsetVal.setCellValue(subtotal.doubleValue());
+                                cellsetVal.setCellStyle(style);
+                                continue;
+                            }
+                            if (cellVal.contains("*")) {
+                                cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
+                                Map paramsMap = new HashMap();
+                                paramsMap.putAll(beanMap);//添加筛选条件
+                                paramsMap.put("acc_code", cellVal);
+                                // paramsMap.put("deptName", deptId);
+                                BigDecimal FTempResult = reportService.getDataByAccCode(paramsMap);
+                                cellsetVal.setCellValue(FTempResult.doubleValue());
+                                cellsetVal.setCellStyle(style);
+                                continue;
+                            }
+                            if (cellVal.contains("{")) {//代表是json
+                                Map<String, Object> paramMap = StringUtils.getStringToMap(cellVal);
+                                // paramMap.put("deptName", deptId);
+                                // paramMap.putAll(paramsMap);
+                                paramMap.putAll(beanMap);//添加筛选条件
+                                BigDecimal result = reportService.getCRAmt(paramMap);
+                                cellsetVal.setCellValue(result.doubleValue());
+                                cellsetVal.setCellStyle(style);
+                                continue;
+                            }
+                        }
+                    }
+                } else if (Constans.reportCss.STYLE_FOUR.getValue().equalsIgnoreCase(dictData.getCssClass())) {
+                    LinkedList<Map<String, Object>> itemCodeList = reportService.getItemCode(beanMap);
+                    if (itemCodeList != null && itemCodeList.size() > 0) {
+                        Map paramMap = new HashMap();
+                        String year = StringUtils.getObjStr(beanMap.get("beginTime")).substring(0, 4);
+                        paramMap.put("year", year);
+                        paramMap.put("deptId", deptId);
+                        //根据item_code 获取对应的item_name
+                        /*遍历表中的行的*/
+                        for (int i = 0; i < itemCodeList.size(); i++) {
+                            /*获取baccCode*/
+                            // String bAccCode = ExcelUtil.getStringValueFromCell(sheet.getRow(i).getCell(0));
+                            String bAccCode = StringUtils.getObjStr(itemCodeList.get(i).get("bAccCode"));
+                            String itemCode = StringUtils.getObjStr(itemCodeList.get(i).get("itemCode"));
+                            String itemName = "*";
+                            //根据item_code 获取对应的item_name
+                            paramMap.put("itemCode", itemCode);
+                            if (!"*".equalsIgnoreCase(itemCode)) {
+                                itemName = reportService.selectItemNameByItemCode(paramMap);
+                                if (StringUtils.isEmpty(itemName)) {
+                                    paramMap.put("itemCode", itemCode.substring(0, itemCode.length() - 2));
+                                    itemName = reportService.selectItemNameByItemCode(paramMap);
+                                }
+                            }
+
+                            if (StringUtils.isEmpty(itemCode)) {
+                                continue;
+                            }
+
+                            //获取行数
+                            int lastRowNum = sheet.getLastRowNum();
+                            int nextRowNum = i + beginRow + delete;
+                            if (lastRowNum - nextRowNum < 3) {
+                                //添加行
+                                PoiUtil.insertRow(sheet, nextRowNum, 1, beginRow);
+                                sheet.addMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 0, 2));
+                            }
+                            HSSFCell cellBAccCode = sheet.getRow(i + beginRow + delete).getCell(0);
+                            cellBAccCode.setCellStyle(style);
+                            cellBAccCode.setCellValue(bAccCode);
+                            sheet.getRow(i + beginRow + delete).getCell(3).setCellValue(itemName);
+                            sheet.getRow(i + beginRow + delete).getCell(4).setCellValue(itemCode);
+
+                            Map<String, Object> paramsMap = new HashMap();
+                            // paramsMap = Map2Bean.transBean2Map(reportCondition);
+                            paramsMap.putAll(beanMap);//添加查询条件
+                            paramsMap.put("bAccCode", bAccCode);
+                            paramsMap.put("itemCode", itemCode);
+                            // List<ReportRsp> dataList = reportService.getItemCodeData(paramsMap);
+                            List<ReportRsp> dataList = reportService.getItemCodeData(paramsMap);
+
+
+                            /*遍历表中的列*/
+                            Map resultMap = getCellVal(sheet, i + beginRow + delete, beginClo, deptId, bAccCode, itemCode, sessionMap, style, true, dataList, reportCondition);
+
+                            int total = StringUtils.getObjInt(resultMap.get("total"));
+                            BigDecimal sum = new BigDecimal(StringUtils.getObjStr(resultMap.get("sum")));
+
+
+                            if (sum.compareTo(BigDecimal.ZERO) == 0) {
+                                if (i == itemCodeList.size() - 1) { //针对最后一行
+                                    ExcelUtil.removeRow(sheet, i + beginRow + delete);
+                                }
+                                delete--;
+                            } else {
+                                if (total != 0) { //如果total为零  则认为没有这一列
+                                    HSSFCell cellSum = sheet.getRow(i + beginRow + delete).getCell(total);
+                                    cellSum.setCellStyle(style);
+                                    cellSum.setCellValue(sum.doubleValue());
+
+                                    /*  统计第一行的合计值*/
+                                    if (sessionMap.containsKey("sum" + total)) {
+                                        sessionMap.put("sum" + total, new BigDecimal(StringUtils.getObjStr(sessionMap.get("sum" + total))).add(sum));
+                                    } else {
+                                        sessionMap.put("sum" + total, sum);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        ExcelUtil.removeRow(sheet, beginRow);
+                    }
+                    /*  给第一行的合计值 赋值*/
+                    for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
+                        HSSFCell cellTotal = sheet.getRow(beginRow - 1).getCell(i);
+                        cellTotal.setCellStyle(style);
+                        cellTotal.setCellValue(new BigDecimal(StringUtils.getObjStrBigDeci(sessionMap.get("sum" + i))).doubleValue());//给合计赋值
+                    }
+                    sessionMap.clear();
+                }
+            }
+
+            FileUtils.judeDirExists(folderPath);
+            FileUtils.judeFileExists(excelPath);
+            try (FileOutputStream out = new FileOutputStream(excelPath)) {
+                workBook.write(out); //写回数据
+            }
+
+            asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_SUCC.getValue());
+            asynDown.setMsg("处理成功");
+
+        } catch (Exception e) {
+            log.error("导出数据失败!", e);
+            asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_FAIL.getValue());
+            asynDown.setMsg(e.toString());
+        } finally {
+            asynDownService.updateFile(asynDown);
+        }
+
     }
 
 

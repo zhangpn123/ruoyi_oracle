@@ -71,8 +71,6 @@
 <th:block th:include="include :: footer"/>
 <script th:inline="javascript">
 
-    // var editFlag = [[${@permission.hasPermi('report:report:edit')}]];
-    // var removeFlag = [[${@permission.hasPermi('system:role:remove')}]];
     var prefix = ctx + "report";
 
     $(function () {
@@ -132,14 +130,6 @@
                     title: '处理消息',
                     width:'500px'
                 },
-                // {
-                //     title: '更新',
-                //     formatter: function (value, row, index) {
-                //         var actions = [];
-                //             actions.push('<a class="btn btn-info btn-xs " href="javascript:void(0)" onclick="updateExcel(\'' + row.id + '\')">更新</a> ');
-                //         return actions.join('');
-                //     }
-                // },
                 {
                     title: '操作',
                     width: '130px',
@@ -176,6 +166,7 @@
     function doSubmit(index, layero) {
         var tree = layero.find("iframe")[0].contentWindow.$._tree;
         var body = layer.getChildFrame('body', index);
+        console.log(body)
         $("#treeId").val(body.find('#treeId').val());
         $("#treeName").val(body.find('#treeName').val());
         layer.close(index);
@@ -241,7 +232,7 @@
         $.form.reset(formId);
     }
 
-
+    //导出excel
     function exportExcel(formId) {
         table.set();
         $.modal.confirm("确定创建" + table.options.modalName + "异步导出任务吗？", function () {
@@ -284,11 +275,7 @@
                     $.modal.alertError(result.msg);
                 }
                 $.modal.closeLoading();
-                //重新加载表格
-                $.table.refresh();
-                $.bttTable.bootstrapTreeTable('refresh');
-
-                // $.modal.reload();
+                $.modal.reload();
             });
         });
     }
@@ -298,9 +285,9 @@
         table.set();
         window.location.href = table.options.downFile+"?id="+id;
     }
+
     //更新文件
     function updateExcel(id,formId) {
-        console.log(id)
         table.set();
         var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
         var dataParam = $("#" + currentId).serializeArray();
@@ -316,7 +303,7 @@
                 $.modal.alertError(result.msg);
             }
             $.modal.closeLoading();
-            $.table.reload();
+            $.table.search()
         });
     }
 </script>
