@@ -353,6 +353,8 @@ public class ReportController extends BaseController {
                                             }
                                         }
                                     }
+                                }else{
+                                    ExcelUtil.removeRow(sheet, beginRow);
                                 }
                                 /*  给第一行的合计值 赋值*/
                                 for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
@@ -554,6 +556,9 @@ public class ReportController extends BaseController {
                                             }
                                         }
                                     }
+                                }else{
+                                    /*删除模板*/
+                                    ExcelUtil.removeRow(sheet, beginRow);
                                 }
                                 /*  给第一行的合计值 赋值*/
                                 for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
@@ -741,7 +746,11 @@ public class ReportController extends BaseController {
                                                 }
                                             }
                                         }
+                                    }else{
+                                        //删除模板行数据
+                                        ExcelUtil.removeRow(sheet,  beginRow);
                                     }
+
                                     /*  给第一行的合计值 赋值*/
                                     for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {
                                         HSSFCell cellTotal = sheet.getRow(beginRow - 1).getCell(i);
@@ -869,7 +878,6 @@ public class ReportController extends BaseController {
                                     if (itemCodeList != null && itemCodeList.size() > 0) {
                                         Map paramMap = new HashMap();
                                         String year = StringUtils.getObjStr(beanMap.get("beginTime")).substring(0, 4);
-                                        // String year = "2020";
                                         paramMap.put("year", year);
                                         paramMap.put("deptId", deptId);
                                         //根据item_code 获取对应的item_name
@@ -942,6 +950,8 @@ public class ReportController extends BaseController {
                                                 }
                                             }
                                         }
+                                    }else{
+                                        ExcelUtil.removeRow(sheet,  beginRow);
                                     }
                                     /*  给第一行的合计值 赋值*/
                                     for (int i = beginClo; i < sheet.getRow(beginRow - 1).getPhysicalNumberOfCells(); i++) {

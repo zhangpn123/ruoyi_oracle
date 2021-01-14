@@ -14,25 +14,18 @@ body.signin {
 
 .signinpanel {
     width: 750px;
-    /*margin-left: 67%;*/
-    /*margin-bottom:36%;*/
-    position:absolute;
-    right:-10%;
-    bottom:8%;
-    height: auto;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-
+    position: relative;
+    margin-left:70%;
+    margin-top: 30%;
 }
+
 
 
 .signinpanel .logopanel {
     float: none;
     width: auto;
     padding: 0;
-    background: 0
+    background: 0;
 }
 
 .signinpanel .signin-info ul {
