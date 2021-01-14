@@ -34,8 +34,10 @@
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
                                     class="fa fa-search"></i>&nbsp;搜索</a>
-                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="refresh()"><i
                                     class="fa fa-refresh"></i>&nbsp;重置</a>
+<!--                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i-->
+<!--                                    class="fa fa-refresh"></i>&nbsp;重置</a>-->
                         </li>
                     </ul>
                 </div>
@@ -103,6 +105,13 @@
             callBack: doSubmit
         };
         $.modal.openOptions(options);
+    }
+
+    //重置
+    function refresh(formId) {
+        console.log(formId);
+        $('#treeId').attr('value','');
+        $.form.reset(formId);
     }
 
     function doSubmit(index, layero) {

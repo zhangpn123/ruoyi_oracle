@@ -614,7 +614,6 @@ var table = {
     	form: {
     		// 表单重置
     		reset: function(formId, tableId) {
-    			alert;
     			table.set(tableId);
             	var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
             	$("#" + currentId)[0].reset();

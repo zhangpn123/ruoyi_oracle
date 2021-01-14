@@ -181,7 +181,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="selectDeptIdList" resultMap="DeptResult">
 		<include refid="selectDeptVo"/> where DEPT_ID like '%001'
 		and substr(DEPT_ID, length(DEPT_ID) - 5, 1) = 0
-		and DEPT_ID not like '%020001'
 		and DEPT_ID not like '%030001'
 	</select>
 
