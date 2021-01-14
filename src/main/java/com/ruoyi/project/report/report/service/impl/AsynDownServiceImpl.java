@@ -69,4 +69,6 @@ public class AsynDownServiceImpl implements AsynDownService {
     public int deleteAll() {
         return asynDownMapper.deleteAll();
     }
+
+
 }

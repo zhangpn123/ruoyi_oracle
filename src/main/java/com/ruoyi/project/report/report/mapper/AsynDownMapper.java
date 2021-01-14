@@ -39,4 +39,6 @@ public interface AsynDownMapper {
 
     int deleteAll();
 
+
+
 }

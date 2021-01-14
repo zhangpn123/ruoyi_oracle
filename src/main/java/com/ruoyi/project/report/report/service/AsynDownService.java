@@ -50,4 +50,6 @@ public interface AsynDownService {
      * @return
      */
     int deleteAll();
+
+
 }
