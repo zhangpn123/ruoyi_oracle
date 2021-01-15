@@ -335,7 +335,7 @@ public class ReportController extends BaseController {
                 int delete = 0; //是否有删除的行
 
                 if (Constans.reportCss.STYLE_ONE.getValue().equalsIgnoreCase(dictData.getCssClass())) {//判断模板类型
-                    List<Map<String, Object>> bAccCodeList = reportService.getBAccCode();
+                    List<Map<String, Object>> bAccCodeList = reportService.getBAccCode(beanMap);
 
                     if (bAccCodeList != null && bAccCodeList.size() > 0) {
                         /*遍历表中的行的*/

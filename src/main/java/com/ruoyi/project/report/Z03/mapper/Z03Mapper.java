@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public interface Z03Mapper {
 
-    LinkedList<Map<String, Object>> selBAccCode();
+    LinkedList<Map<String, Object>> selBAccCode(Map paramsMap);
 
     List<Map<String, Object>> selectReport(Map paramsMap);
 

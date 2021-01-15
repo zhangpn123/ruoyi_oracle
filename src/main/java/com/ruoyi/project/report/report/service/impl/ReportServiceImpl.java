@@ -1,6 +1,8 @@
 package com.ruoyi.project.report.report.service.impl;
 
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.framework.aspectj.lang.annotation.DataSource;
+import com.ruoyi.framework.aspectj.lang.enums.DataSourceType;
 import com.ruoyi.project.report.Z03.mapper.Z03Mapper;
 import com.ruoyi.project.report.report.domain.ReportRsp;
 import com.ruoyi.project.report.report.mapper.ReportMapper;
@@ -18,6 +20,7 @@ import java.util.*;
  * @create: 2020-09-18 10:37
  **/
 @Service
+@DataSource(value = DataSourceType.SLAVE)
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
@@ -32,8 +35,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<Map<String, Object>> getBAccCode() {
-        return z03Mapper.selBAccCode();
+    public List<Map<String, Object>> getBAccCode(Map paramsMap) {
+        return z03Mapper.selBAccCode(paramsMap);
     }
 
     @Override
@@ -82,11 +85,14 @@ public class ReportServiceImpl implements ReportService {
             String[] split = accCode.split("\\+");
             for (int i = 0; i < split.length; i++) {
                 paramsMap.put("acc_code", split[i]);
+                // if(split[i].startsWith("1") || split[i].startsWith("2") || split[i].startsWith("3")){
+                //     paramsMap.put("beginTime","2020-00");
+                // }
                 Map<String, Object> resMap = reportMapper.getDataByAccCode(paramsMap);
                 if (null != resMap && 0 < resMap.size()) {
                     BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
                     BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
-                    switch (accCode.substring(0,1)){
+                    switch (split[i].substring(0,1)){
                         case  "4" :  crAmt = crAmt.subtract(drAmt);
                             break;
                         case  "6" :   crAmt = crAmt.subtract(drAmt);
@@ -95,6 +101,12 @@ public class ReportServiceImpl implements ReportService {
                             break;
                         case  "7" :   crAmt = drAmt.subtract(crAmt);
                             break;
+                        // case "1":      crAmt = crAmt.subtract(drAmt);
+                        //     break;
+                        // case "2":      crAmt = drAmt.subtract(crAmt);
+                        //     break;
+                        // case "3":      crAmt = drAmt.subtract(crAmt);
+                        //     break;
                     }
                      sum = sum.add(crAmt);
                     }
@@ -103,11 +115,14 @@ public class ReportServiceImpl implements ReportService {
             String[] split = accCode.split("-");
             for (int i = 0; i < split.length; i++) {
                 paramsMap.put("acc_code", split[i]);
+                // if(split[i].startsWith("1") || split[i].startsWith("2") || split[i].startsWith("3")){
+                //     paramsMap.put("beginTime","2020-00");
+                // }
                 Map<String, Object> resMap = reportMapper.getDataByAccCode(paramsMap);
                 if (null != resMap && 0 < resMap.size()) {
                     BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
                     BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
-                    switch (accCode.substring(0,1)){
+                    switch (split[i].substring(0,1)){
                         case  "4" :  crAmt = crAmt.subtract(drAmt);
                             break;
                         case  "6" :   crAmt = crAmt.subtract(drAmt);
@@ -116,6 +131,12 @@ public class ReportServiceImpl implements ReportService {
                             break;
                         case  "7" :   crAmt = drAmt.subtract(crAmt);
                             break;
+                        // case "1":      crAmt = crAmt.subtract(drAmt);
+                        //     break;
+                        // case "2":      crAmt = drAmt.subtract(crAmt);
+                        //     break;
+                        // case "3":      crAmt = drAmt.subtract(crAmt);
+                        //     break;
                     }
                         if (i == 0) {
                             sum = sum.add(crAmt);
@@ -124,20 +145,29 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
         } else {
+            // if(accCode.startsWith("1") || accCode.startsWith("2") || accCode.startsWith("3")){
+            //     paramsMap.put("beginTime","2020-00");
+            // }
            Map<String, Object> resMap = reportMapper.getDataByAccCode(paramsMap);
             if (null != resMap && 0 < resMap.size()) {
                 BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
                 BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
-                    switch (accCode.substring(0,1)){
-                        case  "4" :  crAmt = crAmt.subtract(drAmt);
-                            break;
-                        case  "6" :   crAmt = crAmt.subtract(drAmt);
-                            break;
-                        case  "5" :   crAmt = drAmt.subtract(crAmt);
-                            break;
-                        case  "7" :   crAmt = drAmt.subtract(crAmt);
-                            break;
-                    }
+                switch (accCode.substring(0,1)){
+                    case  "4" :  crAmt = crAmt.subtract(drAmt);
+                        break;
+                    case  "6" :   crAmt = crAmt.subtract(drAmt);
+                        break;
+                    case  "5" :   crAmt = drAmt.subtract(crAmt);
+                        break;
+                    case  "7" :   crAmt = drAmt.subtract(crAmt);
+                        break;
+                    // case "1":      crAmt = crAmt.subtract(drAmt);
+                    //     break;
+                    // case "2":      crAmt = drAmt.subtract(crAmt);
+                    //     break;
+                    // case "3":      crAmt = drAmt.subtract(crAmt);
+                    //     break;
+                }
                     sum = sum.add(crAmt);
             }
         }

@@ -4,6 +4,8 @@ import com.ruoyi.common.constant.Constans;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.Map2Bean;
+import com.ruoyi.framework.aspectj.lang.annotation.DataSource;
+import com.ruoyi.framework.aspectj.lang.enums.DataSourceType;
 import com.ruoyi.project.report.dto.ReportCondition;
 import com.ruoyi.project.report.Z03.mapper.Z03Mapper;
 import com.ruoyi.project.report.Z03.service.Z03Service;
@@ -21,6 +23,7 @@ import java.util.*;
  * @create: 2020-09-18 10:37
  **/
 @Service
+@DataSource(value = DataSourceType.SLAVE)
 public class Z03ServiceImpl implements Z03Service {
 
     @Autowired
@@ -30,9 +33,10 @@ public class Z03ServiceImpl implements Z03Service {
     public LinkedList<Map<String, Object>> selectRoleList(List<String> fieldList, List<Map<String, Object>> replaceMap, ReportCondition reportCondition) {
         Map paramsMap = new HashMap();
         LinkedList<Map<String, Object>> resultList = new LinkedList<>();
-
+        /*bean转成map*/
+        Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
         /*获取bAccCode*/
-        LinkedList<Map<String, Object>> bAccCodeList = z03Mapper.selBAccCode();
+        LinkedList<Map<String, Object>> bAccCodeList = z03Mapper.selBAccCode(beanMap);
 
         /*初始化合计列*/
         Map<String,Object> totalMap = new HashMap();

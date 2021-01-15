@@ -25,7 +25,7 @@ public interface ReportService {
      * 获取所有的bAccCode
      * @return
      */
-    List<Map<String, Object>> getBAccCode();
+    List<Map<String, Object>> getBAccCode(Map paramsMap);
 
     /**
      * 根据条件查询
