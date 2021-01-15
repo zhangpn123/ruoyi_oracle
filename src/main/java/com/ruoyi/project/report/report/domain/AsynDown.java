@@ -28,6 +28,8 @@ public class AsynDown {
 
     private String deptId;//部门ID
 
+    private String parentId;//父ID
+
     private String timeInterval;//统计时间的区间
 
 }

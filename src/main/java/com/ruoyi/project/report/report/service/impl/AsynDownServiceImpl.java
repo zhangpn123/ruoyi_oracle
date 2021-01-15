@@ -31,6 +31,7 @@ public class AsynDownServiceImpl implements AsynDownService {
 
     @Override
     public int saveFile(AsynDown asynDown) {
+        asynDown.setParentId(asynDown.getDeptId());
         asynDown.setCreateDate(DateUtils.curDateTime());
         asynDown.setUpdateDate(DateUtils.curDateTime());
         asynDownMapper.save(asynDown);

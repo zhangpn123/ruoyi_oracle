@@ -14,6 +14,7 @@
         <if test="createDate != null and createDate != ''">createDate,</if>
         <if test="updateDate != null and updateDate != ''">updateDate,</if>
         <if test="deptId != null and deptId != ''">deptId,</if>
+        <if test="parentId != null and parentId != ''">parentId,</if>
         <if test="timeInterval != null and timeInterval != ''">timeInterval</if>
         )values(
         <if test="id != null and id != ''">#{id},</if>
@@ -24,6 +25,7 @@
         <if test="createDate != null and createDate != ''">#{createDate},</if>
         <if test="updateDate != null and updateDate != ''">#{updateDate},</if>
         <if test="deptId != null and deptId != ''">#{deptId},</if>
+        <if test="parentId != null and parentId != ''">#{parentId},</if>
         <if test="timeInterval != null and timeInterval != ''">#{timeInterval}</if>
         )
     </insert>
@@ -37,8 +39,11 @@
                 and status = #{status}
             </if>
             <if test="deptId != null and deptId != ''">
-            <bind name="deptId" value="deptId +'%'"/>
-                and deptId like #{deptId}
+                and deptId = #{deptId}
+            </if>
+            <if test="parentId != null and parentId != ''">
+                <bind name="parentId" value="parentId +'%'"/>
+                and parentId like #{parentId}
             </if>
         </where>
     </select>

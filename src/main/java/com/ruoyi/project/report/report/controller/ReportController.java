@@ -88,7 +88,7 @@ public class ReportController extends BaseController {
         if (StringUtils.isEmpty(asynDown.getDeptId())) {
             User user = (User) SecurityUtils.getSubject().getPrincipal();
             /*由于刚开始设计有问题  此处deptName 就是 deptId*/
-            asynDown.setDeptId(user.getDeptId());
+            asynDown.setParentId(user.getDeptId());
         }
         startPage();
         List<AsynDown> list = asynDownService.selectAsynDownList(asynDown);
@@ -204,6 +204,13 @@ public class ReportController extends BaseController {
             if (asynDown == null) {
                 return AjaxResult.error("文件ID不存在");
             }
+            /*修改文件名后拼接的日期*/
+            String fileName = asynDown.getFileName();
+            if (!StringUtils.isEmpty(fileName)) {
+                int i = fileName.indexOf(".");
+                String fileNamePrefix = fileName.substring(0, i - 8);
+                asynDown.setFileName(fileNamePrefix + DateUtils.dateTime() + ".xls");
+            }
             String excelPath = rootPath + filePath + asynDown.getFileName();
             asynDown.setFilePath(filePath);
             asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
@@ -223,6 +230,13 @@ public class ReportController extends BaseController {
                 return AjaxResult.error("文件不存在");
             }
             for (AsynDown asynDown : asynDowns) {
+                /*修改文件名后拼接的日期*/
+                String fileName = asynDown.getFileName();
+                if (!StringUtils.isEmpty(fileName)) {
+                    int i = fileName.indexOf(".");
+                    String fileNamePrefix = fileName.substring(0, i - 8);
+                    asynDown.setFileName(fileNamePrefix + DateUtils.dateTime() + ".xls");
+                }
                 String excelPath = rootPath + filePath + asynDown.getFileName();
                 asynDown.setFilePath(filePath);
                 asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
