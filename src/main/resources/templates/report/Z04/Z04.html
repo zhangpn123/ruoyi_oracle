@@ -11,7 +11,7 @@
                 <input name="deptId" type="hidden" id="treeId"/>
                 <div class="select-list">
                     <ul>
-                        <li class="select-list">
+                        <li class="select-list" style="width: 450px">
                             <label>归属部门： </label>
                             <div class="input-group">
                                 <input name="deptName" onclick="selectDeptTree()" id="treeName" type="text"
@@ -26,16 +26,15 @@
                         </select>
                         </li>
                         <li>
-                            是否关联GL_PREBAL：<select name="relation" style="width: 100px">
-                            <option value="2">否</option>
-                            <option value="1">是</option>
-                        </select>
+                            <label  class="check-box" style="width: 150px ">
+                                <input name="relation" type="checkbox" value="1" checked/>包含未记账凭证
+                            </label>
                         </li>
                         <li class="select-time-month">
-                            <label>创建时间： </label>
-                            <input type="text" class="time-input-month" id="startTimeMonth" placeholder="开始时间" name="beginTime" value="2020-01"/>
+                            <label>时间： </label>
+                            <input type="text" class="time-input-month" id="startTimeMonth" placeholder="开始时间" name="beginTime" value="2020-01" style="width: 150px"/>
                             <span>-</span>
-                            <input type="text" class="time-input-month" id="endTimeMonth" placeholder="结束时间" name="endTime" value="2020-12"/>
+                            <input type="text" class="time-input-month" id="endTimeMonth" placeholder="结束时间" name="endTime" value="2020-12" style="width: 150px"/>
                         </li>
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i

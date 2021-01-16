@@ -55,16 +55,15 @@
     </sql>
 
     <sql id="tempTable">
-            (
-            SELECT
+              (SELECT
                 account_id, co_code, fiscal, fis_perd, acc_code, dr_amt, cr_amt, acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6, acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10, acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, vou_kind
             FROM
                 GL_BAL
-        UNION
+        UNION ALL
             SELECT
-                account_id, co_code, TO_CHAR(fiscal), TO_CHAR(fis_perd), acc_code, TO_CHAR(dr_amt), TO_CHAR(cr_amt), acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6, acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10, acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, vou_kind
+                account_id, co_code, fiscal, fis_perd, acc_code, dr_amt, cr_amt, acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6, acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10, acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, vou_kind
             FROM
-                GL_PREBAL)gb
+                GL_PREBAL) gb
     </sql>
 
     <select id="getData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.report.domain.ReportRsp">

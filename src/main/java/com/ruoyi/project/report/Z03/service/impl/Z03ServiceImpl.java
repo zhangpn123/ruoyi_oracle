@@ -35,6 +35,8 @@ public class Z03ServiceImpl implements Z03Service {
         LinkedList<Map<String, Object>> resultList = new LinkedList<>();
         /*bean转成map*/
         Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
+        //添加时间
+        beanMap.put("year", StringUtils.getObjStr(beanMap.get("beginTime")).substring(0,4));
         /*获取bAccCode*/
         LinkedList<Map<String, Object>> bAccCodeList = z03Mapper.selBAccCode(beanMap);
 

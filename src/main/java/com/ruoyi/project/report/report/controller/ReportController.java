@@ -335,6 +335,8 @@ public class ReportController extends BaseController {
                 int delete = 0; //是否有删除的行
 
                 if (Constans.reportCss.STYLE_ONE.getValue().equalsIgnoreCase(dictData.getCssClass())) {//判断模板类型
+                    //添加时间
+                    beanMap.put("year", StringUtils.getObjStr(beanMap.get("beginTime")).substring(0,4));
                     List<Map<String, Object>> bAccCodeList = reportService.getBAccCode(beanMap);
 
                     if (bAccCodeList != null && bAccCodeList.size() > 0) {

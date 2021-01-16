@@ -242,7 +242,7 @@
         table.set();
         $.modal.confirm("确定更新全部吗？", function () {
 
-            layer.confirm("是否关联GL_PERBAL表", {
+            layer.confirm("是否包含未记账凭证", {
                 icon: 3,
                 title: "系统提示",
                 btn: ['是', '否']
@@ -325,7 +325,7 @@
     function updateExcel(id,formId) {
         var temp;
         table.set();
-        layer.confirm("是否关联GL_PERBAL表",{
+        layer.confirm("是否包含未记账凭证",{
             icon: 3,
             title: "系统提示",
             btn: ['是', '否']
