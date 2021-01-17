@@ -80,6 +80,7 @@
             importUrl: prefix + "/import",
             downFile: prefix + "/downFile",
             removeUrl: prefix + "/remove",
+            scheduledURL: prefix + "/scheduled",
             createTast: prefix + "/task",
             sortName: "updatedate",
             sortOrder: "desc",
@@ -102,12 +103,12 @@
                     title: '统计时间区间'
                 },
                 {
-                    field: 'updateDate',
-                    title: '更新时间'
+                    field: 'createDate',
+                    title: '开始时间'
                 },
                 {
-                    field: 'createDate',
-                    title: '创建时间'
+                    field: 'updateDate',
+                    title: '完成时间'
                 },
                 {
                     field: 'status',
@@ -176,6 +177,23 @@
         $("#treeName").val(body.find('#treeName').val());
         layer.close(index);
     }
+
+
+    //定时任务
+    function addTask(task) {
+        if(task){
+            $.get(ctx + "report/scheduled", function (result) {
+                if (result.code == web_status.SUCCESS) {
+                    $.table.search();//刷新页面
+                }else{
+                    $.table.search();//刷新页面
+                    setTimeout("addTask(true)",1000 * 60);//定时执行
+                }
+            });
+        }
+    }
+
+
 
     // 导入数据
     function importExcel(formId) {
@@ -290,8 +308,14 @@
                 layer.close(index);
             });
         });
+        setTimeout("addTask(true)",1000 * 60);//定时执行
     }
 
+    /**
+     *
+     *初始化任务
+     * @param formId
+     */
     function exportTask(formId) {
         table.set();
         $.modal.confirm("确定初始化任务吗？", function () {
@@ -366,6 +390,7 @@
             });
             layer.close(index);
         });
+        setTimeout("addTask(true)",1000 * 60);//定时执行
     }
 </script>
 </body>

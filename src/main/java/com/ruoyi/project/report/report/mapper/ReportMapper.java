@@ -31,4 +31,8 @@ public interface ReportMapper {
     List<ReportRsp> getItemCodeData(Map<String, Object> paramsMap);
 
     String selectItemNameByItemCode(Map<String, Object> paramsMap);
+
+    List<ReportRsp>  getAccCode(Map<String, Object> beanMap);
+
+    List<ReportRsp> getDataByCondition(Map<String, Object> beanMap);
 }

@@ -76,4 +76,21 @@
         delete from sys_asynDown where 1=1
     </delete>
 
+    <update id="update" parameterType="com.ruoyi.project.report.report.domain.AsynDown">
+        update sys_asynDown
+        <set>
+            <if test="filePath != null and filePath != ''">filePath=#{filePath},</if>
+            <if test="fileName != null and fileName != ''">fileName=#{fileName},</if>
+            <if test="status != null and status != ''">status=#{status},</if>
+            <if test="msg != null and msg != ''">msg=#{msg},</if>
+            <if test="updateDate != null and updateDate != ''">updateDate=#{updateDate},</if>
+            <if test="createDate != null and createDate != ''">createDate=#{createDate}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="countByStatus" resultType="integer">
+        select count(*) from sys_asynDown where status = '3'
+    </select>
+
 </mapper>

@@ -40,5 +40,8 @@ public interface AsynDownMapper {
     int deleteAll();
 
 
+    int update(AsynDown asynDown);
+
+    int countByStatus();
 
 }

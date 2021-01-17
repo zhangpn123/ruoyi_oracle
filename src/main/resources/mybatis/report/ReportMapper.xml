@@ -5,52 +5,52 @@
 <mapper namespace="com.ruoyi.project.report.report.mapper.ReportMapper">
     <sql id="condition">
         <if test="acc_item1 != null and acc_item1 != ''">
-            and acc_item1 LIKE  #{acc_item1}
+            and acc_item1 LIKE #{acc_item1}
         </if>
         <if test="acc_item2 != null and acc_item2 != ''">
-            and acc_item2 LIKE  #{acc_item2}
+            and acc_item2 LIKE #{acc_item2}
         </if>
         <if test="acc_item3 != null and acc_item3 != ''">
-            and acc_item3 LIKE  #{acc_item3}
+            and acc_item3 LIKE #{acc_item3}
         </if>
         <if test="acc_item4 != null and acc_item4 != ''">
-            and acc_item4 LIKE  #{acc_item4}
+            and acc_item4 LIKE #{acc_item4}
         </if>
         <if test="acc_item5 != null and acc_item5 != ''">
-            and acc_item5 LIKE  #{acc_item5}
+            and acc_item5 LIKE #{acc_item5}
         </if>
         <if test="acc_item6 != null and acc_item6 != ''">
-            and acc_item6 LIKE  #{acc_item6}
+            and acc_item6 LIKE #{acc_item6}
         </if>
         <if test="acc_item7 != null and acc_item7 != ''">
-            and acc_item7 LIKE  #{acc_item7}
+            and acc_item7 LIKE #{acc_item7}
         </if>
         <if test="acc_item8 != null and acc_item8 != ''">
-            and acc_item8 LIKE  #{acc_item8}
+            and acc_item8 LIKE #{acc_item8}
         </if>
         <if test="acc_item9 != null and acc_item9 != ''">
-            and acc_item9 LIKE  #{acc_item9}
+            and acc_item9 LIKE #{acc_item9}
         </if>
         <if test="acc_item10 != null and acc_item10 != ''">
-            and acc_item10 LIKE  #{acc_item10}
+            and acc_item10 LIKE #{acc_item10}
         </if>
         <if test="acc_item11 != null and acc_item11 != ''">
-            and acc_item11 LIKE  #{acc_item11}
+            and acc_item11 LIKE #{acc_item11}
         </if>
         <if test="acc_item12 != null and acc_item12 != ''">
-            and acc_item12 LIKE  #{acc_item12}
+            and acc_item12 LIKE #{acc_item12}
         </if>
         <if test="acc_item13 != null and acc_item13 != ''">
-            and acc_item13 LIKE  #{acc_item13}
+            and acc_item13 LIKE #{acc_item13}
         </if>
         <if test="acc_item14 != null and acc_item14 != ''">
-            and acc_item14 LIKE  #{acc_item14}
+            and acc_item14 LIKE #{acc_item14}
         </if>
         <if test="acc_item15 != null and acc_item15 != ''">
-            and acc_item15 LIKE  #{acc_item15}
+            and acc_item15 LIKE #{acc_item15}
         </if>
         <if test="acc_item16 != null and acc_item16 != ''">
-            and acc_item16 LIKE  #{acc_item16}
+            and acc_item16 LIKE #{acc_item16}
         </if>
     </sql>
 
@@ -65,6 +65,17 @@
             FROM
                 GL_PREBAL) gb
     </sql>
+    <!--                 where ACCOUNT_ID = '001'-->
+    <!--            <if test="beginTime != null and beginTime != '' ">-->
+    <!--                AND  FISCAL|| '-' || lpad(FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}-->
+    <!--            </if>-->
+    <!--            <if test="endTime != null and endTime != '' ">-->
+    <!--                AND  FISCAL|| '-' || lpad(FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}-->
+    <!--            </if>-->
+    <!--            <if test="deptId != null and deptId != ''">-->
+    <!--                <bind name="deptId" value="deptId+'%'"/>-->
+    <!--                and co_code Like #{deptId}-->
+    <!--            </if>-->
 
     <select id="getData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.report.domain.ReportRsp">
         select (CASE SUBSTR(gb.ACC_CODE, 1, 1)
@@ -75,20 +86,21 @@
         WHEN '5' THEN
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
         WHEN '7' THEN
-        sum(gb.DR_AMT) - sum( gb.CR_AMT)  END) AS "caAmt",
-         gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode"
-         from
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        ELSE sum( gb.CR_AMT) END) AS "caAmt",
+        gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode"
+        from
         <if test="relation != 1">
             GL_BAL gb
         </if>
-        <if test="relation == 1" >
+        <if test="relation == 1">
             <include refid="tempTable"/>
         </if>
         <where>
             gb.B_ACC_CODE != '*'
             AND gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
             <if test="bAccCode != null and bAccCode != ''">
-            <bind name="bAccCode" value="bAccCode + '%'"/>
+                <bind name="bAccCode" value="bAccCode + '%'"/>
                 and B_ACC_CODE LIKE #{bAccCode}
             </if>
             <if test="deptId != null and deptId != ''">
@@ -105,7 +117,8 @@
         group by gb.B_ACC_CODE, gb.ACC_CODE
     </select>
 
-    <select id="getItemCodeData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.report.domain.ReportRsp">
+    <select id="getItemCodeData" parameterType="java.util.Map"
+            resultType="com.ruoyi.project.report.report.domain.ReportRsp">
         select (CASE SUBSTR(gb.ACC_CODE, 1, 1)
         WHEN '4' THEN
         sum( gb.CR_AMT ) - sum(gb.DR_AMT)
@@ -114,16 +127,17 @@
         WHEN '5' THEN
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
         WHEN '7' THEN
-        sum(gb.DR_AMT) - sum( gb.CR_AMT)  END) AS "caAmt",
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        ELSE sum( gb.CR_AMT) END) AS "caAmt",
         gb.B_ACC_CODE as "bAccCode",gb.ACC_CODE as "accCode" from
         <if test="relation != 1">
             GL_BAL gb
         </if>
-        <if test="relation == 1" >
+        <if test="relation == 1">
             <include refid="tempTable"/>
         </if>
         <where>
-             gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
+            gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
             <if test="bAccCode != null and bAccCode != ''">
                 <bind name="bAccCode" value="bAccCode + '%'"/>
                 and B_ACC_CODE LIKE #{bAccCode}
@@ -154,12 +168,13 @@
         WHEN '5' THEN
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
         WHEN '7' THEN
-        sum(gb.DR_AMT) - sum( gb.CR_AMT)  END) AS "caAmt",
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        ELSE sum( gb.CR_AMT) END) AS "caAmt",
         gb.B_ACC_CODE as "bAccCode", gb.ACC_CODE as "accCode" from
         <if test="relation != 1">
             GL_BAL gb
         </if>
-        <if test="relation == 1" >
+        <if test="relation == 1">
             <include refid="tempTable"/>
         </if>
         <where>
@@ -179,7 +194,7 @@
             <if test="endTime != null and endTime != '' ">
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
             </if>
-         <include refid="condition"/>
+            <include refid="condition"/>
         </where>
         group by gb.B_ACC_CODE, gb.ACC_CODE
     </select>
@@ -193,14 +208,15 @@
         WHEN '5' THEN
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
         WHEN '7' THEN
-        sum(gb.DR_AMT) - sum( gb.CR_AMT)  END) AS "caAmt",
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        ELSE sum( gb.CR_AMT) END) AS "caAmt",
         gb.ITEM_CODE as "itemCode",
         gb.B_ACC_CODE as "bAccCode",
         gb.ACC_CODE as "accCode" from
         <if test="relation != 1">
             GL_BAL gb
         </if>
-        <if test="relation == 1" >
+        <if test="relation == 1">
             <include refid="tempTable"/>
         </if>
         <where>
@@ -226,43 +242,43 @@
 
     <select id="getDataByAccCode" parameterType="java.util.Map" resultType="java.util.Map">
         select
-        sum(gb.DR_AMT) AS "drAmt" ,sum( gb.CR_AMT)  AS "crAmt"
+        sum(gb.DR_AMT) AS "drAmt" ,sum( gb.CR_AMT) AS "crAmt"
         from
         <if test="relation != 1">
             GL_BAL gb
         </if>
-        <if test="relation == 1" >
+        <if test="relation == 1">
             <include refid="tempTable"/>
         </if>
         where gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
-            <if test="acc_code != null and acc_code != ''">
-                <bind name="acc_code" value="acc_code+'%'"/>
-                and gb.ACC_CODE LIKE #{acc_code}
-            </if>
-            <if test="deptId != null and deptId != ''">
-                <bind name="deptId" value="deptId+'%'"/>
-                and gb.co_code Like #{deptId}
-            </if>
-            <if test="beginTime != null and beginTime != '' ">
-                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
-            </if>
-            <if test="endTime != null and endTime != '' ">
-                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
-            </if>
+        <if test="acc_code != null and acc_code != ''">
+            <bind name="acc_code" value="acc_code+'%'"/>
+            and gb.ACC_CODE LIKE #{acc_code}
+        </if>
+        <if test="deptId != null and deptId != ''">
+            <bind name="deptId" value="deptId+'%'"/>
+            and gb.co_code Like #{deptId}
+        </if>
+        <if test="beginTime != null and beginTime != '' ">
+            AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null and endTime != '' ">
+            AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+        </if>
     </select>
 
 
     <select id="getCRAmt" parameterType="java.util.Map" resultType="java.util.Map">
         select
-        sum(gb.DR_AMT) AS "drAmt" ,sum( gb.CR_AMT)  AS "crAmt"
+        sum(gb.DR_AMT) AS "drAmt" ,sum( gb.CR_AMT) AS "crAmt"
         from
         <if test="relation != 1">
             GL_BAL gb
         </if>
-        <if test="relation == 1" >
+        <if test="relation == 1">
             <include refid="tempTable"/>
         </if>
-         where gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
+        where gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
         <if test="acc_code != null and acc_code != ''">
             <bind name="acc_code" value="acc_code+'%'"/>
             and gb.ACC_CODE LIKE #{acc_code}
@@ -282,40 +298,135 @@
 
 
     <select id="getItemCode" resultType="java.util.Map" parameterType="java.util.Map">
-           SELECT
-                gb.B_ACC_CODE AS "bAccCode",
-                gb.ITEM_CODE AS "itemCode"
-            FROM
-            <if test="relation != 1">
-                GL_BAL gb
+        SELECT
+        gb.B_ACC_CODE AS "bAccCode",
+        gb.ITEM_CODE AS "itemCode"
+        FROM
+        <if test="relation != 1">
+            GL_BAL gb
+        </if>
+        <if test="relation == 1">
+            <include refid="tempTable"/>
+        </if>
+        <where>
+            gb.ACCOUNT_ID = '001'AND gb.VOU_KIND != 'JZ'
+            <if test="deptId != null and deptId != ''">
+                <bind name="deptId" value="deptId+'%'"/>
+                and gb.co_code Like #{deptId}
             </if>
-            <if test="relation == 1" >
-                <include refid="tempTable"/>
+            <if test="beginTime != null and beginTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
             </if>
-            <where>
-                gb.ACCOUNT_ID = '001'AND gb.VOU_KIND != 'JZ'
-                <if test="deptId != null and deptId != ''">
-                    <bind name="deptId" value="deptId+'%'"/>
-                    and gb.co_code Like #{deptId}
-                </if>
-                <if test="beginTime != null and beginTime != '' ">
-                    AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
-                </if>
-                <if test="endTime != null and endTime != '' ">
-                    AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
-                </if>
-            </where>
-            GROUP BY
-                gb.ITEM_CODE,
-                gb.B_ACC_CODE
-            ORDER BY
-                gb.ITEM_CODE,
-                gb.B_ACC_CODE
+            <if test="endTime != null and endTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+            </if>
+        </where>
+        GROUP BY
+        gb.ITEM_CODE,
+        gb.B_ACC_CODE
+        ORDER BY
+        gb.ITEM_CODE,
+        gb.B_ACC_CODE
     </select>
 
     <select id="selectItemNameByItemCode" resultType="string" parameterType="map">
         select  ic.ITEM_NAME as "itemName" from GL_ITEM ic
         where ic.ITEM_CODE = #{itemCode} and ic.FISCAL = #{year} and ic.co_code=#{deptId} and rownum <![CDATA[  <= ]]> 1
+    </select>
+
+    <select id="getAccCode" resultType="com.ruoyi.project.report.report.domain.ReportRsp" parameterType="map">
+        select
+        (CASE SUBSTR(gb.ACC_CODE, 1, 1)
+        WHEN '4' THEN
+        sum( gb.CR_AMT ) - sum(gb.DR_AMT)
+        WHEN '6' THEN
+        sum( gb.CR_AMT ) - sum(gb.DR_AMT)
+        WHEN '5' THEN
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        WHEN '7' THEN
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        ELSE sum( gb.CR_AMT) END) AS "amt",
+        gb.ACC_CODE AS "accCode"
+        from
+        <if test="relation != 1">
+            GL_BAL gb
+        </if>
+        <if test="relation == 1">
+            <include refid="tempTable"/>
+        </if>
+        where gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
+        <if test="accCode != null and accCode != ''">
+            <bind name="accCode" value="accCode+'%'"/>
+            and gb.ACC_CODE LIKE #{accCode}
+        </if>
+        <if test="deptId != null and deptId != ''">
+            <bind name="deptId" value="deptId+'%'"/>
+            and gb.co_code Like #{deptId}
+        </if>
+        <if test="beginTime != null and beginTime != '' ">
+            AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null and endTime != '' ">
+            AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+        </if>
+        group by gb.ACC_CODE
+    </select>
+
+    <select id="getDataByCondition" resultType="com.ruoyi.project.report.report.domain.ReportRsp" parameterType="map">
+        select
+        (CASE SUBSTR(gb.ACC_CODE, 1, 1)
+        WHEN '4' THEN
+        sum( gb.CR_AMT ) - sum(gb.DR_AMT)
+        WHEN '6' THEN
+        sum( gb.CR_AMT ) - sum(gb.DR_AMT)
+        WHEN '5' THEN
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        WHEN '7' THEN
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        ELSE sum( gb.CR_AMT) END) AS "amt",
+        gb.ACC_CODE AS "accCode" ,
+        gb.acc_item1  AS "acc_item1",
+        gb.acc_item2  AS "acc_item2",
+        gb.acc_item3  AS "acc_item3",
+        gb.acc_item4  AS "acc_item4",
+        gb.acc_item5  AS "acc_item5",
+        gb.acc_item6  AS "acc_item6",
+        gb.acc_item7  AS "acc_item7",
+        gb.acc_item8  AS "acc_item8",
+        gb.acc_item9  AS "acc_item9",
+        gb.acc_item10 AS "acc_item10",
+        gb.acc_item11 AS "acc_item11",
+        gb.acc_item12 AS "acc_item12",
+        gb.acc_item13 AS "acc_item13",
+        gb.acc_item14 AS "acc_item14",
+        gb.acc_item15 AS "acc_item15",
+        gb.acc_item16 AS "acc_item16"
+        from
+        <if test="relation != 1">
+            GL_BAL gb
+        </if>
+        <if test="relation == 1">
+            <include refid="tempTable"/>
+        </if>
+        where gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
+        <if test="accCode != null and accCode != ''">
+            <bind name="accCode" value="accCode+'%'"/>
+            and gb.ACC_CODE LIKE #{accCode}
+        </if>
+        <if test="deptId != null and deptId != ''">
+            <bind name="deptId" value="deptId+'%'"/>
+            and gb.co_code Like #{deptId}
+        </if>
+        <if test="beginTime != null and beginTime != '' ">
+            AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null and endTime != '' ">
+            AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+        </if>
+        group by gb.ACC_CODE ,gb.acc_item1,gb.acc_item2,
+        gb.acc_item3,gb.acc_item4,gb.acc_item5,gb.acc_item6,
+        gb.acc_item7,gb.acc_item8,gb.acc_item9,gb.acc_item10,gb.acc_item11,
+        gb.acc_item12, gb.acc_item13,gb.acc_item14,gb.acc_item15,gb.acc_item16
     </select>
 
 </mapper>

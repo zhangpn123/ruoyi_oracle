@@ -260,5 +260,33 @@ public class ReportServiceImpl implements ReportService {
         return reportMapper.selectItemNameByItemCode(paramsMap);
     }
 
+    @Override
+    public List<ReportRsp>  getAccCode(Map<String, Object> beanMap) {
+        // List<ReportRsp> reportRspList = reportMapper.getAccCode(beanMap);
+        // for (ReportRsp reportRsp : reportRspList) {
+        //     String accCode = reportRsp.getAccCode();
+        //     BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getCrAmt()));
+        //     BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getDrAmt()));
+        //     BigDecimal amt = new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt()));
+        //     switch (accCode.substring(0,1)){
+        //         case  "4" :  amt = crAmt.subtract(drAmt);
+        //             break;
+        //         case  "6" :   amt = crAmt.subtract(drAmt);
+        //             break;
+        //         case  "5" :   amt = drAmt.subtract(crAmt);
+        //             break;
+        //         case  "7" :   amt = drAmt.subtract(crAmt);
+        //             break;
+        //     }
+        //     reportRsp.setAmt(amt.toString());
+        // }
+        return reportMapper.getAccCode(beanMap);
+    }
+
+    @Override
+    public List<ReportRsp> getDataByCondition(Map<String, Object> beanMap) {
+        return reportMapper.getDataByCondition(beanMap);
+    }
+
 
 }

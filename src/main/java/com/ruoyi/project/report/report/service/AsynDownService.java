@@ -52,4 +52,13 @@ public interface AsynDownService {
     int deleteAll();
 
 
+    /**
+     * 更新
+     * @param asynDown
+     * @return
+     */
+    int update(AsynDown asynDown);
+
+    int countByStatus();
+
 }

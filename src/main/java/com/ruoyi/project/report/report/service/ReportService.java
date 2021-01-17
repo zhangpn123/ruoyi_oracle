@@ -58,4 +58,18 @@ public interface ReportService {
     List<ReportRsp> getItemCodeData(Map<String, Object> paramsMap);
 
     String selectItemNameByItemCode( Map<String, Object> paramsMap);
+
+    /**
+     * 获取符合全表的数据
+     * @param beanMap
+     * @return
+     */
+    List<ReportRsp>  getAccCode(Map<String, Object> beanMap);
+
+    /**
+     * b报表3的数据
+     * @param beanMap
+     * @return
+     */
+    List<ReportRsp> getDataByCondition(Map<String, Object> beanMap);
 }
