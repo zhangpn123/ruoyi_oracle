@@ -147,10 +147,10 @@ public class Z03ServiceImpl implements Z03Service {
                                     }
                                 }
                             }
-                            BigDecimal oldCaAmt = new BigDecimal(resultMap.get(accCode).toString());//取出已存的金额
-                            BigDecimal newCaAmt = new BigDecimal(StringUtils.getObjStrto0(paramsMap.get("caAmt"))).setScale(2, BigDecimal.ROUND_HALF_UP);
-                            resultMap.put(accCode, oldCaAmt.add(newCaAmt).toString());//加上新的金额
-                            total = total.add(newCaAmt);
+                            BigDecimal oldCrAmt = new BigDecimal(resultMap.get(accCode).toString());//取出已存的金额
+                            BigDecimal newCrAmt = new BigDecimal(StringUtils.getObjStrto0(paramsMap.get("crAmt"))).setScale(2, BigDecimal.ROUND_HALF_UP);
+                            resultMap.put(accCode, oldCrAmt.add(newCrAmt).toString());//加上新的金额
+                            total = total.add(newCrAmt);
                         }
                     }
 
