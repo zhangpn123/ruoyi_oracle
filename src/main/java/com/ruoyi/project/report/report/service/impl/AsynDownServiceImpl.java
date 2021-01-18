@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sun.nio.cs.ext.ISCII91;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +64,7 @@ public class AsynDownServiceImpl implements AsynDownService {
     @Override
     public int updateFile(AsynDown asynDown) {
         asynDown.setUpdateDate(DateUtils.curDateTime());
+        asynDown.setFinishDate(DateUtils.curDateTime());
         return asynDownMapper.updateFile(asynDown);
     }
 

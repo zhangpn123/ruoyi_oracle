@@ -37,7 +37,7 @@
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
         WHEN '7' THEN
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
-        ELSE sum( gb.CR_AMT)  END) AS "caAmt",
+        ELSE sum( gb.CR_AMT)  END) AS "crAmt",
         gb.B_ACC_CODE as "bAccCode",
         gb.ACC_CODE as "accCode" from
         <if test="relation != 1">

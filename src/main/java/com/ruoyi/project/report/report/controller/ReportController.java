@@ -884,14 +884,14 @@ public class ReportController extends BaseController {
                                                 if (count == 1) {
                                                     for (ReportRsp reportRsp : resultList) {
                                                         if (reportRsp.getAccCode().startsWith(s)) {
-                                                            FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                            FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                         }
                                                     }
                                                     count ++;
                                                 } else {
                                                     for (ReportRsp reportRsp : resultList) {
                                                         if (reportRsp.getAccCode().startsWith(s)) {
-                                                            FTempResult.subtract(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                            FTempResult = FTempResult.subtract(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                         }
                                                     }
                                                 }
@@ -901,14 +901,14 @@ public class ReportController extends BaseController {
                                             for (String s : split) {
                                                 for (ReportRsp reportRsp : resultList) {
                                                     if (reportRsp.getAccCode().startsWith(s)) {
-                                                        FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                        FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                     }
                                                 }
                                             }
                                         } else {
                                             for (ReportRsp reportRsp : resultList) {
                                                 if (reportRsp.getAccCode().startsWith(cellVal)) {
-                                                    FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                    FTempResult =  FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                 }
                                             }
                                         }
@@ -1088,14 +1088,14 @@ public class ReportController extends BaseController {
                                                         if (count == 1) {
                                                             for (ReportRsp reportRsp : resultList) {
                                                                 if (reportRsp.getAccCode().startsWith(s)) {
-                                                                    FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                                    FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                                 }
                                                             }
                                                             count ++;
                                                         } else {
                                                             for (ReportRsp reportRsp : resultList) {
                                                                 if (reportRsp.getAccCode().startsWith(s)) {
-                                                                    FTempResult.subtract(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                                    FTempResult = FTempResult.subtract(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                                 }
                                                             }
                                                         }
@@ -1105,7 +1105,7 @@ public class ReportController extends BaseController {
                                                     for (String s : split) {
                                                         for (ReportRsp reportRsp : resultList) {
                                                             if (reportRsp.getAccCode().startsWith(s)) {
-                                                                FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                                FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                             }
                                                         }
                                                     }
@@ -1136,14 +1136,14 @@ public class ReportController extends BaseController {
                                                 if (count == 1) {
                                                     for (ReportRsp reportRsp : resultList) {
                                                         if (reportRsp.getAccCode().startsWith(s)) {
-                                                            FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                            FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                         }
                                                     }
                                                     count ++;
                                                 } else {
                                                     for (ReportRsp reportRsp : resultList) {
                                                         if (reportRsp.getAccCode().startsWith(s)) {
-                                                            FTempResult.subtract(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                            FTempResult = FTempResult.subtract(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                         }
                                                     }
                                                 }
@@ -1153,14 +1153,14 @@ public class ReportController extends BaseController {
                                             for (String s : split) {
                                                 for (ReportRsp reportRsp : resultList) {
                                                     if (reportRsp.getAccCode().startsWith(s)) {
-                                                        FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                        FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                     }
                                                 }
                                             }
                                         } else {
                                             for (ReportRsp reportRsp : resultList) {
                                                 if (reportRsp.getAccCode().startsWith(cellVal)) {
-                                                    FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                    FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                 }
                                             }
                                         }
@@ -1173,23 +1173,24 @@ public class ReportController extends BaseController {
                                         BigDecimal result = new BigDecimal("0.00");
                                         for (ReportRsp reportRsp : resultList) {
                                             String acc_code = StringUtils.getObjStr(paramMap.get("acc_code"));
-                                            paramMap.remove("acc_code");//移除
+                                            //paramMap.remove("acc_code");//移除
                                             if(reportRsp.getAccCode().startsWith(acc_code)) {
                                                 Map<String, Object> reportMap = Map2Bean.transBean2Map(reportRsp);
-                                                int flag = 0;
+                                                int flag = 1;
                                                 for (String key : paramMap.keySet()) {
-                                                    String value = StringUtils.getObjStr(reportMap.get(key));
-                                                    String tempVal = StringUtils.getObjStr(paramMap.get(key));
-                                                    tempVal = tempVal.substring(0, tempVal.length() - 1);//去掉最后的%号
-                                                    //对比
-                                                    if (value.startsWith(tempVal)) {
-                                                        flag = 1;
-                                                    } else {
-                                                        flag = 0;
+                                                    if (!"acc_code".equalsIgnoreCase(key)){
+                                                        String value = StringUtils.getObjStr(reportMap.get(key));
+                                                        String tempVal = StringUtils.getObjStr(paramMap.get(key));
+                                                        tempVal = tempVal.substring(0, tempVal.length() - 1);//去掉最后的%号
+                                                        //对比
+                                                        if (!value.startsWith(tempVal)) {
+                                                            flag = 0;
+                                                            break;
+                                                        }
                                                     }
                                                 }
                                                 if (flag != 0) {
-                                                    result.add(new BigDecimal(reportRsp.getAmt()));
+                                                    result = result.add(new BigDecimal(reportRsp.getAmt()));
                                                 }
                                             }
                                         }

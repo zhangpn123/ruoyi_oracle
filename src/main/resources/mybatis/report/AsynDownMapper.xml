@@ -16,6 +16,7 @@
         <if test="deptId != null and deptId != ''">deptId,</if>
         <if test="parentId != null and parentId != ''">parentId,</if>
         <if test="timeInterval != null and timeInterval != ''">timeInterval</if>
+<!--        <if test="finishDate != null and finishDate != ''">finishDate</if>-->
         )values(
         <if test="id != null and id != ''">#{id},</if>
         <if test="filePath != null and filePath != ''">#{filePath},</if>
@@ -27,13 +28,14 @@
         <if test="deptId != null and deptId != ''">#{deptId},</if>
         <if test="parentId != null and parentId != ''">#{parentId},</if>
         <if test="timeInterval != null and timeInterval != ''">#{timeInterval}</if>
+--         <if test="finishDate != null and finishDate != ''">#{finishDate}</if>
         )
     </insert>
 
 
     <select id="selectAsynDownList" parameterType="com.ruoyi.project.report.report.domain.AsynDown"
             resultType="com.ruoyi.project.report.report.domain.AsynDown">
-        select  id,filePath,fileName,status,msg,createDate,updateDate,timeInterval,deptId from sys_asynDown
+        select  id,filePath,fileName,status,msg,createDate,updateDate,finishDate,timeInterval,deptId from sys_asynDown
         <where>
             <if test="status != null and status != ''">
                 and status = #{status}
@@ -67,7 +69,8 @@
             <if test="fileName != null and fileName != ''">fileName=#{fileName},</if>
             <if test="status != null and status != ''">status=#{status},</if>
             <if test="msg != null and msg != ''">msg=#{msg},</if>
-            <if test="updateDate != null and updateDate != ''">updateDate=#{updateDate}</if>
+            <if test="updateDate != null and updateDate != ''">updateDate=#{updateDate},</if>
+            <if test="finishDate != null and finishDate != ''">finishDate=#{finishDate}</if>
         </set>
         where id = #{id}
     </update>

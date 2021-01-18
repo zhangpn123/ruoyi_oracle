@@ -49,11 +49,11 @@ public class ReportServiceImpl implements ReportService {
                 for (Map<String, Object> map : dateByCondition) {
                     String bAccCode = StringUtils.getObjStr(map.get("bAccCode"));
                     String itemCode = StringUtils.getObjStr(map.get("itemCode"));
-                    BigDecimal caAmt = new BigDecimal(StringUtils.getObjStrBigDeci(map.get("caAmt")));
+                    BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(map.get("crAmt")));
                     if (resMap.containsKey(bAccCode+"/"+itemCode)) {
-                        resMap.put(bAccCode+"/"+itemCode, new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode+"/"+itemCode))).add(caAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                        resMap.put(bAccCode+"/"+itemCode, new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode+"/"+itemCode))).add(crAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
                     } else {
-                        resMap.put(bAccCode+"/"+itemCode, caAmt);
+                        resMap.put(bAccCode+"/"+itemCode, crAmt);
                     }
                 }
             }
@@ -63,11 +63,11 @@ public class ReportServiceImpl implements ReportService {
             if (dateByCondition != null && dateByCondition.size() > 0) {
                 for (Map<String, Object> map : dateByCondition) {
                     String bAccCode = StringUtils.getObjStr(map.get("bAccCode"));
-                    BigDecimal caAmt = new BigDecimal(StringUtils.getObjStrBigDeci(map.get("caAmt")));
+                    BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(map.get("crAmt")));
                     if (resMap.containsKey(bAccCode)) {
-                        resMap.put(bAccCode, new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode))).add(caAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                        resMap.put(bAccCode, new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode))).add(crAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
                     } else {
-                        resMap.put(bAccCode, caAmt);
+                        resMap.put(bAccCode, crAmt);
                     }
                 }
             }

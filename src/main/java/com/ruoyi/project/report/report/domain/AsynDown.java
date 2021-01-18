@@ -26,6 +26,8 @@ public class AsynDown {
 
     private String createDate; //创建时间
 
+    private String finishDate; //完成时间
+
     private String deptId;//部门ID
 
     private String parentId;//父ID
