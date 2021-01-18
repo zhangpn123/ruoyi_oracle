@@ -1300,8 +1300,8 @@ public class ReportController extends BaseController {
                             HSSFCell cellBAccCode = sheet.getRow(i + beginRow + delete).getCell(0);
                             cellBAccCode.setCellStyle(style);
                             cellBAccCode.setCellValue(bAccCode);
-                            sheet.getRow(i + beginRow + delete).getCell(3).setCellValue(itemName);
-                            sheet.getRow(i + beginRow + delete).getCell(4).setCellValue(itemCode);
+                            sheet.getRow(i + beginRow + delete).getCell(4).setCellValue(itemName);
+                            sheet.getRow(i + beginRow + delete).getCell(5).setCellValue(itemCode);
 
                             Map<String, Object> paramsMap = new HashMap();
                             // paramsMap = Map2Bean.transBean2Map(reportCondition);
