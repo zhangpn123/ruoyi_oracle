@@ -8,12 +8,12 @@
         (SELECT
         account_id, co_code, fiscal, fis_perd, acc_code, dr_amt, cr_amt, acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6, acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10, acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, vou_kind
         FROM
-        GL_BAL
+        a6.GL_BAL
         UNION ALL
         SELECT
         account_id, co_code, fiscal, fis_perd, acc_code, dr_amt, cr_amt, acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6, acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10, acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, vou_kind
         FROM
-        GL_PREBAL  ) gb
+        a6.GL_PREBAL  ) gb
     </sql>
     <!--        where ACCOUNT_ID = '001'-->
     <!--        <if test="beginTime != null and beginTime != '' ">-->
@@ -41,7 +41,7 @@
         gb.B_ACC_CODE as "bAccCode",
         gb.ACC_CODE as "accCode" from
         <if test="relation != 1">
-            GL_BAL gb
+            a6.GL_BAL gb
         </if>
         <if test="relation == 1" >
             <include refid="tempTable"/>
@@ -74,7 +74,7 @@
             select t.B_ACC_CODE as "bAccCode" , bac.B_ACC_NAME as "bAccName" from
                 (select distinct(gb.B_ACC_CODE)  from
                     <if test="relation != 1">
-                        GL_BAL gb
+                        a6.GL_BAL gb
                     </if>
 
                     <if test="relation == 1" >
@@ -88,7 +88,7 @@
                     and gb.co_code Like #{deptId}
                 </if>
                   ) t
-                 LEFT JOIN MA_BACC bac ON t.B_ACC_CODE = bac.B_ACC_CODE
+                 LEFT JOIN a6.MA_BACC bac ON t.B_ACC_CODE = bac.B_ACC_CODE
                 <where>
                     <if test="year != null and year != '' ">
                         AND bac.ND =  #{year}
