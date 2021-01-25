@@ -16,7 +16,7 @@ import java.util.List;
  * @create: 2020-12-29 13:54
  **/
 @Service
-// @DataSource(value = DataSourceType.SLAVE)
+@DataSource(value = DataSourceType.SLAVE)
 public class CustomqueryServiceImpl implements CustomqueryService {
 
     @Autowired

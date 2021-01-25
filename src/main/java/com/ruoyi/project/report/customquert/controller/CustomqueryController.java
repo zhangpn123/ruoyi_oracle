@@ -7,6 +7,8 @@ import com.ruoyi.framework.web.controller.BaseController;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.report.customquert.dto.CustomPageReq;
 import com.ruoyi.project.report.customquert.service.CustomqueryService;
+import com.ruoyi.project.system.dict.domain.DictData;
+import com.ruoyi.project.system.dict.service.IDictDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class CustomqueryController extends BaseController {
     @Autowired
     private CustomqueryService customqueryService;
 
+    @Autowired
+    private IDictDataService dictDataService;
+
     private String prefix = "report/custom";
 
     /**
@@ -49,26 +54,33 @@ public class CustomqueryController extends BaseController {
     @ResponseBody
     public TableDataInfo getData(CustomPageReq customPageReq) {
         log.info("开始自定义分页查询");
+        DictData dictData = dictDataService.selectDictDataById(Long.parseLong(customPageReq.getDictCode()));
         startPage();
-        List<Map<String, Object>> customResult = customqueryService.selectList(customPageReq.getCustomSql());
+        List<Map<String, Object>> customResult = customqueryService.selectList(dictData.getDictValue());
         return getDataTable(customResult);
     }
 
 
     @PostMapping("/getHeaderList")
     @ResponseBody
-    public TableDataInfo getHeaderList(@RequestParam("customSql") String customSql) {
+    public TableDataInfo getHeaderList(@RequestParam("dictCode") String dictCode) {
         log.info("开始获取查询的表头");
         /*校验数据*/
         TableDataInfo rspData = new TableDataInfo();
-        if (StringUtils.isEmpty(customSql)) {
+        if (StringUtils.isEmpty(dictCode)) {
             log.error("要查询的数据为空");
             rspData.setCode(301);
             rspData.setMsg("查询的数据为空");
             return rspData;
         }
-        String sql =customSql.trim();
-
+        DictData dictData = dictDataService.selectDictDataById(Long.parseLong(dictCode));
+        if(dictData == null || StringUtils.isEmpty(dictData.getDictValue())){
+            log.error("要查询的数据为空");
+            rspData.setCode(301);
+            rspData.setMsg("查询的数据为空");
+            return rspData;
+        }
+        String sql = dictData.getDictValue();
         if (!sql.startsWith("select")) {
             log.error("要查询的数据不是select开头");
             rspData.setCode(301);
