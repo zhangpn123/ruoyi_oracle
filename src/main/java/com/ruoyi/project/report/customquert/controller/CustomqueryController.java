@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,7 @@ public class CustomqueryController extends BaseController {
             return rspData;
         }
         String sql = dictData.getDictValue();
+        sql = sql.toLowerCase();//转成小写
         if (!sql.startsWith("select")) {
             log.error("要查询的数据不是select开头");
             rspData.setCode(301);
@@ -90,6 +92,13 @@ public class CustomqueryController extends BaseController {
         try {
             PageHelper.startPage(1, 1);
             List<Map<String, Object>> customResult = customqueryService.selectList(sql);
+            LinkedHashMap custom = (LinkedHashMap)customResult.get(0);
+            custom.remove("ROW_ID");
+            Map customMap = new LinkedHashMap();
+            customMap.put("ROW_ID","ROW_ID");
+            customMap.putAll(custom);
+            customResult.clear();
+            customResult.add(customMap);
             return getDataTable(customResult);
         } catch (Exception e) {
             log.error("自定义查询失败!", e);
