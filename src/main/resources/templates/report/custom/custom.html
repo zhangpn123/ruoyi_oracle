@@ -12,7 +12,7 @@
                     <ul>
                         <li>
                             查询条件：<select  id="dictCode"  name="dictCode" th:with="type=${@dict.getType('custom_query')}">
-                            <option value="">请选择查询的条件</option>
+                            <option value="">-- 请选择查询的条件 --</option>
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictCode}"></option>
                         </select>
                         </li>

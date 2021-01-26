@@ -70,7 +70,7 @@ public class CustomqueryController extends BaseController {
         if (StringUtils.isEmpty(dictCode)) {
             log.error("要查询的数据为空");
             rspData.setCode(301);
-            rspData.setMsg("查询的数据为空");
+            rspData.setMsg("请选择要查询的条件");
             return rspData;
         }
         DictData dictData = dictDataService.selectDictDataById(Long.parseLong(dictCode));
