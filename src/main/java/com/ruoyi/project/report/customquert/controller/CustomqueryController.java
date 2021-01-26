@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +72,7 @@ public class CustomqueryController extends BaseController {
         if (StringUtils.isEmpty(dictCode)) {
             log.error("要查询的数据为空");
             rspData.setCode(301);
-            rspData.setMsg("查询的数据为空");
+            rspData.setMsg("请选择要查询的条件");
             return rspData;
         }
         DictData dictData = dictDataService.selectDictDataById(Long.parseLong(dictCode));
@@ -81,6 +83,7 @@ public class CustomqueryController extends BaseController {
             return rspData;
         }
         String sql = dictData.getDictValue();
+        sql = sql.toLowerCase();//转成小写
         if (!sql.startsWith("select")) {
             log.error("要查询的数据不是select开头");
             rspData.setCode(301);
@@ -88,8 +91,15 @@ public class CustomqueryController extends BaseController {
             return rspData;
         }
         try {
-            PageHelper.startPage(1, 1);
+            PageHelper.startPage(1, 1,false);
             List<Map<String, Object>> customResult = customqueryService.selectList(sql);
+            LinkedHashMap custom = (LinkedHashMap)customResult.get(0);
+            custom.remove("ROW_ID");
+            Map customMap = new LinkedHashMap();
+            customMap.put("ROW_ID","ROW_ID");
+            customMap.putAll(custom);
+            customResult.clear();
+            customResult.add(customMap);
             return getDataTable(customResult);
         } catch (Exception e) {
             log.error("自定义查询失败!", e);
