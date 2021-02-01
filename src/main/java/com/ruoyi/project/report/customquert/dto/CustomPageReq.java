@@ -11,4 +11,5 @@ import lombok.Data;
 @Data
 public class CustomPageReq {
     private String dictCode;
+    private String deptId;
 }

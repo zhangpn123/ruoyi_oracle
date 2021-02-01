@@ -8,6 +8,7 @@
     <div class="row">
         <div class="col-sm-12 search-collapse">
             <form id="custom-form">
+                <input name="deptId" type="hidden" id="treeId"/>
                 <div class="select-list" >
                     <ul>
                         <li>
@@ -15,6 +16,13 @@
                             <option value="">-- 请选择查询的条件 --</option>
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictCode}"></option>
                         </select>
+                        </li>
+                        <li class="select-list" style="width: 450px">
+                            <label>归属部门： </label>
+                            <div class="input-group">
+                                <input name="deptName" onclick="selectDeptTree()" id="treeName" type="text"
+                                       placeholder="请选择归属部门" class="form-control" required style="width: 350px">
+                            </div>
                         </li>
                         <li >
                             <a class="btn btn-primary btn-rounded btn-sm" id="search" ><i
@@ -41,12 +49,14 @@
     })
     //动态获取表头信息
     $("#search").click(function () {
-        var params = $("#dictCode").val();
+        // var params = $("#dictCode").val();
+        let formToJSON = $.common.formToJSON('custom-form');
+        console.log(formToJSON);
         $.ajax({
             url: "/report/custom/getHeaderList", // //请求路径
             type: "post",// "post", //请求方式
             dataType: 'json', //期望获得的返回值类型
-            data: {dictCode: params},
+            data: formToJSON,
             async: false, //是否异步
             success: function (result) {
                 if (result.code == web_status.SUCCESS) {
@@ -70,6 +80,10 @@
                     // layer.close(index);
                     // $.modal.enable();
                     $.modal.alertWarning(result.msg)
+                } else if (result.code == 201) {
+                    // layer.close(index);
+                    // $.modal.enable();
+                    $.modal.alertSuccess(result.msg)
                 } else {
                     // layer.close(index);
                     // $.modal.enable();
@@ -78,6 +92,35 @@
             }
         });
     })
+
+    /*部门管理-新增-选择父部门树*/
+    function selectDeptTree() {
+        var treeId = $("#treeId").val();
+        var deptId = $.common.isEmpty(treeId) ? "141" : $("#treeId").val();
+        var url = ctx + "system/dept/selectDeptTree/" + deptId;
+        var options = {
+            title: '选择部门',
+            width: "380",
+            url: url,
+            callBack: doSubmit
+        };
+        $.modal.openOptions(options);
+    }
+
+
+    function doSubmit(index, layero) {
+        var tree = layero.find("iframe")[0].contentWindow.$._tree;
+        var body = layer.getChildFrame('body', index);
+        $("#treeId").val(body.find('#treeId').val());
+        $("#treeName").val(body.find('#treeName').val());
+        layer.close(index);
+    }
+
+    //重置
+    function refresh(formId) {
+        $('#treeId').attr('value','');
+        $.form.reset(formId);
+    }
 
     $(window).resize(function() {
         $('#custom-table').bootstrapTable('resetView');
