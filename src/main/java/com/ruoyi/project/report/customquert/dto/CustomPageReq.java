@@ -12,4 +12,6 @@ import lombok.Data;
 public class CustomPageReq {
     private String dictCode;
     private String deptId;
+    private String year;
+    private String months;
 }

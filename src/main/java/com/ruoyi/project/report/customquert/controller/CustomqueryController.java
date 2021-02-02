@@ -2,6 +2,7 @@ package com.ruoyi.project.report.customquert.controller;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.controller.BaseController;
 import com.ruoyi.framework.web.page.TableDataInfo;
@@ -59,21 +60,7 @@ public class CustomqueryController extends BaseController {
         log.info("开始自定义分页查询");
         DictData dictData = dictDataService.selectDictDataById(Long.parseLong(customPageReq.getDictCode()));
         String customSql = dictData.getDictValue();
-        StringBuffer sb = new StringBuffer();
-        int index = customSql.indexOf("1=1");
-        if (index != -1){
-            /*将sql分割*/
-            String prefix = customSql.substring(0, index + 3);
-            String suffix = customSql.substring(index + 3,customSql.length());
-            if(StringUtils.isEmpty(customPageReq.getDeptId())){
-                User user = (User) SecurityUtils.getSubject().getPrincipal();
-                /*拼接条件*/
-                customSql = sb.append(prefix).append(" AND co_code like '"+user.getDeptId()+"%' ").append(suffix).toString();
-            }else{
-                customSql = sb.append(prefix).append(" AND co_code = '"+customPageReq.getDeptId()+"' ").append(suffix).toString();
-            }
-        }
-
+        customSql = getSql(customSql, customPageReq);
         startPage();
         List<Map<String, Object>> customResult = customqueryService.selectList(customSql);
         return getDataTable(customResult);
@@ -93,7 +80,7 @@ public class CustomqueryController extends BaseController {
             return rspData;
         }
         DictData dictData = dictDataService.selectDictDataById(Long.parseLong(customPageReq.getDictCode()));
-        if(dictData == null || StringUtils.isEmpty(dictData.getDictValue())){
+        if (dictData == null || StringUtils.isEmpty(dictData.getDictValue())) {
             log.error("要查询的数据为空");
             rspData.setCode(301);
             rspData.setMsg("查询的数据为空");
@@ -108,32 +95,19 @@ public class CustomqueryController extends BaseController {
             return rspData;
         }
         try {
-            StringBuffer sb = new StringBuffer();
-            int index = sql.indexOf("1=1");
-            if (index != -1){
-                /*将sql分割*/
-                String prefix = sql.substring(0, index + 3);
-                String suffix = sql.substring(index + 3,sql.length());
-                if(StringUtils.isEmpty(customPageReq.getDeptId())){
-                    User user = (User) SecurityUtils.getSubject().getPrincipal();
-                    /*拼接条件*/
-                    sql = sb.append(prefix).append(" AND co_code like '"+user.getDeptId()+"%' ").append(suffix).toString();
-                }else{
-                    sql = sb.append(prefix).append(" AND co_code = '"+customPageReq.getDeptId()+"' ").append(suffix).toString();
-                }
-            }
-            PageHelper.startPage(1, 1,false);
+            sql = getSql(sql, customPageReq);
+            PageHelper.startPage(1, 1, false);
             List<Map<String, Object>> customResult = customqueryService.selectList(sql);
-            if(customResult != null && customResult.size() > 0){
-                LinkedHashMap custom = (LinkedHashMap)customResult.get(0);
+            if (customResult != null && customResult.size() > 0) {
+                LinkedHashMap custom = (LinkedHashMap) customResult.get(0);
                 custom.remove("ROW_ID");
                 Map customMap = new LinkedHashMap();
-                customMap.put("ROW_ID","ROW_ID");
+                customMap.put("ROW_ID", "ROW_ID");
                 customMap.putAll(custom);
                 customResult.clear();
                 customResult.add(customMap);
                 return getDataTable(customResult);
-            }else{
+            } else {
                 rspData.setCode(201);
                 rspData.setMsg("查询的数据为空");
                 return rspData;
@@ -145,6 +119,48 @@ public class CustomqueryController extends BaseController {
             rspData.setMsg("查询的sql有误");
             return rspData;
         }
+    }
+
+    /**
+     * 替换表中的数据
+     *
+     * @param sql
+     * @param customPageReq
+     * @return
+     */
+    public String getSql(String sql, CustomPageReq customPageReq) {
+
+        if (sql.contains("jigou")) {
+            if (StringUtils.isEmpty(customPageReq.getDeptId())) {
+                User user = (User) SecurityUtils.getSubject().getPrincipal();
+                sql = sql.replace("jigou", user.getDeptId());
+            } else {
+                sql = sql.replace("jigou", customPageReq.getDeptId());
+            }
+        }
+        if (sql.contains("nianfen")) {
+            if (StringUtils.isEmpty(customPageReq.getYear())) {
+                sql = sql.replace("nianfen", DateUtils.getYear());
+            } else {
+                sql = sql.replace("nianfen", customPageReq.getYear());
+            }
+        }
+        if (sql.contains("yuefen")) {
+            if (StringUtils.isEmpty(customPageReq.getMonths())) {
+                sql = sql.replace("yuefen", DateUtils.getMonth());
+            } else {
+                String[] split = customPageReq.getMonths().split(",");
+                StringBuffer monthsSB = new StringBuffer();
+                for (String s : split) {
+                    monthsSB.append("'" + s + "',");
+                }
+                String sqlToDo = monthsSB.toString();
+                /*去掉最后的, */
+                String sqlFinish = sqlToDo.substring(0, sqlToDo.length() - 1);
+                sql = sql.replace("'yuefen'", sqlFinish);
+            }
+        }
+        return sql;
     }
 
 }

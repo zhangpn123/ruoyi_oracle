@@ -47,6 +47,24 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * 获取当前年份 默认格式为yyyy
+     *
+     * @return String
+     */
+    public static String getYear() {
+        return dateTimeNow(YYYY);
+    }
+
+    /**
+     * 获取当前年份 默认格式为yyyy
+     *
+     * @return String
+     */
+    public static String getMonth() {
+        return dateTimeNow("M");
+    }
+
+    /**
      * 取得系统当前的日期时间
      *
      * @return String yyyy/MM/dd HH:mm:ss
@@ -155,8 +173,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     public static void main(String[] args) {
-        int i = 5;
-        i += 1;
-        System.out.println(i);
+
+        String s = "123456789";
+        System.out.println(s.substring(0,s.length() - 1));
     }
 }
