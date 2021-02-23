@@ -53,7 +53,7 @@ public class CustomqueryController extends BaseController {
         return prefix + "/custom";
     }
 
-    @RequiresPermissions("report:custom:execute")
+    //@RequiresPermissions("report:custom:execute")
     @PostMapping("/getData")
     @ResponseBody
     public TableDataInfo getData(CustomPageReq customPageReq) {
@@ -101,11 +101,11 @@ public class CustomqueryController extends BaseController {
             if (customResult != null && customResult.size() > 0) {
                 LinkedHashMap custom = (LinkedHashMap) customResult.get(0);
                 custom.remove("ROW_ID");
-                Map customMap = new LinkedHashMap();
-                customMap.put("ROW_ID", "ROW_ID");
-                customMap.putAll(custom);
-                customResult.clear();
-                customResult.add(customMap);
+                // Map customMap = new LinkedHashMap();
+                // customMap.put("ROW_ID", "ROW_ID");
+                // customMap.putAll(custom);
+                // customResult.clear();
+                // customResult.add(customMap);
                 return getDataTable(customResult);
             } else {
                 rspData.setCode(201);
@@ -130,24 +130,24 @@ public class CustomqueryController extends BaseController {
      */
     public String getSql(String sql, CustomPageReq customPageReq) {
 
-        if (sql.contains("jigou")) {
+        if (sql.contains("#jigou#")) {
             if (StringUtils.isEmpty(customPageReq.getDeptId())) {
                 User user = (User) SecurityUtils.getSubject().getPrincipal();
-                sql = sql.replace("jigou", user.getDeptId());
+                sql = sql.replace("#jigou#", user.getDeptId());
             } else {
-                sql = sql.replace("jigou", customPageReq.getDeptId());
+                sql = sql.replace("#jigou#", customPageReq.getDeptId());
             }
         }
-        if (sql.contains("nianfen")) {
+        if (sql.contains("#nianfen#")) {
             if (StringUtils.isEmpty(customPageReq.getYear())) {
-                sql = sql.replace("nianfen", DateUtils.getYear());
+                sql = sql.replace("#nianfen#", DateUtils.getYear());
             } else {
-                sql = sql.replace("nianfen", customPageReq.getYear());
+                sql = sql.replace("#nianfen#", customPageReq.getYear());
             }
         }
-        if (sql.contains("yuefen")) {
+        if (sql.contains("#yuefen#")) {
             if (StringUtils.isEmpty(customPageReq.getMonths())) {
-                sql = sql.replace("yuefen", DateUtils.getMonth());
+                sql = sql.replace("#yuefen#", DateUtils.getMonth());
             } else {
                 String[] split = customPageReq.getMonths().split(",");
                 StringBuffer monthsSB = new StringBuffer();
@@ -157,7 +157,7 @@ public class CustomqueryController extends BaseController {
                 String sqlToDo = monthsSB.toString();
                 /*去掉最后的, */
                 String sqlFinish = sqlToDo.substring(0, sqlToDo.length() - 1);
-                sql = sql.replace("'yuefen'", sqlFinish);
+                sql = sql.replace("'#yuefen#'", sqlFinish);
             }
         }
         return sql;

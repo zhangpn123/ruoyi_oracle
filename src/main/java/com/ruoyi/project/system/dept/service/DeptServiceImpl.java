@@ -322,7 +322,7 @@ public class DeptServiceImpl implements IDeptService {
     public String checkDeptNameUnique(Dept dept) {
         String deptId = StringUtils.isNull(dept.getDeptId()) ? null : dept.getDeptId();
         Dept info = deptMapper.checkDeptNameUnique(dept.getDeptName(), dept.getParentId());
-        if (StringUtils.isNotNull(info) && info.getDeptId() != deptId) {
+        if (StringUtils.isNotNull(info) && !info.getDeptId().equalsIgnoreCase(deptId)) {
             return UserConstants.DEPT_NAME_NOT_UNIQUE;
         }
         return UserConstants.DEPT_NAME_UNIQUE;

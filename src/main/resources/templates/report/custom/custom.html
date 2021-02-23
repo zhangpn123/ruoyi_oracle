@@ -28,30 +28,30 @@
                         <li style="width: 130px">
                             <select class="form-control noselect2 selectpicker" id="year" name="year">
                             <option value="">-- 请选择年份--</option>
-                            <option value="2021">2021年</option>
-                            <option value="2020">2020年</option>
-                            <option value="2019">2019年</option>
-                            <option value="2018">2018年</option>
-                            <option value="2017">2017年</option>
-                            <option value="2016">2016年</option>
+                            <option id="2021" value="2021">2021年</option>
+                            <option id="2020" value="2020">2020年</option>
+                            <option id="2019" value="2019">2019年</option>
+                            <option id="2018" value="2018">2018年</option>
+                            <option id="2017" value="2017">2017年</option>
+                            <option id="2016" value="2016">2016年</option>
                         </select>
                         </li>
 
                         <li style="width: 130px">
                                 <select class="form-control noselect2 selectpicker" data-none-selected-text="--请选择月份--" multiple id="months" name="months">
                                 <option class="fa fa-check-circle" value="0">&nbsp;&nbsp;&nbsp;0月</option>
-                                <option class="fa fa-check-circle" value="1">&nbsp;&nbsp;&nbsp;1月</option>
-                                <option class="fa fa-check-circle" value="2">&nbsp;&nbsp;&nbsp;2月</option>
-                                <option class="fa fa-check-circle" value="3">&nbsp;&nbsp;&nbsp;3月</option>
-                                <option class="fa fa-check-circle" value="4">&nbsp;&nbsp;&nbsp;4月</option>
-                                <option class="fa fa-check-circle" value="5">&nbsp;&nbsp;&nbsp;5月</option>
-                                <option class="fa fa-check-circle" value="6">&nbsp;&nbsp;&nbsp;6月</option>
-                                <option class="fa fa-check-circle" value="7">&nbsp;&nbsp;&nbsp;7月</option>
-                                <option class="fa fa-check-circle" value="8">&nbsp;&nbsp;&nbsp;8月</option>
-                                <option class="fa fa-check-circle" value="9">&nbsp;&nbsp;&nbsp;9月</option>
-                                <option class="fa fa-check-circle" value="10">&nbsp;&nbsp;&nbsp;10月</option>
-                                <option class="fa fa-check-circle" value="11">&nbsp;&nbsp;&nbsp;11月</option>
-                                <option class="fa fa-check-circle" value="12">&nbsp;&nbsp;&nbsp;12月</option>
+                                <option id="1" class="fa fa-check-circle" value="1" >&nbsp;&nbsp;&nbsp;1月</option>
+                                <option id="2" class="fa fa-check-circle" value="2">&nbsp;&nbsp;&nbsp;2月</option>
+                                <option id="3" class="fa fa-check-circle" value="3">&nbsp;&nbsp;&nbsp;3月</option>
+                                <option id="4" class="fa fa-check-circle" value="4">&nbsp;&nbsp;&nbsp;4月</option>
+                                <option id="5" class="fa fa-check-circle" value="5">&nbsp;&nbsp;&nbsp;5月</option>
+                                <option id="6" class="fa fa-check-circle" value="6">&nbsp;&nbsp;&nbsp;6月</option>
+                                <option id="7" class="fa fa-check-circle" value="7" >&nbsp;&nbsp;&nbsp;7月</option>
+                                <option id="8" class="fa fa-check-circle" value="8">&nbsp;&nbsp;&nbsp;8月</option>
+                                <option id="9" class="fa fa-check-circle" value="9">&nbsp;&nbsp;&nbsp;9月</option>
+                                <option id="10" class="fa fa-check-circle" value="10">&nbsp;&nbsp;&nbsp;10月</option>
+                                <option id="11" class="fa fa-check-circle" value="11">&nbsp;&nbsp;&nbsp;11月</option>
+                                <option id="12" class="fa fa-check-circle" value="12">&nbsp;&nbsp;&nbsp;12月</option>
                             </select>
                         </li>
                         <li >
@@ -79,6 +79,10 @@
         document.location.reload();//重新加载当前页面
     })
 
+    let date = new Date();
+    let dateYear = date.getFullYear();             //获取年
+    let dateMonth = date.getMonth() + 1;               //获取月
+
     $.ajax({
         url: "/system/dept/getDept", // //请求路径
         type: "get",// "post", //请求方式
@@ -87,6 +91,9 @@
         success: function (data) {
             $("#treeId").val(data[0].deptId);
             $("#treeName").val(data[0].deptName);
+            //赋值 年月
+            $('#'+dateYear).attr('selected','selected');
+            $('#'+dateMonth).attr('selected','selected');
         }
     });
 
@@ -104,9 +111,10 @@
                 if (result.code == web_status.SUCCESS) {
                     $("#bootstrap-table").bootstrapTable('destroy');
                     var clos = [];
+                    clos.push({title: '', field: 'ROW_ID', align: 'center'});
                     if ( result.rows.length > 0){
                         for (key in result.rows[0]){
-                            clos.push({title: key, field: key, align: 'center'})
+                            clos.push({title: key, field: key, align: 'center'});
                         }
                     }
                     //重新加载表
@@ -160,6 +168,7 @@
         $('#treeId').attr('value','');
         $.form.reset(formId);
     }
+
 
     $(window).resize(function() {
         $('#custom-table').bootstrapTable('resetView');
