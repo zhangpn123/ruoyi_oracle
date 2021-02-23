@@ -3,6 +3,7 @@
 <head>
     <th:block th:include="include :: header('自定义sql查询')"/>
     <th:block th:include="include :: bootstrap-select-css" />
+    <th:block th:include="include :: select2-css" />
 </head>
 <body class="gray-bg">
 <div class="container-div">
@@ -13,7 +14,7 @@
                 <div class="select-list" >
                     <ul>
                         <li>
-                            查询条件：<select  id="dictCode"  name="dictCode" th:with="type=${@dict.getType('custom_query')}">
+                            查询条件：<select  id="dictCode"  name="dictCode" th:with="type=${@dict.getType('custom_query')}" class="form-control">
                             <option value="">-- 请选择查询的条件 --</option>
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictCode}"></option>
                         </select>
@@ -72,6 +73,7 @@
 </div>
 <th:block th:include="include :: footer"/>
 <th:block th:include="include :: bootstrap-select-js" />
+<th:block th:include="include :: select2-js" />
 <script th:inline="javascript">
 
     var prefix = ctx + "report/custom";
