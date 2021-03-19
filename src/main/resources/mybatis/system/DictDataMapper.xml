@@ -134,5 +134,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="selectByDictLabel" parameterType="DictData" resultMap="DictDataResult">
 		<include refid="selectDictDataVo"/> where dict_label = #{dictLabel}
 	</select>
+
+	<select id="getMaxValue" parameterType="string" resultType="string">
+		select max(CSS_CLASS) from SYS_DICT_DATA  where DICT_TYPE = #{dictType}
+	</select>
+
+	<select id="selectAllByDictType" parameterType="string" resultType="DictDataResult">
+		<include refid="selectDictDataVo"/>
+		where status = '0' and dict_type = #{dictType}
+	</select>
 	
 </mapper> 

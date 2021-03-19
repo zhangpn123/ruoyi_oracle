@@ -1,28 +1,177 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RuoYi - 500</title>
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
-    <link th:href="@{/css/animate.css}" rel="stylesheet"/>
-    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+    <th:block th:include="include :: header('财务规范性核查')"/>
+    <th:block th:include="include :: bootstrap-select-css" />
+    <th:block th:include="include :: select2-css" />
 </head>
 <body class="gray-bg">
-<div class="middle-box text-center animated fadeInDown">
-    <h1>403</h1>
-    <h3 class="font-bold">没有访问权限！</h3>
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="review-form">
+                <input name="deptId" type="hidden" id="treeId"/>
+                <div class="select-list" >
+                    <ul>
+                        <li>
+                            查询条件：<select  id="dictCode"  name="dictCode" th:with="type=${@dict.getType('normative_verification')}" class="form-control">
+                            <option value="">--请选择查询条件--</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictCode}"></option>
+                        </select>
+                        </li>
+                        <li class="select-list" style="width: 300px">
+                            <label>归属部门： </label>
+                            <div class="input-group">
+                                <input name="deptName" onclick="selectDeptTree()" id="treeName" type="text"
+                                       placeholder="请选择归属部门" class="form-control" required style="width: 230px" >
+                            </div>
+                        </li>
+                        <li style="width: 130px">
+                            <select class="form-control noselect2 selectpicker" id="year" name="year">
+                                <option value="">-- 请选择年份--</option>
+                                <option id="2021" value="2021">2021年</option>
+                                <option id="2020" value="2020">2020年</option>
+                                <option id="2019" value="2019">2019年</option>
+                                <option id="2018" value="2018">2018年</option>
+                                <option id="2017" value="2017">2017年</option>
+                                <option id="2016" value="2016">2016年</option>
+                            </select>
+                        </li>
 
-    <div class="error-desc">
-        只有管理员有访问权限! 您可以返回主页面。
-        <a href="javascript:index()" class="btn btn-primary m-t">主页</a>
+                        <li style="width: 130px">
+                            <select class="form-control noselect2 selectpicker" data-none-selected-text="--请选择月份--" multiple id="months" name="months">
+                                <option class="fa fa-check-circle" value="0">&nbsp;&nbsp;&nbsp;0月</option>
+                                <option id="1" class="fa fa-check-circle" value="1" >&nbsp;&nbsp;&nbsp;1月</option>
+                                <option id="2" class="fa fa-check-circle" value="2">&nbsp;&nbsp;&nbsp;2月</option>
+                                <option id="3" class="fa fa-check-circle" value="3">&nbsp;&nbsp;&nbsp;3月</option>
+                                <option id="4" class="fa fa-check-circle" value="4">&nbsp;&nbsp;&nbsp;4月</option>
+                                <option id="5" class="fa fa-check-circle" value="5">&nbsp;&nbsp;&nbsp;5月</option>
+                                <option id="6" class="fa fa-check-circle" value="6">&nbsp;&nbsp;&nbsp;6月</option>
+                                <option id="7" class="fa fa-check-circle" value="7" >&nbsp;&nbsp;&nbsp;7月</option>
+                                <option id="8" class="fa fa-check-circle" value="8">&nbsp;&nbsp;&nbsp;8月</option>
+                                <option id="9" class="fa fa-check-circle" value="9">&nbsp;&nbsp;&nbsp;9月</option>
+                                <option id="10" class="fa fa-check-circle" value="10">&nbsp;&nbsp;&nbsp;10月</option>
+                                <option id="11" class="fa fa-check-circle" value="11">&nbsp;&nbsp;&nbsp;11月</option>
+                                <option id="12" class="fa fa-check-circle" value="12">&nbsp;&nbsp;&nbsp;12月</option>
+                            </select>
+                        </li>
+                        <li >
+                            <a class="btn btn-primary btn-rounded btn-sm" id="search" ><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" id="refresh"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
     </div>
 </div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: bootstrap-select-js" />
+<th:block th:include="include :: select2-js" />
 <script th:inline="javascript">
-    var ctx = [[@{/}]];
-        function index() {
-            window.parent.frames.location.href = ctx + "index";
+
+    var prefix = ctx + "review/review";
+    $("#refresh").click(function () {
+        document.location.reload();//重新加载当前页面
+    })
+
+    let date = new Date();
+    let dateYear = date.getFullYear();             //获取年
+    let dateMonth = date.getMonth() + 1;               //获取月
+
+    $.ajax({
+        url: "/system/dept/getDept", // //请求路径
+        type: "get",// "post", //请求方式
+        dataType: 'json', //期望获得的返回值类型
+        async: false, //是否异步
+        success: function (data) {
+            $("#treeId").val(data[0].deptId);
+            $("#treeName").val(data[0].deptName);
+            //赋值 年月
+            $('#'+dateYear).attr('selected','selected');
+            $('#'+dateMonth).attr('selected','selected');
         }
+    });
+
+    //动态获取表头信息
+    $("#search").click(function () {
+        // var params = $("#dictCode").val();
+        let formToJSON = $.common.formToJSON('review-form');
+        $.ajax({
+            url: prefix +"/getHeaderList", // //请求路径
+            type: "post",// "post", //请求方式
+            dataType: 'json', //期望获得的返回值类型
+            data: formToJSON,
+            async: false, //是否异步
+            success: function (result) {
+                if (result.code == web_status.SUCCESS) {
+                    $("#bootstrap-table").bootstrapTable('destroy');
+                    var clos = [];
+                    clos.push({title: '', field: 'ROW_ID', align: 'center'});
+                    if ( result.rows.length > 0){
+                        for (key in result.rows[0]){
+                            clos.push({title: key, field: key, align: 'center'});
+                        }
+                    }
+                    //重新加载表
+                    $(function () {
+                        var options = {
+                            url:  prefix + "/getData",
+                            pagination: true,
+                            columns: [clos]
+                        };
+                        $.table.init(options);
+                    });
+                } else if (result.code == web_status.WARNING) {
+                    $.modal.enable();
+                    $.modal.alertWarning(result.msg)
+                } else if (result.code == 201) {
+                    $.modal.enable();
+                    $.modal.alertSuccess(result.msg)
+                } else {
+                    $.modal.enable();
+                    $.modal.alertError(result.msg);
+                }
+            }
+        });
+    })
+
+    /*部门管理-新增-选择父部门树*/
+    function selectDeptTree() {
+        var treeId = $("#treeId").val();
+        var deptId = $.common.isEmpty(treeId) ? "141" : $("#treeId").val();
+        var url = ctx + "system/dept/selectDeptTree/" + deptId;
+        var options = {
+            title: '选择部门',
+            width: "380",
+            url: url,
+            callBack: doSubmit
+        };
+        $.modal.openOptions(options);
+    }
+
+
+    function doSubmit(index, layero) {
+        var tree = layero.find("iframe")[0].contentWindow.$._tree;
+        var body = layer.getChildFrame('body', index);
+        $("#treeId").val(body.find('#treeId').val());
+        $("#treeName").val(body.find('#treeName').val());
+        layer.close(index);
+    }
+
+    //重置
+    function refresh(formId) {
+        $('#treeId').attr('value','');
+        $.form.reset(formId);
+    }
+
+
 </script>
 </body>
 </html>

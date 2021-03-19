@@ -29,7 +29,7 @@ public class DictDataServiceImpl implements IDictDataService {
     private DictDataMapper dictDataMapper;
 
     @Override
-    public String importDictData(List<DictData> dictDataList, boolean updateSupport,String dictName) {
+    public String importDictData(List<DictData> dictDataList, boolean updateSupport, String dictName) {
         if (StringUtils.isNull(dictDataList) || dictDataList.size() == 0) {
             throw new BusinessException("导入的模板数据不能为空！");
         }
@@ -37,9 +37,9 @@ public class DictDataServiceImpl implements IDictDataService {
         int failureNum = 0;
         StringBuilder successMsg = new StringBuilder();
         StringBuilder failureMsg = new StringBuilder();
-            // if(updateSupport){
+        // if(updateSupport){
         int del = dictDataMapper.deleteDictDataByDictType(dictName);
-            // }
+        // }
         //导入成功之前吧数据删除
         for (DictData dictData : dictDataList) {
             try {
@@ -75,6 +75,11 @@ public class DictDataServiceImpl implements IDictDataService {
     @Override
     public DictData selectByDictLaber(DictData dictData) {
         return dictDataMapper.selectByDictLabel(dictData);
+    }
+
+    @Override
+    public List<DictData> selectAllByDictType(String dictType) {
+        return dictDataMapper.selectAllByDictType(dictType);
     }
 
     /**
@@ -135,6 +140,15 @@ public class DictDataServiceImpl implements IDictDataService {
     @Override
     public int insertDictData(DictData dictData) {
         dictData.setCreateBy(ShiroUtils.getLoginName());
+        if (dictData.getDictType().equalsIgnoreCase("normative_verification")) {
+            String value = dictDataMapper.getMaxValue(dictData.getDictType());
+            if (StringUtils.isEmpty(value)) {
+                dictData.setCssClass("1");
+            } else {
+                int newValue = StringUtils.getObjInt(value) + 1;
+                dictData.setCssClass(newValue + "");
+            }
+        }
         int row = dictDataMapper.insertDictData(dictData);
         if (row > 0) {
             DictUtils.clearDictCache();

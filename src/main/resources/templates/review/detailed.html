@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('问题明细')"/>
+    <th:block th:include="include :: bootstrap-select-css"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="report-form">
+                <input type="hidden" id="coCode" name="coCode" th:value="${report.coCode}">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            问题类型：<select id="dictCode" name="dictCode" th:with="type=${@dict.getQueType(report.coCode)}" class="form-control">
+                            <option value="">--请选择查询条件--</option>
+                            <option th:each="report : ${type}" th:text="${report.queName}"  th:value="${report.queType}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="closeItem()">
+                <i class="fa fa-reply-all"></i> 关闭
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: bootstrap-select-js"/>
+<th:block th:include="include :: select2-js"/>
+<script th:inline="javascript">
+
+    var prefix =   ctx + "review/analysis";
+
+    $(function () {
+        var options = {
+            url: prefix + "/detailedList",
+            columns: [
+                {
+                    field: 'coCode',
+                    title: '单位代码',
+                },
+                {
+                    field: 'coName',
+                    title: '单位名称',
+                },
+                {
+                    field: 'queName',
+                    title: '问题类型'
+                },
+                {
+                    field: 'queDesc',
+                    title: '问题描述'
+                },
+                {
+                    field: 'voucherNo',
+                    title: '会计凭证号'
+                },
+                {
+                    field: 'remark',
+                    title: '摘要'
+                },
+                {
+                    field: 'record',
+                    title: '会计分行录'
+                },
+                {
+                    field: 'assCheck',
+                    title: '辅助核算'
+                },
+                {
+                    field: 'createDate',
+                    title: '创建时间',
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

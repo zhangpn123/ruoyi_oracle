@@ -74,4 +74,12 @@ public interface IDictDataService
      * @return
      */
     DictData selectByDictLaber(DictData dictData);
+
+
+    /**
+     * 查询所有规范查询语句
+     * @param dictType
+     * @return
+     */
+    List<DictData> selectAllByDictType(String dictType);
 }

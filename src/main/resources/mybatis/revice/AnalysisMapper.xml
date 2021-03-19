@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.revice.analysis.mapper.AnalysisMapper">
+
+    <select id="selectList" parameterType="com.ruoyi.project.report.customquert.dto.CustomPageReq"
+            resultType="com.ruoyi.project.revice.dto.Report">
+        select t1.cocode as "coCode" ,
+        t2.dept_name as "coName",
+         count(*) as "queNum",
+         t1.createdate as "createDate"
+         from sys_temptable t1 left join sys_dept t2 on  t1.cocode = t2.dept_id
+        <where>
+            <if test="deptId != null and deptId != ''">
+                <bind name="deptId" value="deptId + '%'"/>
+                coCode like #{deptId}
+            </if>
+        </where>
+        group by coCode,dept_name,createDate
+    </select>
+
+    <select id="selectDetailedList" parameterType="com.ruoyi.project.revice.dto.Report" resultType="com.ruoyi.project.revice.dto.Report">
+        select   t1.* ,
+        t2.dept_name as "coName"
+         from sys_temptable t1 left join sys_dept t2 on  t1.cocode = t2.dept_id
+         where coCode = #{coCode}
+    </select>
+
+    <select id="selectReport" parameterType="string" resultType="com.ruoyi.project.revice.dto.Report">
+        select   t1.* ,
+        t2.dept_name as "coName"
+         from sys_temptable t1 left join sys_dept t2 on  t1.cocode = t2.dept_id
+         where coCode = #{coCode}
+    </select>
+
+    <select id="selectQueTypeByCode" parameterType="string" resultType="com.ruoyi.project.revice.dto.Report">
+        select queType,queTypeName as "queName" from sys_temptable where coCode = #{coCode} group by queType,queTypeName
+    </select>
+
+    <insert id="batchInsert" parameterType="list">
+        insert into sys_temptable (cocode,quetype,quetypename,quedesc,voucherno,REMARK,RECORD,ASSCHECK,CREATEDATE,REPORTDATE) values
+        <foreach item="report" index="index" collection="list" open="(" separator="),(" close=")">
+            #{report.cocode},#{report.quetype},#{report.quetypename},#{report.quedesc},#{report.voucherno},#{report.REMARK},#{report.RECORD},#{report.ASSCHECK},
+            #{report.CREATEDATE},#{report.REPORTDATE}
+        </foreach>
+    </insert>
+
+
+</mapper>

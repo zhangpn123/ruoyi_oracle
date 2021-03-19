@@ -107,4 +107,18 @@ public interface DictDataMapper
      * @return
      */
     DictData selectByDictLabel(DictData dictData);
+
+    /**
+     * 获取统计查询的type的最大值
+     * @param dictType
+     * @return
+     */
+    String getMaxValue(@Param("dictType") String dictType);
+
+    /**
+     * 查询所有规范查询语句
+     * @param dictType
+     * @return
+     */
+    List<DictData> selectAllByDictType(@Param("dictType") String dictType);
 }
