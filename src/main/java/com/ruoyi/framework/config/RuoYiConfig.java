@@ -117,6 +117,13 @@ public class RuoYiConfig
         return getProfile() + "/Report\\";
     }
 
+    /**
+     *报表模板路径
+     */
+    public static String getMainReportPath(){
+        return getProfile() + "/MainReport\\";
+    }
+
     public static String getAsynDown(){
         return "/asynDown/"+ IdUtils.simpleUUID()+"/";
     }
