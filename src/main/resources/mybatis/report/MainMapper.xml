@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.report.main.mapper.MainMapper">
+
+    <sql id="tempTable">
+        (SELECT
+        account_id, co_code, fiscal, fis_perd, acc_code, dr_amt, cr_amt, acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6, acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10, acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, vou_kind
+        FROM
+        a6.GL_BAL
+        UNION ALL
+        SELECT
+        account_id, co_code, fiscal, fis_perd, acc_code, dr_amt, cr_amt, acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6, acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10, acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, vou_kind
+        FROM
+        a6.GL_PREBAL  ) gb
+    </sql>
+
+    <select id="selectReport" resultType="java.util.Map" parameterType="java.util.Map">
+        select (CASE SUBSTR(gb.ACC_CODE, 1, 1)
+        WHEN '4' THEN
+        sum( gb.CR_AMT ) - sum(gb.DR_AMT)
+        WHEN '6' THEN
+        sum( gb.CR_AMT ) - sum(gb.DR_AMT)
+        WHEN '5' THEN
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        WHEN '7' THEN
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        ELSE sum( gb.CR_AMT)  END) AS "crAmt",
+        gb.ACC_CODE as "accCode" from
+        <if test="relation != 1">
+            a6.GL_BAL gb
+        </if>
+        <if test="relation == 1" >
+            <include refid="tempTable"/>
+        </if>
+        <where>
+             gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
+            <if test="accCode != null and accCode != ''">
+                and ACC_CODE = #{accCode}
+            </if>
+            <if test="deptId != null and deptId != ''">
+                <bind name="deptId" value="deptId+'%'"/>
+                and gb.co_code Like #{deptId}
+            </if>
+            <if test="beginTime != null and beginTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+            </if>
+        </where>
+        group by  gb.ACC_CODE
+    </select>
+
+
+    <select id="selectDataDetail" resultType="java.util.Map" parameterType="java.util.Map">
+        select (CASE SUBSTR(gb.ACC_CODE, 1, 1)
+        WHEN '4' THEN
+        sum( gb.CR_AMT ) - sum(gb.DR_AMT)
+        WHEN '6' THEN
+        sum( gb.CR_AMT ) - sum(gb.DR_AMT)
+        WHEN '5' THEN
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        WHEN '7' THEN
+        sum(gb.DR_AMT) - sum( gb.CR_AMT)
+        ELSE sum( gb.CR_AMT)  END) AS "crAmt",
+        gb.ACC_CODE as "accCode",
+        d.dept_name as coName from
+        <if test="relation != 1">
+            a6.GL_BAL gb
+        </if>
+        <if test="relation == 1" >
+            <include refid="tempTable"/>
+        </if>
+        left join sys_dept d ON d.dept_id = gb.co_code
+        <where>
+            gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
+            <if test="accCode != null and accCode != ''">
+                <bind name="accCode" value="accCode+'%'"/>
+                and ACC_CODE  like  #{accCode}
+            </if>
+            <if test="deptId != null and deptId != ''">
+                <bind name="deptId" value="deptId+'%'"/>
+                and gb.co_code Like #{deptId}
+            </if>
+            <if test="beginTime != null and beginTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  >= ]]> #{beginTime}
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
+            </if>
+        </where>
+        group by gb.co_code, gb.ACC_CODE
+    </select>
+
+
+</mapper>

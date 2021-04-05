@@ -46,5 +46,9 @@
         </foreach>
     </insert>
 
+    <delete id="deleteAll" >
+        truncate table SYS_TEMPTABLE
+    </delete>
+
 
 </mapper>

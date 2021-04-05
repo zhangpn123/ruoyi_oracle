@@ -41,6 +41,8 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Override
     public int batchInsert(List<Report> params) {
+        /*将旧数据删除*/
+        analysisMapper.deleteAll();
         return analysisMapper.batchInsert(params);
     }
 }

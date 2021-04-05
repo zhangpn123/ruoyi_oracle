@@ -1,20 +1,215 @@
 <!DOCTYPE html>
-<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--360浏览器优先以webkit内核解析-->
-    <title>若依介绍</title>
+    <!--    <title>若依介绍</title>-->
     <link rel="shortcut icon" href="favicon.ico">
     <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
     <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
     <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
     <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <th:block th:include="include :: header('首页展示')"/>
 </head>
 
-<body class="gray-bg">
-<div style="text-align: center"><h1>欢迎使用<strong>福建气象财务数据应用平台</strong></h1></div>
+<body class="gray-bg" onload="initPie()">
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div class="row" style="width: 100%;height:100%;">
+    <div class="col-sm-12" style="text-align: center;width: 100%;height:15%;"><h1>欢迎使用<strong>福建气象财务数据应用平台</strong></h1>
+    </div>
+    <div class="col-sm-7"  style="height:85%; padding-left: 2%">
+        <div style="height:10%;padding-left: 6%">
+            <div  style="padding-top: 2%">
+                <form id="main-form">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <input name="deptId" type="hidden" id="treeId"/>
+                            </li>
+                            <li>
+                                <input name="accCode" type="hidden" id="accCode"/>
+                            </li>
+                            <li>
+                                <input name="accName" type="hidden" id="accName"/>
+                            </li>
+                            <li class="select-list">
+                                <label>归属部门： </label>
+                                <div class="input-group">
+                                    <input name="deptName" onclick="selectDeptTree()" id="treeName" type="text"
+                                           placeholder="请选择归属部门" class="form-control" required >
+                                </div>
+                            </li>
+                            <li class="select-time-month">
+                                <label style="width: 40px">时间： </label>
+                                <input type="text" class="time-input-month" id="startTimeMonth" placeholder="开始时间" name="beginTime" value="2020-01" style="width: 70px"/>
+                                <span>-</span>
+                                <input type="text" class="time-input-month" id="endTimeMonth" placeholder="结束时间" name="endTime" value="2020-12" style="width: 70px"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="searchMain('main-form')"><i
+                                        class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="refresh('main-form')"><i
+                                        class="fa fa-refresh"></i>&nbsp;重置</a>
+                                <a class="btn btn-info btn-rounded btn-sm" onclick="refresh()"><i
+                                        class="fa fa-download"></i>&nbsp;导出</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div  id="main" style="height:90%"></div>
+    </div>
+    <div class="col-sm-5" style="height:85%">
+        <div  style="height:90%">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+
+</div>
+<th:block th:include="include :: footer"/>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    // var myChartDetail = echarts.init(document.getElementById('detail'));
+
+    var prefix = ctx + "report/main";
+    function initPie(params){
+        console.log(params)
+        $.ajax({
+            url: prefix+"/list",
+            type: "post",// "post", //请求方式
+            dataType: 'json', //期望获得的返回值类型
+            data: params,
+            async: false, //是否异步
+            success: function (data) {
+                if (data.code == web_status.SUCCESS) {
+                    var keys = [];
+                    var clos = [];
+                    for (var i = 0; i < data.data.length; i++) {
+                        clos.push({name: data.data[i].name, value: data.data[i].value,code: data.data[i].code});
+                        keys.push(data.data[i].name);
+                    }
+                    myChart.setOption({
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{a} <br/>{b} : {c} ({d}%)'
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'left',
+                            data: keys
+                        },
+                        series: [
+                            {
+                                name: '访问来源',
+                                type: 'pie',
+                                radius: '55%',
+                                center: ['50%', '60%'],
+                                data: clos,
+                                emphasis: {
+                                    itemStyle: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    });
+
+                    $('#accCode').attr('value', '');
+                    $('#accName').attr('value','');
+                    $.table.search('main-form','bootstrap-table')
+
+                } else if (data.code == web_status.WARNING) {
+                    $.modal.enable();
+                    $.modal.alertWarning(data.msg)
+                } else {
+                    $.modal.enable();
+                    $.modal.alertError(data.msg);
+                }
+            }
+        });
+    }
+
+    $(function () {
+        var options = {
+            url:  prefix + "/detail",
+            exportUrl: prefix + "/export",
+            modalName: "报表",
+            showToggle: false,
+            showRefresh: false,
+            showSearch: false,
+            showColumns: false,
+            columns: [ {
+                field: 'coName',
+                title: '单位名称',
+                align: 'center'
+            },
+                {
+                    field: 'accName',
+                    title: '类目',
+                    align: 'center'
+                },
+                {
+                    field: 'crAmt',
+                    title: '金额',
+                    align: 'center'
+                }]
+        };
+        $.table.init(options);
+    });
+    //设置联动
+    myChart.on('click', function (params) {
+        $('#accCode').attr('value',params.data.code);
+        $('#accName').attr('value',params.data.name);
+        $.table.search('main-form','bootstrap-table')
+        $('#accCode').attr('value', '');
+        $('#accName').attr('value','');
+    });
 
 
+
+    /*部门管理-新增-选择父部门树*/
+    function selectDeptTree() {
+        var treeId = $("#treeId").val();
+        var deptId = $.common.isEmpty(treeId) ? "141" : $("#treeId").val();
+        var url = ctx + "system/dept/selectDeptTree/" + deptId;
+        var options = {
+            title: '选择部门',
+            width: "380",
+            url: url,
+            callBack: doSubmit
+        };
+        $.modal.openOptions(options);
+    }
+    function doSubmit(index, layero) {
+        var tree = layero.find("iframe")[0].contentWindow.$._tree;
+        var body = layer.getChildFrame('body', index);
+        $("#treeId").val(body.find('#treeId').val());
+        $("#treeName").val(body.find('#treeName').val());
+        layer.close(index);
+    }
+
+    //搜索
+    function searchMain(formId) {
+        let formToJSON = $.common.formToJSON(formId);
+        initPie(formToJSON)
+    }
+    //重置
+    function refresh(formId) {
+        $('#treeId').attr('value','');
+        $('#accCode').attr('value','');
+        $('#accName').attr('value',params.data.name);
+        $.form.reset(formId);
+        let formToJSON = $.common.formToJSON(formId);
+        initPie(formToJSON)
+    }
+
+
+</script>
 </body>
 </html>

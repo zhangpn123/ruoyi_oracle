@@ -54,7 +54,7 @@
                                     class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
                                     class="fa fa-refresh"></i>&nbsp;重置</a>
-                            <a class="btn btn-warning btn-rounded btn-sm" id="report" ><i
+                            <a class="btn btn-warning btn-rounded btn-sm" id="report" shiro:hasPermission="review:analysis:report" ><i
                                     class="fa fa-toggle-right"></i>&nbsp;重新统计全部数据</a>
                         </li>
                     </ul>
@@ -63,7 +63,7 @@
         </div>
 
         <div class="btn-group-sm" id="toolbar" role="group">
-            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:role:export">
+            <a class="btn btn-warning" onclick="exportAnalysisExcel()"  shiro:hasPermission="review:analysis:export">
                 <i class="fa fa-download"></i> 导出
             </a>
         </div>
@@ -196,6 +196,30 @@
         var url = prefix + '/detailed/' + coCode;
         console.log(url)
         $.modal.openTab("问题明细", url);
+    }
+
+    // 导出数据
+    function exportAnalysisExcel() {
+        let formToJSON = $.common.formToJSON('analysis-form');
+        table.set();
+        $.modal.confirm("确定导出所有统计的数据吗？", function() {
+            // var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
+            // var params = $("#" + table.options.id).bootstrapTable('getOptions');
+            // var dataParam = formToJSON;
+            // dataParam.push({ "name": "orderByColumn", "value": params.sortName });
+            // dataParam.push({ "name": "isAsc", "value": params.sortOrder });
+            $.modal.loading("正在导出数据，请稍后...");
+            $.post(table.options.exportUrl, formToJSON, function(result) {
+                if (result.code == web_status.SUCCESS) {
+                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                } else if (result.code == web_status.WARNING) {
+                    $.modal.alertWarning(result.msg)
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            });
+        });
     }
 </script>
 </body>

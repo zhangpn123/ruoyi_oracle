@@ -19,4 +19,6 @@ public class ReportCondition extends BaseEntity {
     private String endTime;//结束时间
     private String id;//文件ID
     private String relation;//是否关联表 1关联  2不关联
+    private String accCode;
+    private String accName;
 }

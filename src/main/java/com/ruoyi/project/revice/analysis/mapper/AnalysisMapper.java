@@ -22,5 +22,16 @@ public interface AnalysisMapper {
 
     List<Report> selectQueTypeByCode(@Param("coCode") String coCode);
 
+    /**
+     * 批量插入所有数据
+     * @param params
+     * @return
+     */
     int batchInsert(@Param("list") List<Report> params);
+
+    /**
+     * 清除旧数据
+     * @return
+     */
+    int deleteAll();
 }

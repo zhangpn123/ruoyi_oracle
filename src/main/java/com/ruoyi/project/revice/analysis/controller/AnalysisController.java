@@ -2,16 +2,22 @@ package com.ruoyi.project.revice.analysis.controller;
 
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.PoiUtil;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.aspectj.lang.annotation.Log;
 import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
+import com.ruoyi.framework.config.RuoYiConfig;
 import com.ruoyi.framework.web.controller.BaseController;
 import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.report.customquert.dto.CustomPageReq;
 import com.ruoyi.project.report.customquert.service.CustomqueryService;
+import com.ruoyi.project.report.dto.ReportCondition;
 import com.ruoyi.project.revice.analysis.service.AnalysisService;
 import com.ruoyi.project.revice.dto.Report;
+import com.ruoyi.project.system.dept.domain.Dept;
+import com.ruoyi.project.system.dept.service.IDeptService;
 import com.ruoyi.project.system.dict.domain.DictData;
 import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.role.domain.Role;
@@ -25,9 +31,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * @program: RuoYi
@@ -50,6 +56,9 @@ public class AnalysisController extends BaseController {
 
     @Autowired
     private CustomqueryService customqueryService;
+
+    @Autowired
+    private IDeptService deptService;
 
     @RequiresPermissions("review:analysis:view")
     @GetMapping()
@@ -91,33 +100,87 @@ public class AnalysisController extends BaseController {
     /**
      * 运行所有规范性查询的sql并把数据保存到统计表
      */
-    // @RequiresPermissions("system:role:edit")
+    @RequiresPermissions("review:analysis:report")
     @PostMapping("/report")
     @ResponseBody
     public AjaxResult report(CustomPageReq customPageReq) {
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-        /*由于刚开始设计有问题  此处deptName 就是 deptId*/
-        customPageReq.setDeptId(user.getDeptId());
-        /*将此次查询的数据删除*/
-        // analysisService.deleteAllBy
-        /*根据统计时间判断表中是否已经存在 , 存在则删除重新统计*/
+       /*获取所有的机构信息*/
+        List<Dept> deptList = deptService.selectDeptIdList();
+
         /*获取所有的规范查询脚本数据*/
         List<DictData> dictDataList = dictDataService.selectAllByDictType("normative_verification");
         /*待存入数据*/
         List<Report> params = new ArrayList<>();
         /*执行所有的查询*/
-        for (DictData dictData : dictDataList) {
-            String sql = getSql(dictData.getDictValue(), customPageReq);
-            List<Map<String, Object>> customResult = customqueryService.selectList(sql);
-            for (Map<String, Object> map : customResult) {
-                Report report = new Report();
-                // report.setCoCode(customResult.get(""));
-                params.add(report);
+        for (Dept dept : deptList) {
+            customPageReq.setDeptId(dept.getDeptId());
+            for (DictData dictData : dictDataList) {
+                String sql = getSql(dictData.getDictValue(), customPageReq);
+                List<Map<String, Object>> customResult = customqueryService.selectList(sql);
+                for (Map<String, Object> map : customResult) {
+                    Report report = new Report();
+                    // report.setCoCode(map.get(""));
+                    params.add(report);
+                }
             }
         }
         /*将数据新增到表中*/
         analysisService.batchInsert(params);
         return toAjax(true);
+    }
+
+
+    @RequiresPermissions("review:analysis:export")
+    @RequestMapping("/export")
+    @ResponseBody
+    public AjaxResult exportReport(CustomPageReq customPageReq) throws IOException {
+        log.info("Start generating reports");
+        //构建Excel
+        String fileName = "预警监控信息分析"+ System.currentTimeMillis() + ".xls";
+        String excelPath = RuoYiConfig.getDownloadPath() + fileName;
+        //构建excel数据
+        /*获取表头信息*/
+        // dictTypeService.clearCache();//清除缓存
+        // List<DictData> dictData = dictTypeService.selectDictDataByType("report_z03_column");
+        // /*存储表头信息*/
+        // LinkedList<String> fieldList = new LinkedList<>();
+        // LinkedList<String> titleList = new LinkedList<>();
+        //
+        // /*需要合并的数据信息*/
+        // List<Map<String, Object>> replaceMap = new ArrayList<>();
+        // Map<String, Object> map = new HashMap<>();
+        //
+        // if (dictData != null && dictData.size() > 0) {
+        //     for (DictData dictDatum : dictData) {
+        //         String[] split = dictDatum.getDictValue().split("/");
+        //         if (split.length > 1) {
+        //             /*如果长度大于1就是有需要合并的数据*/
+        //             map.put("dest", split[0]);//将要合并到的数据
+        //
+        //             List srctList = new ArrayList();
+        //             for (int i = 1; i < split.length; i++) {
+        //                 srctList.add(split[i]);
+        //             }
+        //             map.put("src", srctList);//需要合并的数据
+        //             replaceMap.add(map);
+        //             fieldList.add(split[0]);
+        //         } else {
+        //             fieldList.add(split[0]);
+        //         }
+        //         titleList.add(dictDatum.getDictLabel());
+        //     }
+        // }
+        //
+        //
+        // LinkedList<Map<String, Object>> resultList = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
+        // // titleList.addFirst("项目");
+        // // titleList.addFirst("项目");
+        // // fieldList.addFirst("bAccCode");
+        // // fieldList.addFirst("bAccCode");
+        // //构建excel数据
+        // InputStream input = PoiUtil.getExcelFile(resultList, "Z03 收入决算表(财决03表)", titleList, fieldList);
+        // ExcelUtil.writeExcel(input, excelPath);
+        return AjaxResult.success(fileName);
     }
 
 

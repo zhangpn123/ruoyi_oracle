@@ -50,6 +50,7 @@ public class Z04Controller extends BaseController {
 
     @Autowired
     private IDeptService iDeptService;
+
     @Autowired
     private IDictDataService dictDataService;
 
@@ -100,7 +101,7 @@ public class Z04Controller extends BaseController {
         if (StringUtils.isEmpty(reportCondition.getDeptId())) {
             /*取当前用户的所属部门*/
             User user = (User) SecurityUtils.getSubject().getPrincipal();
-            reportCondition.setDeptName(user.getDeptId());
+            reportCondition.setDeptId(user.getDeptId());
         }
 
         LinkedList<Map<String, Object>> list = z03Service.selectRoleList(fieldList, replaceMap, reportCondition);
