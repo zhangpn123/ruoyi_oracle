@@ -3,24 +3,42 @@ package com.ruoyi.project.report.customquert.controller;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.PoiUtil;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.framework.aspectj.lang.annotation.Excel;
+import com.ruoyi.framework.aspectj.lang.annotation.Log;
+import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
+import com.ruoyi.framework.config.RuoYiConfig;
 import com.ruoyi.framework.web.controller.BaseController;
+import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.report.customquert.dto.CustomPageReq;
 import com.ruoyi.project.report.customquert.service.CustomqueryService;
+import com.ruoyi.project.report.dto.ReportCondition;
+import com.ruoyi.project.report.dto.ResponseMain;
 import com.ruoyi.project.system.dict.domain.DictData;
 import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * @program: RuoYi
@@ -118,6 +136,57 @@ public class CustomqueryController extends BaseController {
             rspData.setCode(500);
             rspData.setMsg("查询的sql有误");
             return rspData;
+        }
+    }
+
+
+    /**
+     * 报表导出
+     */
+    @Log(title = "报表统计", businessType = BusinessType.EXPORT)
+    @PostMapping("/report")
+    @ResponseBody
+    public AjaxResult report(CustomPageReq customPageReq, HttpServletResponse response, HttpServletRequest request) {
+        log.info("开始导出首页报表数据");
+        /*校验数据*/
+        if (StringUtils.isEmpty(customPageReq.getDictCode())) {
+            log.error("要查询的sql条件为空");
+            return AjaxResult.error("请选择要查询的条件");
+        }
+        DictData dictData = dictDataService.selectDictDataById(Long.parseLong(customPageReq.getDictCode()));
+        if (dictData == null || StringUtils.isEmpty(dictData.getDictValue())) {
+            log.error("要查询的数据为空");
+            return AjaxResult.error("查询的数据为空");
+        }
+        String sql = dictData.getDictValue();
+        sql = sql.toLowerCase();//转成小写
+        if (!sql.startsWith("select")) {
+            log.error("要查询的数据不是select开头");
+            return AjaxResult.error("查询的语句不合法：不是select开头的语句");
+        }
+        List<Map<String, Object>> customResult = customqueryService.selectList(sql);
+        if(customResult != null && customResult.size() > 0){
+            String outFileName =System.currentTimeMillis() + "_" +dictData.getDictLabel()  + ".xls";
+            String downloadPath = RuoYiConfig.getDownloadPath() + outFileName;
+
+            //获取title
+            Map<String, Object> map = customResult.get(0);
+            List<String> titles = new ArrayList<>(map.keySet());
+
+
+            List<String[]> excelInfoList = new ArrayList<>();
+                for (int i = 0; i < customResult.size(); i++) {
+                    String[] pos = new String[titles.size()];
+                    for (int j = 0; j < titles.size(); j++) {
+                        pos[j] = StringUtils.getObjStr(customResult.get(i).get(titles.get(j)));
+                    }
+                    excelInfoList.add(pos);
+                }
+            PoiUtil.createExcel(downloadPath, dictData.getDictLabel(), titles, excelInfoList);
+            AjaxResult success = AjaxResult.success(outFileName);
+            return success;
+        }else{
+            return AjaxResult.warn("导出数据为空");
         }
     }
 

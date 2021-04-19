@@ -1,7 +1,10 @@
 package com.ruoyi.common.utils;
 
+import jxl.format.UnderlineStyle;
+import jxl.write.*;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.*;
@@ -14,6 +17,93 @@ import java.util.*;
  * 2019年8月16日
  */
 public class PoiUtil {
+
+    /**
+     * 创建Excel
+     */
+    public static void createExcel(String excelPath, String sheetName, List<String> titles, List<String[]> valueList){
+        WritableWorkbook book = null;
+        OutputStream os = null;
+        //判断需要创建几个sheet
+        int total = valueList.size();
+        //定义每个sheet里面可以有多少条数据
+        int mus = 50000;
+        int num = total % 50000;
+        int num1;
+        if (num == 0) {
+            num1 = total / 50000;
+        }  else {
+            num1 = total / 50000 + 1;
+        }
+        try {
+            // 打开文件
+            os = new FileOutputStream(excelPath);
+            book = jxl.Workbook.createWorkbook(os);
+            for (int k = 0; k < num1; k++) {
+
+                //生成工作表，参数0表示这是第一页
+                WritableSheet sheetOne=book.createSheet(sheetName+(k+1),k);
+                /**
+                 * 定义单元格样式
+                 */
+                WritableFont wf_title = new WritableFont(WritableFont.ARIAL, 12,
+                        WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE,
+                        jxl.format.Colour.BLACK); // 定义格式 字体 下划线 斜体 粗体 颜色
+                WritableFont wf_value = new WritableFont(WritableFont.ARIAL, 11,
+                        WritableFont.NO_BOLD, false, UnderlineStyle.NO_UNDERLINE,
+                        jxl.format.Colour.BLACK); // 定义格式 字体 下划线 斜体 粗体 颜色
+
+                WritableCellFormat wcf_title = new WritableCellFormat(wf_title);
+                wcf_title.setBackground(jxl.format.Colour.YELLOW2);
+                wcf_title.setAlignment(jxl.format.Alignment.CENTRE);
+                wcf_title.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN,jxl.format.Colour.BLACK);
+
+                WritableCellFormat wcf_vaule = new WritableCellFormat(wf_value); // 单元格定义
+                wcf_vaule.setAlignment(jxl.format.Alignment.CENTRE); // 设置对齐方式
+
+                //设置标题
+                for(int i=0;i<titles.size();i++){
+                    sheetOne.setColumnView(i, 30); // 设置列的宽度
+                    sheetOne.addCell(new Label(i,0,titles.get(i),wcf_title)); //将定义好的单元格添加到工作表中
+                }
+
+                int count = k * mus;
+                int index = 0;
+                for (int m = count; m <valueList.size() ; m++) {
+                    if (index == mus){
+                        break;
+                    }
+
+
+                    //设置值
+                    // for(int i=0;i<valueList.size();i++){
+                    // for (int i = 50000*k-50000; i < 50000*k && i<count; i++) {
+                    // for (int i = 1; i < 5 * k && i < total; i++) {
+                    String[] valueArr = valueList.get(m);
+                    for(int j=0;j<valueArr.length;j++){
+                        sheetOne.addCell(new Label(j,index+1,valueArr[j],wcf_vaule));
+                    }
+                    index ++;
+                }
+            }
+            //写入数据
+            book.write();
+            os.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (null != book) {
+                    book.close();
+                }
+                if(null != os){
+                    os.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /**
      * 新增行

@@ -83,9 +83,12 @@ spring:
             slave:
                 # 从数据源开关/默认关闭
                 enabled: true
-                url: jdbc:oracle:thin:@172.20.9.110:2521:ORCL
-                username: qm_tms
-                password: qm_tms123
+#                url: jdbc:oracle:thin:@172.20.9.110:2521:ORCL
+#                username: qm_tms
+#                password: qm_tms123
+                url: jdbc:oracle:thin:@127.0.0.1:1521/xe
+                username: learn
+                password: learn
             # 初始连接数
             initialSize: 5
             # 最小连接池数量

@@ -4,10 +4,14 @@ import com.ruoyi.common.constant.Constans;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.Map2Bean;
+import com.ruoyi.framework.aspectj.lang.annotation.DataSource;
+import com.ruoyi.framework.aspectj.lang.enums.DataSourceType;
 import com.ruoyi.project.report.dto.ReportCondition;
 import com.ruoyi.project.report.dto.ResponseMain;
 import com.ruoyi.project.report.main.mapper.MainMapper;
 import com.ruoyi.project.report.main.service.MainService;
+import com.ruoyi.project.system.dept.domain.Dept;
+import com.ruoyi.project.system.dept.service.IDeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +25,7 @@ import java.util.*;
  * @create: 2021-04-04 22:03
  **/
 @Service
+@DataSource(value = DataSourceType.SLAVE)
 public class MainServiceImpl implements MainService {
 
 
@@ -53,6 +58,7 @@ public class MainServiceImpl implements MainService {
         if (StringUtils.isEmpty(reportCondition.getEndTime())) {
             reportCondition.setEndTime(DateUtils.getCntDtStr(date,"yyyy-MM"));
         }
+
         /*bean转成map*/
         Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
         return mainMapper.selectDataDetail(beanMap);
@@ -70,7 +76,6 @@ public class MainServiceImpl implements MainService {
         List<ResponseMain> responseMains = new ArrayList<>();
         /*需要返回的数据*/
         Map<String, Object> resultMap = new HashMap<>();
-        BigDecimal total = new BigDecimal("0").setScale(2, BigDecimal.ROUND_HALF_UP);
         for (String accCode : accCodeList) {//设置初始值
             if (!"bAccName".equalsIgnoreCase(accCode.trim()) && !"bAccCode".equalsIgnoreCase(accCode.trim())) {
                 resultMap.put(accCode.trim(), new BigDecimal("0").setScale(2, BigDecimal.ROUND_HALF_UP).toString());
@@ -82,13 +87,10 @@ public class MainServiceImpl implements MainService {
                 /*校验遍历*/
                 if (paramsMap != null && paramsMap.size() > 0) {
                     /*截取指定长度的值 进行比较*/
-
                     for (String tempAccCode : accCodeList) {
                         if(paramsMap.get("accCode").toString().length() < tempAccCode.length()){
                             continue;
                         }
-                        ResponseMain responseMain = new ResponseMain();
-                        responseMain.setCode(tempAccCode);
                         String accCode = paramsMap.get("accCode").toString().substring(0, tempAccCode.length());
                         /*判断list中是否有需要的field*/
                         if (tempAccCode.equalsIgnoreCase(accCode)) {
@@ -108,13 +110,18 @@ public class MainServiceImpl implements MainService {
                             BigDecimal oldCrAmt = new BigDecimal(resultMap.get(accCode).toString());//取出已存的金额
                             BigDecimal newCrAmt = new BigDecimal(StringUtils.getObjStrto0(paramsMap.get("crAmt"))).setScale(2, BigDecimal.ROUND_HALF_UP);
                             resultMap.put(accCode, oldCrAmt.add(newCrAmt).toString());//加上新的金额
-                            total = total.add(newCrAmt);
                         }
-                        responseMain.setValue(resultMap.get(accCode).toString());
-                        responseMains.add(responseMain);
+
                     }
                 }
             }
+        }
+
+        for (Map.Entry<String, Object> stringObjectEntry : resultMap.entrySet()) {
+            ResponseMain responseMain = new ResponseMain();
+            responseMain.setCode(stringObjectEntry.getKey());
+            responseMain.setValue(stringObjectEntry.getValue().toString());
+            responseMains.add(responseMain);
         }
 
         return responseMains;

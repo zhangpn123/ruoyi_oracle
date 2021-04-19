@@ -1,5 +1,6 @@
 package com.ruoyi.project.report.main.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.UploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
@@ -22,6 +23,8 @@ import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.dict.service.IDictTypeService;
 import com.ruoyi.project.system.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.BeanUtilsBean2;
+import org.apache.commons.beanutils.ConvertUtilsBean2;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -31,9 +34,8 @@ import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,15 +63,36 @@ public class MainController extends BaseController {
     private IDictDataService dictDataService;
     @Autowired
     private MainService mainService;
+    @Autowired
+    private IDeptService deptService;
 
     // @RequiresPermissions("report:main:list")
     @PostMapping("/list")
     @ResponseBody
     public BaseResp<List<ResponseMain>> list(ReportCondition reportCondition) {
-        log.info("开始查询首页报表数据");
+        log.info("开始查询首页报表数据 " );
+
+        // List<ResponseMain> list2 = new ArrayList<>();
+        // ResponseMain responseMain1 = new ResponseMain();
+        // responseMain1.setName("客户1");
+        // responseMain1.setCode("0001");
+        // responseMain1.setValue("121212");
+        // list2.add(responseMain1);
+        // ResponseMain responseMain2 = new ResponseMain();
+        // responseMain2.setName("客户2");
+        // responseMain2.setCode("0002");
+        // responseMain2.setValue("221212");
+        // list2.add(responseMain2);
+        // ResponseMain responseMain3 = new ResponseMain();
+        // responseMain3.setName("客户3");
+        // responseMain3.setCode("0003");
+        // responseMain3.setValue("321212");
+        // list2.add(responseMain3);
+        // return Response.ok(list2);
+
         /*获取表头信息*/
         dictTypeService.clearCache();//清楚缓存
-        List<DictData> dictData = dictTypeService.selectDictDataByType("report_main_column");
+        List<DictData> dictData = dictTypeService.selectDictDataByType(reportCondition.getDictDataype());
         /*存储表头信息*/
         List<String> fieldList = new LinkedList<>();
 
@@ -105,13 +128,36 @@ public class MainController extends BaseController {
         }
 
         List<ResponseMain> list = mainService.selectData(fieldList, replaceMap, reportCondition);
-        for (ResponseMain responseMain : list) {
-            for (DictData dictDatum : dictData) {
-                if (responseMain.getCode().equals(dictDatum.getDictValue())) {
-                    responseMain.setName(dictDatum.getDictLabel());
+        if(reportCondition.getDictDataype().equalsIgnoreCase("report_main_column")){
+            ResponseMain other = new ResponseMain();
+            BigDecimal total = new BigDecimal("0");
+            Iterator<ResponseMain> it = list.iterator();
+            while (it.hasNext()){
+                ResponseMain responseMain = it.next();
+                for (DictData dictDatum : dictData) {
+                    if (responseMain.getCode().equals(dictDatum.getDictValue())) {
+                        responseMain.setName(dictDatum.getDictLabel());
+                        if (dictDatum.getDictLabel().contains("/")){
+                            total = total.add(new BigDecimal(responseMain.getValue()));
+                            it.remove();
+                        }
+                    }
+                }
+            }
+            other.setName("其他收入");
+            other.setCode("other");
+            other.setValue(total.toString());
+            list.add(other);
+        }else{
+            for (ResponseMain responseMain : list) {
+                for (DictData dictDatum : dictData) {
+                    if (responseMain.getCode().equals(dictDatum.getDictValue())) {
+                        responseMain.setName(dictDatum.getDictLabel());
+                    }
                 }
             }
         }
+
         return Response.ok(list);
     }
 
@@ -119,7 +165,16 @@ public class MainController extends BaseController {
     @PostMapping("/detail")
     @ResponseBody
     public TableDataInfo detail(ReportCondition reportCondition) {
-        log.info("开始查询首页报表明细数据");
+        log.info("开始查询首页报表明细数据 {}",reportCondition);
+        // List<Map<String, Object>> list2 = new ArrayList<>();
+        // Map map1 = new HashMap();
+        // map1.put("coName",reportCondition.getAccCode());
+        // map1.put("accName","类目1");
+        // map1.put("crAmt","金额1");
+        // list2.add(map1);
+
+
+
 
         if (StringUtils.isEmpty(reportCondition.getDeptId())) {
             /*取当前用户的所属部门*/
@@ -139,7 +194,7 @@ public class MainController extends BaseController {
         /*获取表头信息*/
         if (StringUtils.isEmpty(reportCondition.getAccCode())) {
             dictTypeService.clearCache();//清楚缓存
-            List<DictData> dictData = dictTypeService.selectDictDataByType("report_main_column");
+            List<DictData> dictData = dictTypeService.selectDictDataByType(reportCondition.getDictDataype());
 
             Map<String, Object> map = new HashMap<>();
 
@@ -175,8 +230,25 @@ public class MainController extends BaseController {
         } else {
             fieldList.add(reportCondition.getAccCode());
             list = mainService.selectDataDetail(fieldList, replaceMap, reportCondition);
+
+            List<Dept> deptList = deptService.selectDeptIdList();
+            for (Map<String, Object> map : list) {
+                for (Dept dept : deptList) {
+                    if(dept.getDeptId().equalsIgnoreCase(map.get("coCode").toString())){
+                        map.put("coName",dept.getDeptName());
+                    }
+                }
+            }
         }
         return getDataTable(list);
+    }
+
+    @GetMapping("/detailed/{params}")
+    public String detailed(@PathVariable("params") String params, ModelMap mmap) {
+        JSONObject jsonObject = JSONObject.parseObject(params);
+        ReportCondition reportCondition = JSONObject.toJavaObject(jsonObject, ReportCondition.class);
+        mmap.put("reportCondition", reportCondition);
+        return "/detailed";
     }
 
     /**

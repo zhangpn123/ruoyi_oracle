@@ -60,12 +60,14 @@
                                     class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" id="refresh"><i
                                     class="fa fa-refresh"></i>&nbsp;重置</a>
+                            <a class="btn btn-info btn-rounded btn-sm" onclick="report('custom-form')" >
+                                <i class="fa fa-download"></i> 导出
+                            </a>
                         </li>
                     </ul>
                 </div>
             </form>
         </div>
-
         <div class="col-sm-12 select-table table-striped">
             <table id="bootstrap-table"></table>
         </div>
@@ -169,6 +171,23 @@
     function refresh(formId) {
         $('#treeId').attr('value','');
         $.form.reset(formId);
+    }
+
+    //导出
+    function report(formId) {
+        let formToJSON = $.common.formToJSON(formId);
+        $.modal.loading("正在导出数据，请稍后...");
+        $.post(prefix + "/report", formToJSON, function(result) {
+            console.log(result)
+            if (result.code == web_status.SUCCESS) {
+                window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+            } else if (result.code == web_status.WARNING) {
+                $.modal.alertWarning(result.msg)
+            } else {
+                $.modal.alertError(result.msg);
+            }
+            $.modal.closeLoading();
+        });
     }
 
 

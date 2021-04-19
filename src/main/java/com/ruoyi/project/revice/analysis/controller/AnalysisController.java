@@ -1,26 +1,19 @@
 package com.ruoyi.project.revice.analysis.controller;
 
-import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.common.utils.PoiUtil;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.framework.aspectj.lang.annotation.Log;
-import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
 import com.ruoyi.framework.config.RuoYiConfig;
 import com.ruoyi.framework.web.controller.BaseController;
 import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.report.customquert.dto.CustomPageReq;
 import com.ruoyi.project.report.customquert.service.CustomqueryService;
-import com.ruoyi.project.report.dto.ReportCondition;
 import com.ruoyi.project.revice.analysis.service.AnalysisService;
 import com.ruoyi.project.revice.dto.Report;
 import com.ruoyi.project.system.dept.domain.Dept;
 import com.ruoyi.project.system.dept.service.IDeptService;
 import com.ruoyi.project.system.dict.domain.DictData;
 import com.ruoyi.project.system.dict.service.IDictDataService;
-import com.ruoyi.project.system.role.domain.Role;
 import com.ruoyi.project.system.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
@@ -28,11 +21,9 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -119,7 +110,15 @@ public class AnalysisController extends BaseController {
                 List<Map<String, Object>> customResult = customqueryService.selectList(sql);
                 for (Map<String, Object> map : customResult) {
                     Report report = new Report();
-                    // report.setCoCode(map.get(""));
+                    report.setCoCode(map.get("CO_CODE").toString());
+                    report.setQueDesc(map.get("ERROR_REASON").toString());
+                    report.setVoucherNo(map.get("VOU_NO").toString());
+                    report.setRemark(map.get("DESCPT").toString());
+                    report.setRecord(map.get("VOU_SEQ").toString());
+                    report.setAssCheck(map.get("VOU_DETAIL_SEQ").toString());
+                    report.setQueType(map.get("ERROR_TYPE").toString());
+                    report.setQueNum(dictData.getCssClass());
+                    report.setCreateDate(DateUtils.curDateTime());
                     params.add(report);
                 }
             }

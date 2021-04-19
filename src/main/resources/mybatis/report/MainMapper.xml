@@ -66,14 +66,13 @@
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
         ELSE sum( gb.CR_AMT)  END) AS "crAmt",
         gb.ACC_CODE as "accCode",
-        d.dept_name as coName from
+        gb.co_code as "coCode" from
         <if test="relation != 1">
             a6.GL_BAL gb
         </if>
         <if test="relation == 1" >
             <include refid="tempTable"/>
         </if>
-        left join sys_dept d ON d.dept_id = gb.co_code
         <where>
             gb.ACCOUNT_ID = '001' AND gb.VOU_KIND != 'JZ'
             <if test="accCode != null and accCode != ''">
@@ -91,7 +90,7 @@
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
             </if>
         </where>
-        group by gb.co_code, gb.ACC_CODE
+        group by gb.co_code,gb.ACC_CODE
     </select>
 
 

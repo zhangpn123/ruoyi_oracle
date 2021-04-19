@@ -21,4 +21,5 @@ public class ReportCondition extends BaseEntity {
     private String relation;//是否关联表 1关联  2不关联
     private String accCode;
     private String accName;
+    private String dictDataype;//要查模板数据类型
 }
