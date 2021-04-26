@@ -18,92 +18,7 @@ import java.util.*;
  */
 public class PoiUtil {
 
-    /**
-     * 创建Excel
-     */
-    public static void createExcel(String excelPath, String sheetName, List<String> titles, List<String[]> valueList){
-        WritableWorkbook book = null;
-        OutputStream os = null;
-        //判断需要创建几个sheet
-        int total = valueList.size();
-        //定义每个sheet里面可以有多少条数据
-        int mus = 50000;
-        int num = total % 50000;
-        int num1;
-        if (num == 0) {
-            num1 = total / 50000;
-        }  else {
-            num1 = total / 50000 + 1;
-        }
-        try {
-            // 打开文件
-            os = new FileOutputStream(excelPath);
-            book = jxl.Workbook.createWorkbook(os);
-            for (int k = 0; k < num1; k++) {
 
-                //生成工作表，参数0表示这是第一页
-                WritableSheet sheetOne=book.createSheet(sheetName+(k+1),k);
-                /**
-                 * 定义单元格样式
-                 */
-                WritableFont wf_title = new WritableFont(WritableFont.ARIAL, 12,
-                        WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE,
-                        jxl.format.Colour.BLACK); // 定义格式 字体 下划线 斜体 粗体 颜色
-                WritableFont wf_value = new WritableFont(WritableFont.ARIAL, 11,
-                        WritableFont.NO_BOLD, false, UnderlineStyle.NO_UNDERLINE,
-                        jxl.format.Colour.BLACK); // 定义格式 字体 下划线 斜体 粗体 颜色
-
-                WritableCellFormat wcf_title = new WritableCellFormat(wf_title);
-                wcf_title.setBackground(jxl.format.Colour.YELLOW2);
-                wcf_title.setAlignment(jxl.format.Alignment.CENTRE);
-                wcf_title.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN,jxl.format.Colour.BLACK);
-
-                WritableCellFormat wcf_vaule = new WritableCellFormat(wf_value); // 单元格定义
-                wcf_vaule.setAlignment(jxl.format.Alignment.CENTRE); // 设置对齐方式
-
-                //设置标题
-                for(int i=0;i<titles.size();i++){
-                    sheetOne.setColumnView(i, 30); // 设置列的宽度
-                    sheetOne.addCell(new Label(i,0,titles.get(i),wcf_title)); //将定义好的单元格添加到工作表中
-                }
-
-                int count = k * mus;
-                int index = 0;
-                for (int m = count; m <valueList.size() ; m++) {
-                    if (index == mus){
-                        break;
-                    }
-
-
-                    //设置值
-                    // for(int i=0;i<valueList.size();i++){
-                    // for (int i = 50000*k-50000; i < 50000*k && i<count; i++) {
-                    // for (int i = 1; i < 5 * k && i < total; i++) {
-                    String[] valueArr = valueList.get(m);
-                    for(int j=0;j<valueArr.length;j++){
-                        sheetOne.addCell(new Label(j,index+1,valueArr[j],wcf_vaule));
-                    }
-                    index ++;
-                }
-            }
-            //写入数据
-            book.write();
-            os.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (null != book) {
-                    book.close();
-                }
-                if(null != os){
-                    os.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     /**
      * 新增行
@@ -223,8 +138,7 @@ public class PoiUtil {
      * @return
      * @throws IOException
      */
-    public static InputStream getExcelFile(List<Map<String, Object>> data, String sheetName,
-                                           List<String> title, List<String> colKeys) throws IOException {
+    public static InputStream getExcelFile(List<Map<String, Object>> data, String sheetName, List<String> title, List<String> colKeys) throws IOException {
         workbook = new HSSFWorkbook();
         sheet = workbook.createSheet(sheetName);
         // 创建表头 startRow代表表体开始的行
@@ -249,65 +163,10 @@ public class PoiUtil {
      * @param colKeys 列信息
      */
     public static int createHeadCell(List<String> colKeys) {
-
-        // 表头标题
-        List<Map<String, Object>> paramsMapListOne = new ArrayList<>();
-        Map<String, Object> paramsMapOne = new HashMap<>();
-        paramsMapOne.put("clo", (int) Math.floor(colKeys.size() / 2));
-        // paramsMapOne.put("clo2", headLength - 1);
-        paramsMapOne.put("style", getStyle(22, HorizontalAlignment.CENTER.getCode(), false, false, false));
-        paramsMapOne.put("value", "收入决算表");
-        paramsMapListOne.add(paramsMapOne);
-        createRow(0x220, 0, 0, paramsMapListOne, false);
-
-        //第二行
-        List<Map<String, Object>> paramsMapListTwo = new ArrayList<>();
-        Map<String, Object> paramsMapTwo = new HashMap<>();
-        paramsMapTwo.put("clo", colKeys.size() - 1);
-        paramsMapTwo.put("style", getStyle(12, HorizontalAlignment.RIGHT.getCode(), false, false, false));
-        paramsMapTwo.put("value", "财决03表");
-        paramsMapListTwo.add(paramsMapTwo);
-        createRow(0x220, 1, 1, paramsMapListTwo, false);
-
-        //第三行
-        List<Map<String, Object>> paramsMapListThree = new ArrayList<>();
-        Map<String, Object> paramsMapThree1 = new HashMap<>();
-        paramsMapThree1.put("clo", 0);
-        paramsMapThree1.put("style", getStyle(12, HorizontalAlignment.LEFT.getCode(), false, false, false));
-        paramsMapThree1.put("value", "编制单位：福建省气象宣传科普教育中心");
-        paramsMapListThree.add(paramsMapThree1);
-
-        Map<String, Object> paramsMapThree2 = new HashMap<>();
-        paramsMapThree2.put("clo", (int) Math.floor(colKeys.size() / 2));
-        paramsMapThree2.put("style", getStyle(12, HorizontalAlignment.CENTER.getCode(), false, false, false));
-        paramsMapThree2.put("value", "2019年度");
-        paramsMapListThree.add(paramsMapThree2);
-
-        Map<String, Object> paramsMapThree3 = new HashMap<>();
-        paramsMapThree3.put("clo", colKeys.size() - 1);
-        paramsMapThree3.put("style", getStyle(12, HorizontalAlignment.RIGHT.getCode(), false, false, false));
-        paramsMapThree3.put("value", "金额单位：元");
-        paramsMapListThree.add(paramsMapThree3);
-        createRow(0x220, 2, 2, paramsMapListThree, false);
-
         //第四行表头
-        HSSFRow row2 = sheet.createRow(3);
+        HSSFRow row2 = sheet.createRow(0);
         row2.setHeight((short) 0x289);
         HSSFCellStyle cellStyle = getStyle(12, HorizontalAlignment.CENTER.getCode(), false, true, true); // 建立新的cell样式
-        String[] row_three = {"项目", "", "", "", "本年收入合计", "财政拨款收入", "上级补助收入", "事业收入", "", "经营收入", "附属单位上缴收入", "其他收入"};
-        // LinkedList<String> colOnekeyList = new LinkedList<>();
-        // colOnekeyList.add("项目");
-        // colOnekeyList.add("");
-        // colOnekeyList.add("");
-        // colOnekeyList.add("");
-        // colOnekeyList.add("本年收入合计");
-        // colOnekeyList.add("财政拨款收入");
-        // colOnekeyList.add("上级补助收入");
-        // colOnekeyList.add("事业收入");
-        // colOnekeyList.add("");
-        // colOnekeyList.add("经营收入");
-        // colOnekeyList.add("附属单位上缴收入");
-        // colOnekeyList.add("其他收入");
 
         for (int i = 0; i < colKeys.size(); i++) {
             Cell tempCell = row2.createCell(i);
@@ -316,68 +175,8 @@ public class PoiUtil {
             tempCell.setCellStyle(cellStyle);
             sheet.setColumnWidth(i, 4000);//宽度
 
-            // if (colWidths != null && i < colWidths.length) {
-            //
-            // }
         }
-        /*对数据表格进行合并操作  不需要合并操作的可不必操作*/
-        // sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, 3));
-        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 4, 4));
-        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 5, 5));
-        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 6, 6));
-        // sheet.addMergedRegion(new CellRangeAddress(3, 3, 7, 8));
-        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 9, 9));
-        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 10, 10));
-        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 11, 11));
-        // sheet.addMergedRegion(new CellRangeAddress(3, 4, 12, 12));
-
-        //第五行表头
-        // HSSFRow row3 = sheet.createRow(4);
-        // row3.setHeight((short) 0x289);
-        // String[] row_four = {"支出功能分类科目编码", "", "", "科目名称", "", "", "", "小计", "其中：教育收费", "", "", ""};
-        // // LinkedList<String> colTwokeyList = new LinkedList<>();
-        // // colTwokeyList.add("支出功能分类科目编码");
-        // // colTwokeyList.add("");
-        // // colTwokeyList.add("");
-        // // colTwokeyList.add("科目名称");
-        // // colTwokeyList.add("本年收入合计");
-        // // colTwokeyList.add("财政拨款收入");
-        // // colTwokeyList.add("上级补助收入");
-        // // colTwokeyList.add("小计");
-        // // colTwokeyList.add("其中：教育收费");
-        // // colTwokeyList.add("经营收入");
-        // // colTwokeyList.add("附属单位上缴收入");
-        // // colTwokeyList.add("其他收入");
-        //
-        // for (int i = 0; i < row_four.length; i++) {
-        //     Cell tempCell = row3.createCell(i);
-        //     tempCell.setCellValue(row_four[i]);
-        //     tempCell.setCellStyle(cellStyle);
-        // }
-        // sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, 2));
-        //
-        // HSSFRow row4 = sheet.createRow(5);
-        // row4.setHeight((short) 0x189);
-        // String[] row_five = {"类", "款", "项", "栏次", "1", "2", "3", "4", "5", "6", "7", "8"};
-        // // LinkedList<String> colThreekeyList = new LinkedList<>();
-        // // colThreekeyList.add("类");
-        // // colThreekeyList.add("款");
-        // // colThreekeyList.add("项");
-        // // colThreekeyList.add("栏次");
-        // // colThreekeyList.add("1");
-        // // colThreekeyList.add("2");
-        // // colThreekeyList.add("3");
-        // // colThreekeyList.add("4");
-        // // colThreekeyList.add("5");
-        // // colThreekeyList.add("6");
-        // // colThreekeyList.add("7");
-        // // colThreekeyList.add("8");
-        // for (int i = 0; i < row_five.length; i++) {
-        //     Cell tempCell = row4.createCell(i);
-        //     tempCell.setCellValue(row_five[i]);
-        //     tempCell.setCellStyle(cellStyle);
-        // }
-        return 4; //数据从哪一行开始渲染表体
+        return 1; //数据从哪一行开始渲染表体
     }
 
     /**

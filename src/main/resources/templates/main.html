@@ -211,7 +211,6 @@
 
     function  fdetailed(formId) {
         var params = encodeURI(JSON.stringify($.common.formToJSON(formId)));
-        console.log(params);
         var url = prefix + '/detailed/' + params;
         $.modal.openTab("明细", url);
     }

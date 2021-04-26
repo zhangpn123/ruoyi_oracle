@@ -37,6 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -174,17 +176,22 @@ public class CustomqueryController extends BaseController {
             List<String> titles = new ArrayList<>(map.keySet());
 
 
-            List<String[]> excelInfoList = new ArrayList<>();
+            List<Map<String, Object>> excelInfoList = new ArrayList<>();
                 for (int i = 0; i < customResult.size(); i++) {
-                    String[] pos = new String[titles.size()];
+                    Map<String, Object> params = new HashMap<>();
                     for (int j = 0; j < titles.size(); j++) {
-                        pos[j] = StringUtils.getObjStr(customResult.get(i).get(titles.get(j)));
+                        params.put(titles.get(j),StringUtils.getObjStr(customResult.get(i).get(titles.get(j))));
                     }
-                    excelInfoList.add(pos);
+                    excelInfoList.add(params);
                 }
-            PoiUtil.createExcel(downloadPath, dictData.getDictLabel(), titles, excelInfoList);
-            AjaxResult success = AjaxResult.success(outFileName);
-            return success;
+
+            try {
+                InputStream excelFile = PoiUtil.getExcelFile(excelInfoList, dictData.getDictLabel(), titles, titles);
+                ExcelUtil.writeExcel(excelFile, downloadPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return AjaxResult.success(outFileName);
         }else{
             return AjaxResult.warn("导出数据为空");
         }

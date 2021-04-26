@@ -14,7 +14,7 @@
     <script th:src="@{/js/echarts.min.js}"></script>
 </head>
 
-<body class="gray-bg" onload="initPie()">
+<body class="gray-bg" onload="initPie('main-other-form')">
 <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
 <div class="row" style="width: 100%;height:100%;">
     <div class="col-sm-12" style="text-align: center;width: 100%;height:15%;"><h1 th:text="${reportCondition.accName}"></h1>
@@ -29,7 +29,7 @@
                                 <input name="accCode" type="hidden" id="accCode" th:value="${reportCondition.accCode}"/>
                             </li>
                             <li>
-                                <input name="dictDataype" type="hidden" id="dictDataype" value="report_main_other"/>
+                                    <input name="dictDataype" type="hidden" id="dictDataype" value="report_main_other"/>
                             </li>
                             <li>
                                 <input name="deptId" type="hidden" id="treeId" th:value="${reportCondition.deptId}"/>
@@ -72,7 +72,9 @@
     // var myChartDetail = echarts.init(document.getElementById('detail'));
 
     var prefix = ctx + "report/main/";
-    function initPie(params){
+    function initPie(formId){
+        console.log(formId)
+        let params = $.common.formToJSON(formId);
         $.ajax({
             url: prefix+"/list",
             type: "post",// "post", //请求方式
@@ -190,19 +192,17 @@
     }
 
     //搜索
-    function searchMain(formId) {
-        let formToJSON = $.common.formToJSON(formId);
-        initPie(formToJSON)
-    }
-    //重置
-    function refresh(formId) {
-        $('#treeId').attr('value','');
-        $('#accCode').attr('value','');
-        $('#accName').attr('value',params.data.name);
-        $.form.reset(formId);
-        let formToJSON = $.common.formToJSON(formId);
-        initPie(formToJSON)
-    }
+    // function searchMain(formId) {
+    //     initPie(formId)
+    // }
+    // //重置
+    // function refresh(formId) {
+    //     $('#treeId').attr('value','');
+    //     $('#accCode').attr('value','');
+    //     $('#accName').attr('value',params.data.name);
+    //     $.form.reset(formId);
+    //     initPie(formId)
+    // }
 
     //导出
     function report(formId) {

@@ -23,8 +23,6 @@ import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.dict.service.IDictTypeService;
 import com.ruoyi.project.system.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.beanutils.BeanUtilsBean2;
-import org.apache.commons.beanutils.ConvertUtilsBean2;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -32,7 +30,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -248,7 +245,7 @@ public class MainController extends BaseController {
         JSONObject jsonObject = JSONObject.parseObject(params);
         ReportCondition reportCondition = JSONObject.toJavaObject(jsonObject, ReportCondition.class);
         mmap.put("reportCondition", reportCondition);
-        return "/detailed";
+        return "tool/main/detailed";
     }
 
     /**
