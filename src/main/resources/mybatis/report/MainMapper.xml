@@ -55,6 +55,7 @@
 
 
     <select id="selectDataDetail" resultType="java.util.Map" parameterType="java.util.Map">
+        select sum(crAmt) "crAmt",coCode "coCode"  from (
         select (CASE SUBSTR(gb.ACC_CODE, 1, 1)
         WHEN '4' THEN
         sum( gb.CR_AMT ) - sum(gb.DR_AMT)
@@ -90,7 +91,8 @@
                 AND gb.FISCAL|| '-' || lpad(gb.FIS_PERD,2,'0') <![CDATA[  <= ]]> #{endTime}
             </if>
         </where>
-        group by gb.co_code,gb.ACC_CODE
+        group by gb.co_code,gb.ACC_CODE) a
+        group by coCode
     </select>
 
 

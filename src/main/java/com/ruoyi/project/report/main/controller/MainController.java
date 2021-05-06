@@ -3,6 +3,7 @@ package com.ruoyi.project.report.main.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.UploadUtils;
+import com.ruoyi.common.utils.bean.Map2Bean;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.aspectj.lang.annotation.Log;
@@ -23,12 +24,15 @@ import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.dict.service.IDictTypeService;
 import com.ruoyi.project.system.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.crypto.hash.Hash;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -217,13 +221,44 @@ public class MainController extends BaseController {
             }
 
             List<ResponseMain> responseMains = mainService.selectData(fieldList, replaceMap, reportCondition);
+            if(reportCondition.getDictDataype().equalsIgnoreCase("report_main_column")){
+                ResponseMain other = new ResponseMain();
+                BigDecimal total = new BigDecimal("0");
+                Iterator<ResponseMain> it = responseMains.iterator();
+                while (it.hasNext()){
+                    ResponseMain responseMain = it.next();
+                    for (DictData dictDatum : dictData) {
+                        if (responseMain.getCode().equals(dictDatum.getDictValue())) {
+                            responseMain.setName(dictDatum.getDictLabel());
+                            if (dictDatum.getDictLabel().contains("/")){
+                                total = total.add(new BigDecimal(responseMain.getValue()));
+                                it.remove();
+                            }
+                        }
+                    }
+                }
+                other.setName("其他收入");
+                other.setCode("other");
+                other.setValue(total.toString());
+                responseMains.add(other);
+            }else{
+                for (ResponseMain responseMain : responseMains) {
+                    for (DictData dictDatum : dictData) {
+                        if (responseMain.getCode().equals(dictDatum.getDictValue())) {
+                            responseMain.setName(dictDatum.getDictLabel());
+                        }
+                    }
+                }
+            }
+
             for (ResponseMain responseMain : responseMains) {
-                Map<String, Object> map1 = new HashMap<>();
-                map1.put("coName", reportCondition.getDeptName());
-                map1.put("crAmt", responseMain.getValue());
-                map1.put("accName", responseMain.getName());
+                Map map1 = new HashMap();
+                map1.put("coName",reportCondition.getDeptName());
+                map1.put("accName",responseMain.getName());
+                map1.put("crAmt",responseMain.getValue());
                 list.add(map1);
             }
+
         } else {
             fieldList.add(reportCondition.getAccCode());
             list = mainService.selectDataDetail(fieldList, replaceMap, reportCondition);
@@ -235,6 +270,7 @@ public class MainController extends BaseController {
                         map.put("coName",dept.getDeptName());
                     }
                 }
+                map.put("accName",reportCondition.getAccName());
             }
         }
         return getDataTable(list);
