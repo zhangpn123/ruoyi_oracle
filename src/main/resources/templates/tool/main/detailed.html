@@ -29,6 +29,9 @@
                                 <input name="accCode" type="hidden" id="accCode" th:value="${reportCondition.accCode}"/>
                             </li>
                             <li>
+                                <input name="accName" type="hidden" id="accName" th:value="${reportCondition.accName}"/>
+                            </li>
+                            <li>
                                     <input name="dictDataype" type="hidden" id="dictDataype" value="report_main_other"/>
                             </li>
                             <li>
@@ -73,7 +76,6 @@
 
     var prefix = ctx + "report/main/";
     function initPie(formId){
-        console.log(formId)
         let params = $.common.formToJSON(formId);
         $.ajax({
             url: prefix+"/list",

@@ -41,16 +41,16 @@ public class CommonController {
     @GetMapping("common/download")
     public void fileDownload(String fileName, Boolean delete, HttpServletResponse response, HttpServletRequest request) {
         try {
-            if (!FileUtils.isValidFilename(fileName)) {
-                throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", fileName));
-            }
-            String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
+            // if (!FileUtils.isValidFilename(fileName)) {
+            //     throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", fileName));
+            // }
+            // String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
             String filePath = RuoYiConfig.getDownloadPath() + fileName;
 
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             // response.setHeader("Content-type", "application/xls");
-            response.setHeader("Content-Disposition", "attachment;fileName="+java.net.URLEncoder.encode(realFileName,"UTF-8"));
-            FileUtils.setAttachmentResponseHeader(response, realFileName);
+            response.setHeader("Content-Disposition", "attachment;fileName="+java.net.URLEncoder.encode(fileName,"UTF-8"));
+            FileUtils.setAttachmentResponseHeader(response, fileName);
             FileUtils.writeBytes(filePath, response.getOutputStream());
             if (delete) {
                 FileUtils.deleteFile(filePath);

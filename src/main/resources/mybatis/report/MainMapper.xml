@@ -55,7 +55,7 @@
 
 
     <select id="selectDataDetail" resultType="java.util.Map" parameterType="java.util.Map">
-        select sum(crAmt) "crAmt",coCode "coCode"  from (
+        select sum(a.cr_amt) "crAmt",a.co_code "coCode"   from (
         select (CASE SUBSTR(gb.ACC_CODE, 1, 1)
         WHEN '4' THEN
         sum( gb.CR_AMT ) - sum(gb.DR_AMT)
@@ -65,9 +65,9 @@
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
         WHEN '7' THEN
         sum(gb.DR_AMT) - sum( gb.CR_AMT)
-        ELSE sum( gb.CR_AMT)  END) AS "crAmt",
-        gb.ACC_CODE as "accCode",
-        gb.co_code as "coCode" from
+        ELSE sum( gb.CR_AMT)  END) AS  cr_amt,
+        gb.ACC_CODE as acc_code,
+        gb.co_code as co_code  from
         <if test="relation != 1">
             a6.GL_BAL gb
         </if>
@@ -92,7 +92,7 @@
             </if>
         </where>
         group by gb.co_code,gb.ACC_CODE) a
-        group by coCode
+        group by a.co_code
     </select>
 
 

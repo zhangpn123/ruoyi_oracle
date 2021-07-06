@@ -43,17 +43,10 @@ public class LoginController extends BaseController
     {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password, rememberMe);
         Subject subject = SecurityUtils.getSubject();
-        try
-        {
+        try {
             subject.login(token);
-            if (DateUtils.getDate().compareTo("2021-06-30") == 1) {
-                return error("试用版时间已到期, 请购买正版!");
-            } else {
-                return success();
-            }
-
-        }
-        catch (AuthenticationException e)
+            return success();
+        } catch (AuthenticationException e)
         {
             String msg = "用户或密码错误";
             if (StringUtils.isNotEmpty(e.getMessage()))

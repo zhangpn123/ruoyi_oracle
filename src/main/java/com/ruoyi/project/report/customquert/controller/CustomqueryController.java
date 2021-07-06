@@ -166,15 +166,15 @@ public class CustomqueryController extends BaseController {
             log.error("要查询的数据不是select开头");
             return AjaxResult.error("查询的语句不合法：不是select开头的语句");
         }
-        List<Map<String, Object>> customResult = customqueryService.selectList(sql);
+        List<Map<String, Object>> customResult = customqueryService.selectList(getSql(sql,customPageReq));
         if(customResult != null && customResult.size() > 0){
-            String outFileName =System.currentTimeMillis() + "_" +dictData.getDictLabel()  + ".xls";
+            String outFileName =dictData.getDictLabel()  + DateUtils.dateTimeNow("yyyyMMddHHmmss") + ".xls";
             String downloadPath = RuoYiConfig.getDownloadPath() + outFileName;
 
             //获取title
             Map<String, Object> map = customResult.get(0);
+            map.remove("ROW_ID");
             List<String> titles = new ArrayList<>(map.keySet());
-
 
             List<Map<String, Object>> excelInfoList = new ArrayList<>();
                 for (int i = 0; i < customResult.size(); i++) {
@@ -184,14 +184,17 @@ public class CustomqueryController extends BaseController {
                     }
                     excelInfoList.add(params);
                 }
-
-            try {
-                InputStream excelFile = PoiUtil.getExcelFile(excelInfoList, dictData.getDictLabel(), titles, titles);
-                ExcelUtil.writeExcel(excelFile, downloadPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return AjaxResult.success(outFileName);
+                if(excelInfoList != null && excelInfoList.size() > 0){
+                    try {
+                        InputStream excelFile = PoiUtil.getExcelFile(excelInfoList, dictData.getDictLabel(), titles, titles);
+                        ExcelUtil.writeExcel(excelFile, downloadPath);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return AjaxResult.success(outFileName);
+                }else{
+                    return AjaxResult.warn("导出数据为空");
+                }
         }else{
             return AjaxResult.warn("导出数据为空");
         }

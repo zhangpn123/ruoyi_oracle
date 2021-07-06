@@ -3,7 +3,6 @@ package com.ruoyi.project.report.main.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.UploadUtils;
-import com.ruoyi.common.utils.bean.Map2Bean;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.aspectj.lang.annotation.Log;
@@ -24,15 +23,12 @@ import com.ruoyi.project.system.dict.service.IDictDataService;
 import com.ruoyi.project.system.dict.service.IDictTypeService;
 import com.ruoyi.project.system.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.crypto.hash.Hash;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -67,7 +63,7 @@ public class MainController extends BaseController {
     @Autowired
     private IDeptService deptService;
 
-    // @RequiresPermissions("report:main:list")
+
     @PostMapping("/list")
     @ResponseBody
     public BaseResp<List<ResponseMain>> list(ReportCondition reportCondition) {
@@ -133,27 +129,39 @@ public class MainController extends BaseController {
             ResponseMain other = new ResponseMain();
             BigDecimal total = new BigDecimal("0");
             Iterator<ResponseMain> it = list.iterator();
-            while (it.hasNext()){
+            while (it.hasNext()) {
                 ResponseMain responseMain = it.next();
-                for (DictData dictDatum : dictData) {
-                    if (responseMain.getCode().equals(dictDatum.getDictValue())) {
-                        responseMain.setName(dictDatum.getDictLabel());
-                        if (dictDatum.getDictLabel().contains("/")){
-                            total = total.add(new BigDecimal(responseMain.getValue()));
-                            it.remove();
+                if ("0.00".equalsIgnoreCase(responseMain.getValue())) {
+                    it.remove();
+                } else {
+                    for (DictData dictDatum : dictData) {
+                        if (responseMain.getCode().equals(dictDatum.getDictValue())) {
+                            responseMain.setName(dictDatum.getDictLabel());
+                            if (dictDatum.getDictLabel().contains("/")) {
+                                total = total.add(new BigDecimal(responseMain.getValue()));
+                                it.remove();
+                            }
                         }
                     }
                 }
             }
-            other.setName("其他收入");
-            other.setCode("other");
-            other.setValue(total.toString());
-            list.add(other);
+            if (!"0".equalsIgnoreCase(total.toString())){
+                other.setName("其他收入");
+                other.setCode("other");
+                other.setValue(total.toString());
+                list.add(other);
+            }
         }else{
-            for (ResponseMain responseMain : list) {
-                for (DictData dictDatum : dictData) {
-                    if (responseMain.getCode().equals(dictDatum.getDictValue())) {
-                        responseMain.setName(dictDatum.getDictLabel());
+            Iterator<ResponseMain> it = list.iterator();
+            while (it.hasNext()){
+                ResponseMain responseMain = it.next();
+                if("0.00".equalsIgnoreCase(responseMain.getValue())){
+                    it.remove();
+                }else{
+                    for (DictData dictDatum : dictData) {
+                        if (responseMain.getCode().equals(dictDatum.getDictValue())) {
+                            responseMain.setName(dictDatum.getDictLabel());
+                        }
                     }
                 }
             }
@@ -167,15 +175,6 @@ public class MainController extends BaseController {
     @ResponseBody
     public TableDataInfo detail(ReportCondition reportCondition) {
         log.info("开始查询首页报表明细数据 {}",reportCondition);
-        // List<Map<String, Object>> list2 = new ArrayList<>();
-        // Map map1 = new HashMap();
-        // map1.put("coName",reportCondition.getAccCode());
-        // map1.put("accName","类目1");
-        // map1.put("crAmt","金额1");
-        // list2.add(map1);
-
-
-
 
         if (StringUtils.isEmpty(reportCondition.getDeptId())) {
             /*取当前用户的所属部门*/
@@ -237,10 +236,12 @@ public class MainController extends BaseController {
                         }
                     }
                 }
-                other.setName("其他收入");
-                other.setCode("other");
-                other.setValue(total.toString());
-                responseMains.add(other);
+                if (!"0".equalsIgnoreCase(total.toString())){
+                    other.setName("其他收入");
+                    other.setCode("other");
+                    other.setValue(total.toString());
+                    responseMains.add(other);
+                }
             }else{
                 for (ResponseMain responseMain : responseMains) {
                     for (DictData dictDatum : dictData) {
@@ -252,25 +253,32 @@ public class MainController extends BaseController {
             }
 
             for (ResponseMain responseMain : responseMains) {
-                Map map1 = new HashMap();
-                map1.put("coName",reportCondition.getDeptName());
-                map1.put("accName",responseMain.getName());
-                map1.put("crAmt",responseMain.getValue());
-                list.add(map1);
+                if(!"0.00".equalsIgnoreCase(responseMain.getValue())){
+                    Map map1 = new HashMap();
+                    map1.put("coName",reportCondition.getDeptName());
+                    map1.put("accName",responseMain.getName());
+                    map1.put("crAmt",responseMain.getValue());
+                    list.add(map1);
+                }
             }
 
         } else {
             fieldList.add(reportCondition.getAccCode());
             list = mainService.selectDataDetail(fieldList, replaceMap, reportCondition);
-
             List<Dept> deptList = deptService.selectDeptIdList();
-            for (Map<String, Object> map : list) {
-                for (Dept dept : deptList) {
-                    if(dept.getDeptId().equalsIgnoreCase(map.get("coCode").toString())){
-                        map.put("coName",dept.getDeptName());
+            Iterator<Map<String, Object>> it = list.iterator();
+            while (it.hasNext()) {
+                Map<String, Object> map = it.next();
+                if ("0.00".equalsIgnoreCase(map.get("crAmt").toString())) {
+                    it.remove();
+                } else {
+                    for (Dept dept : deptList) {
+                        if (dept.getDeptId().equalsIgnoreCase(map.get("coCode").toString())) {
+                            map.put("coName", dept.getDeptName());
+                        }
                     }
+                    map.put("accName", reportCondition.getAccName());
                 }
-                map.put("accName",reportCondition.getAccName());
             }
         }
         return getDataTable(list);

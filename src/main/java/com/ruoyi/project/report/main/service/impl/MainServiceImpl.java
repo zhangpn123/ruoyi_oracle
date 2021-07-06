@@ -42,8 +42,12 @@ public class MainServiceImpl implements MainService {
         if (StringUtils.isEmpty(reportCondition.getEndTime())) {
             reportCondition.setEndTime(DateUtils.getCntDtStr(date,"yyyy-MM"));
         }
-        /*bean转成map*/
         Map<String, Object> beanMap = Map2Bean.transBean2Map(reportCondition);
+        /*bean转成map*/
+        if("other".equalsIgnoreCase(reportCondition.getAccCode())){
+            beanMap.remove("accCode");
+        }
+
         List<Map<String, Object>> list = mainMapper.selectReport(beanMap);
         return getData(list, fieldList, replaceMap);
     }
