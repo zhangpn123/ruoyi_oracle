@@ -3,8 +3,7 @@ package ${packageName}.${businessName}.domain;
 #foreach ($import in $subImportList)
 import ${import};
 #end
-import com.ruoyi.framework.aspectj.lang.annotation.Excel;
-import com.ruoyi.framework.web.domain.BaseEntity;
+import com.baobiao.framework.aspectj.lang.annotation.Excel;
 
 /**
  * ${subTable.functionName}对象 ${subTableName}

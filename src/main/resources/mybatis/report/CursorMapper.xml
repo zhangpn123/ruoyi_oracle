@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.project.report.job.mapper.CursorMapper">
+<mapper namespace="com.baobiao.project.report.job.mapper.CursorMapper">
     <resultMap type="GlBal" id="DeptResult">
         <id        property="balUniq"     column="bal_uniq"     />
         <result property="accountId"   column="account_id"   />
@@ -45,14 +45,14 @@
         <result property="relation"   column="relation"   />
     </resultMap>
 
-    <select id="selectByGlBal" resultType="com.ruoyi.project.report.job.domain.GlBal">
+    <select id="selectByGlBal" resultType="com.baobiao.project.report.job.domain.GlBal">
         select  bal_uniq, account_id, co_code, fiscal, fis_perd, acc_code, acc_type, cur_code, dr_amt, cr_amt, curdr_amt, curcr_amt, qtydr_amt,
         qtycr_amt, acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6,acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10,
         acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, outlay_code, item_isn, cashflow_code, vou_kind,2 AS relation
         from GL_BAL;
     </select>
 
-    <select id="selectByGlPrebal" resultType="com.ruoyi.project.report.job.domain.GlBal">
+    <select id="selectByGlPrebal" resultType="com.baobiao.project.report.job.domain.GlBal">
         select  bal_uniq, account_id, co_code, fiscal, fis_perd, acc_code, acc_type, cur_code, dr_amt, cr_amt, curdr_amt, curcr_amt, qtydr_amt,
         qtycr_amt, acc_item1, acc_item2, acc_item3, acc_item4, acc_item5, acc_item6,acc_item7, acc_item8, b_co_code, b_acc_code, temp, acc_item10,
         acc_item9, acc_item11, acc_item12, acc_item13, acc_item14, acc_item15, acc_item16, item_code, outlay_code, item_isn, cashflow_code, vou_kind,1 AS relation

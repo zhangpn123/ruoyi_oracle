@@ -2,10 +2,10 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.project.revice.analysis.mapper.AnalysisMapper">
+<mapper namespace="com.baobiao.project.revice.analysis.mapper.AnalysisMapper">
 
-    <select id="selectList" parameterType="com.ruoyi.project.report.customquert.dto.CustomPageReq"
-            resultType="com.ruoyi.project.revice.dto.Report">
+    <select id="selectList" parameterType="com.baobiao.project.report.customquert.dto.CustomPageReq"
+            resultType="com.baobiao.project.revice.dto.Report">
         select t1.cocode as "coCode" ,
         t2.dept_name as "coName",
          count(*) as "queNum",
@@ -20,21 +20,21 @@
         group by coCode,dept_name,createDate
     </select>
 
-    <select id="selectDetailedList" parameterType="com.ruoyi.project.revice.dto.Report" resultType="com.ruoyi.project.revice.dto.Report">
+    <select id="selectDetailedList" parameterType="com.baobiao.project.revice.dto.Report" resultType="com.baobiao.project.revice.dto.Report">
         select   t1.* ,
         t2.dept_name as "coName"
          from sys_temptable t1 left join sys_dept t2 on  t1.cocode = t2.dept_id
          where coCode = #{coCode}
     </select>
 
-    <select id="selectReport" parameterType="string" resultType="com.ruoyi.project.revice.dto.Report">
+    <select id="selectReport" parameterType="string" resultType="com.baobiao.project.revice.dto.Report">
         select   t1.* ,
         t2.dept_name as "coName"
          from sys_temptable t1 left join sys_dept t2 on  t1.cocode = t2.dept_id
          where coCode = #{coCode}
     </select>
 
-    <select id="selectQueTypeByCode" parameterType="string" resultType="com.ruoyi.project.revice.dto.Report">
+    <select id="selectQueTypeByCode" parameterType="string" resultType="com.baobiao.project.revice.dto.Report">
         select queType,queTypeName as "queName" from sys_temptable where coCode = #{coCode} group by queType,queTypeName
     </select>
 

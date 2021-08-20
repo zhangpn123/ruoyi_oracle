@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.project.report.report.mapper.ReportMapper">
+<mapper namespace="com.baobiao.project.report.report.mapper.ReportMapper">
     <sql id="condition">
         <if test="acc_item1 != null and acc_item1 != ''">
             and acc_item1 LIKE #{acc_item1}
@@ -77,7 +77,7 @@
     <!--                and co_code Like #{deptId}-->
     <!--            </if>-->
 
-    <select id="getData" parameterType="java.util.Map" resultType="com.ruoyi.project.report.report.domain.ReportRsp">
+    <select id="getData" parameterType="java.util.Map" resultType="com.baobiao.project.report.report.domain.ReportRsp">
         select (CASE SUBSTR(gb.ACC_CODE, 1, 1)
         WHEN '4' THEN
         sum( gb.CR_AMT ) - sum(gb.DR_AMT)
@@ -118,7 +118,7 @@
     </select>
 
     <select id="getItemCodeData" parameterType="java.util.Map"
-            resultType="com.ruoyi.project.report.report.domain.ReportRsp">
+            resultType="com.baobiao.project.report.report.domain.ReportRsp">
         select (CASE SUBSTR(gb.ACC_CODE, 1, 1)
         WHEN '4' THEN
         sum( gb.CR_AMT ) - sum(gb.DR_AMT)
@@ -334,7 +334,7 @@
         where ic.ITEM_CODE = #{itemCode} and ic.FISCAL = #{year} and ic.co_code=#{deptId} and rownum <![CDATA[  <= ]]> 1
     </select>
 
-    <select id="getAccCode" resultType="com.ruoyi.project.report.report.domain.ReportRsp" parameterType="map">
+    <select id="getAccCode" resultType="com.baobiao.project.report.report.domain.ReportRsp" parameterType="map">
         select
         (CASE SUBSTR(gb.ACC_CODE, 1, 1)
         WHEN '4' THEN
@@ -372,7 +372,7 @@
         group by gb.ACC_CODE
     </select>
 
-    <select id="getDataByCondition" resultType="com.ruoyi.project.report.report.domain.ReportRsp" parameterType="map">
+    <select id="getDataByCondition" resultType="com.baobiao.project.report.report.domain.ReportRsp" parameterType="map">
         select
         (CASE SUBSTR(gb.ACC_CODE, 1, 1)
         WHEN '4' THEN
