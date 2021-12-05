@@ -5,7 +5,7 @@
 <mapper namespace="com.baobiao.project.report.customquert.mapper.CustomqueryMapper">
 
     <select id="selectList" parameterType="String" resultType="java.util.LinkedHashMap">
-         ${value}
+        <![CDATA[ ${value} ]]>
     </select>
 
 </mapper>

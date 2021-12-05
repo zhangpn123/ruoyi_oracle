@@ -46,12 +46,7 @@ public class LoginController extends BaseController
         try
         {
             subject.login(token);
-            if (DateUtils.getDate().compareTo("2021-09-30") == 1) {
-                return error("试用版时间已到期, 请购买正版!");
-            } else {
-                return success();
-            }
-
+            return success();
         }
         catch (AuthenticationException e)
         {

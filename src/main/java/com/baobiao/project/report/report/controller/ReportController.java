@@ -125,7 +125,8 @@ public class ReportController extends BaseController {
                 asynDown.setStatus(Constans.AsynDownStatus.PROCESSED_INIT.getValue());//处理中
                 asynDown.setMsg("任务初始化...");
                 asynDown.setDeptId(dept.getDeptId());
-                asynDown.setTimeInterval("2020-01至2020-12");
+                // asynDown.setTimeInterval("2020-01至2020-12");
+                asynDown.setTimeInterval(reportCondition.getBeginTime()+"至"+reportCondition.getEndTime());
                 asynDownService.saveFile(asynDown);
             }
         }
@@ -204,8 +205,8 @@ public class ReportController extends BaseController {
     @RequestMapping("/export")
     @ResponseBody
     public AjaxResult exportReport(ReportCondition reportCondition) {
-        reportCondition.setBeginTime("2020-01");
-        reportCondition.setEndTime("2020-12");
+        // reportCondition.setBeginTime("2020-01");
+        // reportCondition.setEndTime("2020-12");
         String rootPath = RuoYiConfig.getProfile();//根路径
         String filePath = RuoYiConfig.getAsynDown();//文件路径
         ThreadPoolTaskExecutor threadPoolTaskExecutor = SpringUtils.getBean("threadPoolTaskExecutor");
@@ -226,6 +227,7 @@ public class ReportController extends BaseController {
             asynDown.setFilePath(filePath);
             asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
             asynDown.setMsg("处理中...");
+            asynDown.setTimeInterval(reportCondition.getBeginTime() +"至"+reportCondition.getEndTime());
             asynDownService.update(asynDown);
             /*启动一个单独的线程  处理任务*/
             threadPoolTaskExecutor.execute(new Runnable() {
@@ -252,6 +254,7 @@ public class ReportController extends BaseController {
                 asynDown.setFilePath(filePath);
                 asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
                 asynDown.setMsg("处理中...");
+                asynDown.setTimeInterval(reportCondition.getBeginTime() +"至"+reportCondition.getEndTime());
                 asynDownService.update(asynDown);
                 /*启动一个单独的线程  处理任务*/
                 threadPoolTaskExecutor.execute(new Runnable() {

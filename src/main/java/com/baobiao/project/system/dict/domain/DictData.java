@@ -1,6 +1,7 @@
 package com.baobiao.project.system.dict.domain;
 
 import javax.validation.constraints.*;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.baobiao.common.constant.UserConstants;

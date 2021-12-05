@@ -1,5 +1,5 @@
 # 项目相关配置
-ruoyi:
+baobiao:
     # 名称
     name: baobiao
     # 版本
@@ -31,7 +31,7 @@ server:
 # 日志配置
 logging:
     level:
-        com.ruoyi: debug
+        com.baobiao: debug
         org.springframework: warn
 
 # 用户配置
