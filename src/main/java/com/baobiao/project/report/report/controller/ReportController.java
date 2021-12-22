@@ -126,7 +126,7 @@ public class ReportController extends BaseController {
                 asynDown.setMsg("任务初始化...");
                 asynDown.setDeptId(dept.getDeptId());
                 // asynDown.setTimeInterval("2020-01至2020-12");
-                asynDown.setTimeInterval(reportCondition.getBeginTime()+"至"+reportCondition.getEndTime());
+                asynDown.setTimeInterval(reportCondition.getBeginTime() + "至" + reportCondition.getEndTime());
                 asynDownService.saveFile(asynDown);
             }
         }
@@ -227,7 +227,7 @@ public class ReportController extends BaseController {
             asynDown.setFilePath(filePath);
             asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
             asynDown.setMsg("处理中...");
-            asynDown.setTimeInterval(reportCondition.getBeginTime() +"至"+reportCondition.getEndTime());
+            asynDown.setTimeInterval(reportCondition.getBeginTime() + "至" + reportCondition.getEndTime());
             asynDownService.update(asynDown);
             /*启动一个单独的线程  处理任务*/
             threadPoolTaskExecutor.execute(new Runnable() {
@@ -254,7 +254,7 @@ public class ReportController extends BaseController {
                 asynDown.setFilePath(filePath);
                 asynDown.setStatus(Constans.AsynDownStatus.PROCESSING.getValue());//处理中
                 asynDown.setMsg("处理中...");
-                asynDown.setTimeInterval(reportCondition.getBeginTime() +"至"+reportCondition.getEndTime());
+                asynDown.setTimeInterval(reportCondition.getBeginTime() + "至" + reportCondition.getEndTime());
                 asynDownService.update(asynDown);
                 /*启动一个单独的线程  处理任务*/
                 threadPoolTaskExecutor.execute(new Runnable() {
@@ -628,6 +628,43 @@ public class ReportController extends BaseController {
                         cellTotal.setCellValue(new BigDecimal(StringUtils.getObjStrBigDeci(sessionMap.get("sum" + i))).doubleValue());//给合计赋值
                     }
                     sessionMap.clear();
+                } else if (Constans.reportCss.STYLE_FIVE.getValue().equalsIgnoreCase(dictData.getCssClass())) {
+                    for (int i = beginRow; i <= sheet.getLastRowNum(); i++) {
+                        // 删除空行
+                        Row row = sheet.getRow(i);
+                        if (null == row) {
+                            continue; //针对空行
+                        }
+                        for (int j = beginClo; j < sheet.getRow(i).getPhysicalNumberOfCells(); j++) {
+                            //存储accCode,  用于区分年初 年末
+                            List<String> codeList = new ArrayList<>();
+                            HSSFCell cellsetVal = sheet.getRow(i).getCell(j);//
+                            String cellVal = ExcelUtil.getStringValueFromCell(cellsetVal);//获取列的内容
+                            if (cellVal.contains("*")) {
+                                cellVal = cellVal.substring(1, cellVal.length() - 1);//获取值
+                                Map<String, Object> paramsMap = new HashMap();
+                                // paramsMap = Map2Bean.transBean2Map(reportCondition);
+                                //paramsMap.putAll(beanMap);//添加筛选条件
+                                paramsMap.put("acc_code", cellVal);
+                                if (codeList.contains(cellVal)) {
+                                    //已存在  判定为年末数据
+                                    // paramsMap.put("deptName", deptId);
+                                    BigDecimal FTempResult = reportService.getEndDataByAccCode(paramsMap);
+                                    cellsetVal.setCellValue(FTempResult.doubleValue());
+                                    cellsetVal.setCellStyle(style);
+                                }else{
+                                    codeList.add(cellVal);
+                                    //不存在判定为年初数据
+                                    BigDecimal FTempResult = reportService.getBeginDataByAccCode(paramsMap);
+                                    cellsetVal.setCellValue(FTempResult.doubleValue());
+                                    cellsetVal.setCellStyle(style);
+                                }
+
+
+                            }
+                            continue;
+                        }
+                    }
                 }
             }
 
@@ -890,7 +927,7 @@ public class ReportController extends BaseController {
                                                             FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                         }
                                                     }
-                                                    count ++;
+                                                    count++;
                                                 } else {
                                                     for (ReportRsp reportRsp : resultList) {
                                                         if (reportRsp.getAccCode().startsWith(s)) {
@@ -911,7 +948,7 @@ public class ReportController extends BaseController {
                                         } else {
                                             for (ReportRsp reportRsp : resultList) {
                                                 if (reportRsp.getAccCode().startsWith(cellVal)) {
-                                                    FTempResult =  FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
+                                                    FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                 }
                                             }
                                         }
@@ -1008,7 +1045,7 @@ public class ReportController extends BaseController {
                                 if (paramMap != null && paramMap.size() > 0) {
                                     String acc_code = StringUtils.getObjStr(paramMap.get("acc_code"));
                                     if (acc_code.length() < 1) {
-                                       continue;
+                                        continue;
                                     }
                                     if (!accCodeList.contains(acc_code.substring(0, 1))) {
                                         accCodeList.add(acc_code.substring(0, 1));
@@ -1045,7 +1082,7 @@ public class ReportController extends BaseController {
                                 cellVal.replace("：", ":");
                                 cellVal.replace("，", ",");
 
-                                if(resultList != null && resultList.size() >0){
+                                if (resultList != null && resultList.size() > 0) {
                                     if (cellVal.contains("(")) {
                                         String splitFirst = "";//是否是sum
                                         String str = "";//获取()内的数据
@@ -1079,7 +1116,7 @@ public class ReportController extends BaseController {
                                             if (cellVal2.contains("*")) {
                                                 BigDecimal FTempResult = new BigDecimal("0.00");
                                                 cellVal2 = cellVal2.substring(1, cellVal2.length() - 1).trim();//获取值
-                                                if(cellVal2.length() < 3){
+                                                if (cellVal2.length() < 3) {
                                                     cellsetVal.setCellValue(FTempResult.doubleValue());
                                                     cellsetVal.setCellStyle(style);
                                                     continue;
@@ -1094,7 +1131,7 @@ public class ReportController extends BaseController {
                                                                     FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                                 }
                                                             }
-                                                            count ++;
+                                                            count++;
                                                         } else {
                                                             for (ReportRsp reportRsp : resultList) {
                                                                 if (reportRsp.getAccCode().startsWith(s)) {
@@ -1142,7 +1179,7 @@ public class ReportController extends BaseController {
                                                             FTempResult = FTempResult.add(new BigDecimal(StringUtils.getObjStrBigDeci(reportRsp.getAmt())));
                                                         }
                                                     }
-                                                    count ++;
+                                                    count++;
                                                 } else {
                                                     for (ReportRsp reportRsp : resultList) {
                                                         if (reportRsp.getAccCode().startsWith(s)) {
@@ -1177,11 +1214,11 @@ public class ReportController extends BaseController {
                                         for (ReportRsp reportRsp : resultList) {
                                             String acc_code = StringUtils.getObjStr(paramMap.get("acc_code"));
                                             //paramMap.remove("acc_code");//移除
-                                            if(reportRsp.getAccCode().startsWith(acc_code)) {
+                                            if (reportRsp.getAccCode().startsWith(acc_code)) {
                                                 Map<String, Object> reportMap = Map2Bean.transBean2Map(reportRsp);
                                                 int flag = 1;
                                                 for (String key : paramMap.keySet()) {
-                                                    if (!"acc_code".equalsIgnoreCase(key)){
+                                                    if (!"acc_code".equalsIgnoreCase(key)) {
                                                         String value = StringUtils.getObjStr(reportMap.get(key));
                                                         String tempVal = StringUtils.getObjStr(paramMap.get(key));
                                                         tempVal = tempVal.substring(0, tempVal.length() - 1);//去掉最后的%号
@@ -1201,7 +1238,7 @@ public class ReportController extends BaseController {
                                         cellsetVal.setCellStyle(style);
                                         continue;
                                     }
-                                }else{
+                                } else {
                                     BigDecimal FTempResult = new BigDecimal("0.00");
                                     if (cellVal.contains("(")) {
                                         cellsetVal.setCellValue(FTempResult.doubleValue());

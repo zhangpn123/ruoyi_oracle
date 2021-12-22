@@ -255,6 +255,9 @@
             <bind name="acc_code" value="acc_code+'%'"/>
             and gb.ACC_CODE LIKE #{acc_code}
         </if>
+        <if test="pis_perd != null and pis_perd != ''">
+
+        </if>
         <if test="deptId != null and deptId != ''">
             <bind name="deptId" value="deptId+'%'"/>
             and gb.co_code Like #{deptId}
@@ -427,6 +430,41 @@
         gb.acc_item3,gb.acc_item4,gb.acc_item5,gb.acc_item6,
         gb.acc_item7,gb.acc_item8,gb.acc_item9,gb.acc_item10,gb.acc_item11,
         gb.acc_item12, gb.acc_item13,gb.acc_item14,gb.acc_item15,gb.acc_item16
+    </select>
+
+
+    <select id="callFunctionC_QIMO" parameterType="map" statementType="CALLABLE">
+        {
+                      #{amt,mode=OUT,jdbcType=DECIMAL}=call C_QIMO(
+                          #{acc_code,mode=IN,jdbcType=VARCHAR}
+                      )
+                  }
+    </select>
+    <select id="callFunctionD_QIMO" parameterType="map" statementType="CALLABLE">
+             {
+                      #{amt,mode=OUT,jdbcType=DECIMAL}=call D_QIMO(
+                          #{acc_code,mode=IN,jdbcType=VARCHAR}
+                      )
+                  }
+
+    </select>
+
+    <select id="callFunctionD_QICHU" parameterType="map" statementType="CALLABLE">
+ {
+                      #{amt,mode=OUT,jdbcType=DECIMAL}=call D_QICHU(
+                          #{acc_code,mode=IN,jdbcType=VARCHAR}
+                      )
+                  }
+
+    </select>
+
+    <select id="callFunctionC_QICHU" parameterType="map" statementType="CALLABLE">
+ {
+                      #{amt,mode=OUT,jdbcType=DECIMAL}=call C_QICHU(
+                          #{acc_code,mode=IN,jdbcType=VARCHAR}
+                      )
+                  }
+
     </select>
 
 </mapper>

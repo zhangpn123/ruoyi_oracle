@@ -42,7 +42,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Map<String, Object> getDateByCondition(Map<String, Object> paramMap) {
         Map resMap = new HashMap<>();
-        if (StringUtils.getobjBoolean(paramMap.get("isItemCode"))){
+        if (StringUtils.getobjBoolean(paramMap.get("isItemCode"))) {
             List<Map<String, Object>> dateByCondition = reportMapper.getItemCodeDateByCondition(paramMap);
             /*封装数据*/
             if (dateByCondition != null && dateByCondition.size() > 0) {
@@ -50,14 +50,14 @@ public class ReportServiceImpl implements ReportService {
                     String bAccCode = StringUtils.getObjStr(map.get("bAccCode"));
                     String itemCode = StringUtils.getObjStr(map.get("itemCode"));
                     BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(map.get("crAmt")));
-                    if (resMap.containsKey(bAccCode+"/"+itemCode)) {
-                        resMap.put(bAccCode+"/"+itemCode, new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode+"/"+itemCode))).add(crAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                    if (resMap.containsKey(bAccCode + "/" + itemCode)) {
+                        resMap.put(bAccCode + "/" + itemCode, new BigDecimal(StringUtils.getObjStr(resMap.get(bAccCode + "/" + itemCode))).add(crAmt).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
                     } else {
-                        resMap.put(bAccCode+"/"+itemCode, crAmt);
+                        resMap.put(bAccCode + "/" + itemCode, crAmt);
                     }
                 }
             }
-        }else {
+        } else {
             List<Map<String, Object>> dateByCondition = reportMapper.getDateByCondition(paramMap);
             /*封装数据*/
             if (dateByCondition != null && dateByCondition.size() > 0) {
@@ -92,14 +92,18 @@ public class ReportServiceImpl implements ReportService {
                 if (null != resMap && 0 < resMap.size()) {
                     BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
                     BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
-                    switch (split[i].substring(0,1)){
-                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                    switch (split[i].substring(0, 1)) {
+                        case "4":
+                            crAmt = crAmt.subtract(drAmt);
                             break;
-                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                        case "6":
+                            crAmt = crAmt.subtract(drAmt);
                             break;
-                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                        case "5":
+                            crAmt = drAmt.subtract(crAmt);
                             break;
-                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                        case "7":
+                            crAmt = drAmt.subtract(crAmt);
                             break;
                         // case "1":      crAmt = crAmt.subtract(drAmt);
                         //     break;
@@ -108,8 +112,8 @@ public class ReportServiceImpl implements ReportService {
                         // case "3":      crAmt = drAmt.subtract(crAmt);
                         //     break;
                     }
-                     sum = sum.add(crAmt);
-                    }
+                    sum = sum.add(crAmt);
+                }
             }
         } else if (accCode.contains("-")) {
             String[] split = accCode.split("-");
@@ -122,14 +126,18 @@ public class ReportServiceImpl implements ReportService {
                 if (null != resMap && 0 < resMap.size()) {
                     BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
                     BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
-                    switch (split[i].substring(0,1)){
-                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                    switch (split[i].substring(0, 1)) {
+                        case "4":
+                            crAmt = crAmt.subtract(drAmt);
                             break;
-                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                        case "6":
+                            crAmt = crAmt.subtract(drAmt);
                             break;
-                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                        case "5":
+                            crAmt = drAmt.subtract(crAmt);
                             break;
-                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                        case "7":
+                            crAmt = drAmt.subtract(crAmt);
                             break;
                         // case "1":      crAmt = crAmt.subtract(drAmt);
                         //     break;
@@ -138,28 +146,32 @@ public class ReportServiceImpl implements ReportService {
                         // case "3":      crAmt = drAmt.subtract(crAmt);
                         //     break;
                     }
-                        if (i == 0) {
-                            sum = sum.add(crAmt);
-                        }
-                        sum = sum.subtract(crAmt);
+                    if (i == 0) {
+                        sum = sum.add(crAmt);
+                    }
+                    sum = sum.subtract(crAmt);
                 }
             }
         } else {
             // if(accCode.startsWith("1") || accCode.startsWith("2") || accCode.startsWith("3")){
             //     paramsMap.put("beginTime","2020-00");
             // }
-           Map<String, Object> resMap = reportMapper.getDataByAccCode(paramsMap);
+            Map<String, Object> resMap = reportMapper.getDataByAccCode(paramsMap);
             if (null != resMap && 0 < resMap.size()) {
                 BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("crAmt")));
                 BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(resMap.get("drAmt")));
-                switch (accCode.substring(0,1)){
-                    case  "4" :  crAmt = crAmt.subtract(drAmt);
+                switch (accCode.substring(0, 1)) {
+                    case "4":
+                        crAmt = crAmt.subtract(drAmt);
                         break;
-                    case  "6" :   crAmt = crAmt.subtract(drAmt);
+                    case "6":
+                        crAmt = crAmt.subtract(drAmt);
                         break;
-                    case  "5" :   crAmt = drAmt.subtract(crAmt);
+                    case "5":
+                        crAmt = drAmt.subtract(crAmt);
                         break;
-                    case  "7" :   crAmt = drAmt.subtract(crAmt);
+                    case "7":
+                        crAmt = drAmt.subtract(crAmt);
                         break;
                     // case "1":      crAmt = crAmt.subtract(drAmt);
                     //     break;
@@ -168,7 +180,7 @@ public class ReportServiceImpl implements ReportService {
                     // case "3":      crAmt = drAmt.subtract(crAmt);
                     //     break;
                 }
-                    sum = sum.add(crAmt);
+                sum = sum.add(crAmt);
             }
         }
         return sum;
@@ -184,20 +196,24 @@ public class ReportServiceImpl implements ReportService {
                 paramMap.put("acc_code", split[i]);
                 Map<String, Object> crAmtMap = reportMapper.getCRAmt(paramMap);
                 if (null != crAmtMap && 0 < crAmtMap.size()) {
-                        // String crAmt = StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt"));
+                    // String crAmt = StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt"));
                     BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt")));
                     BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("drAmt")));
-                    switch (acc_code.substring(0,1)){
-                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                    switch (acc_code.substring(0, 1)) {
+                        case "4":
+                            crAmt = crAmt.subtract(drAmt);
                             break;
-                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                        case "6":
+                            crAmt = crAmt.subtract(drAmt);
                             break;
-                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                        case "5":
+                            crAmt = drAmt.subtract(crAmt);
                             break;
-                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                        case "7":
+                            crAmt = drAmt.subtract(crAmt);
                             break;
                     }
-                        result = result.add(crAmt);
+                    result = result.add(crAmt);
                 }
             }
         } else if (acc_code.contains("-")) {
@@ -208,20 +224,24 @@ public class ReportServiceImpl implements ReportService {
                 if (null != crAmtMap && 0 < crAmtMap.size()) {
                     BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt")));
                     BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("drAmt")));
-                    switch (acc_code.substring(0,1)){
-                        case  "4" :  crAmt = crAmt.subtract(drAmt);
+                    switch (acc_code.substring(0, 1)) {
+                        case "4":
+                            crAmt = crAmt.subtract(drAmt);
                             break;
-                        case  "6" :   crAmt = crAmt.subtract(drAmt);
+                        case "6":
+                            crAmt = crAmt.subtract(drAmt);
                             break;
-                        case  "5" :   crAmt = drAmt.subtract(crAmt);
+                        case "5":
+                            crAmt = drAmt.subtract(crAmt);
                             break;
-                        case  "7" :   crAmt = drAmt.subtract(crAmt);
+                        case "7":
+                            crAmt = drAmt.subtract(crAmt);
                             break;
                     }
-                        if (i == 0) {
-                            result = result.add(crAmt);
-                        }
-                        result = result.subtract(crAmt);
+                    if (i == 0) {
+                        result = result.add(crAmt);
+                    }
+                    result = result.subtract(crAmt);
                 }
             }
         } else {
@@ -229,18 +249,22 @@ public class ReportServiceImpl implements ReportService {
             if (null != crAmtMap && 0 < crAmtMap.size()) {
                 BigDecimal crAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("crAmt")));
                 BigDecimal drAmt = new BigDecimal(StringUtils.getObjStrBigDeci(crAmtMap.get("drAmt")));
-                switch (acc_code.substring(0,1)){
-                    case  "4" :  crAmt = crAmt.subtract(drAmt);
+                switch (acc_code.substring(0, 1)) {
+                    case "4":
+                        crAmt = crAmt.subtract(drAmt);
                         break;
-                    case  "6" :   crAmt = crAmt.subtract(drAmt);
+                    case "6":
+                        crAmt = crAmt.subtract(drAmt);
                         break;
-                    case  "5" :   crAmt = drAmt.subtract(crAmt);
+                    case "5":
+                        crAmt = drAmt.subtract(crAmt);
                         break;
-                    case  "7" :   crAmt = drAmt.subtract(crAmt);
+                    case "7":
+                        crAmt = drAmt.subtract(crAmt);
                         break;
                 }
-                    result = result.add(crAmt);
-                }
+                result = result.add(crAmt);
+            }
         }
         return result;
     }
@@ -261,7 +285,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportRsp>  getAccCode(Map<String, Object> beanMap) {
+    public List<ReportRsp> getAccCode(Map<String, Object> beanMap) {
         // List<ReportRsp> reportRspList = reportMapper.getAccCode(beanMap);
         // for (ReportRsp reportRsp : reportRspList) {
         //     String accCode = reportRsp.getAccCode();
@@ -287,6 +311,37 @@ public class ReportServiceImpl implements ReportService {
     public List<ReportRsp> getDataByCondition(Map<String, Object> beanMap) {
         return reportMapper.getDataByCondition(beanMap);
     }
+
+    @Override
+    public BigDecimal getBeginDataByAccCode(Map<String, Object> paramsMap) {
+        String accCode = StringUtils.getObjStr(paramsMap.get("acc_code"));
+        BigDecimal sum = new BigDecimal("0.00");
+        if(accCode.startsWith("2")){
+            //负债
+            reportMapper.callFunctionD_QICHU(paramsMap);
+        }else{
+            //资产
+            reportMapper.callFunctionC_QICHU(paramsMap);
+        }
+        sum = sum.add(new BigDecimal(paramsMap.get("amt").toString()));
+        return sum;
+    }
+
+    @Override
+    public BigDecimal getEndDataByAccCode(Map<String, Object> paramsMap) {
+        String accCode = StringUtils.getObjStr(paramsMap.get("acc_code"));
+        BigDecimal sum = new BigDecimal("0.00");
+
+        if(accCode.startsWith("2")){
+            //负债
+            reportMapper.callFunctionD_QIMO(paramsMap);
+        }else{
+            //资产
+            reportMapper.callFunctionC_QIMO(paramsMap);
+        }
+        sum = sum.add(new BigDecimal(paramsMap.get("amt").toString()));
+        return sum;
+}
 
 
 }

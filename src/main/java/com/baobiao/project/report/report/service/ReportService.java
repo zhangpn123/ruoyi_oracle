@@ -72,4 +72,18 @@ public interface ReportService {
      * @return
      */
     List<ReportRsp> getDataByCondition(Map<String, Object> beanMap);
+
+    /**
+     * 获取年初数据
+     * @param paramsMap
+     * @return
+     */
+    BigDecimal getBeginDataByAccCode(Map<String, Object> paramsMap);
+
+    /**
+     * 获取年末数据
+     * @param paramsMap
+     * @return
+     */
+    BigDecimal getEndDataByAccCode(Map<String, Object> paramsMap);
 }

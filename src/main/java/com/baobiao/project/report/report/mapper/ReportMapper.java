@@ -34,4 +34,29 @@ public interface ReportMapper {
     List<ReportRsp>  getAccCode(Map<String, Object> beanMap);
 
     List<ReportRsp> getDataByCondition(Map<String, Object> beanMap);
+
+
+    /**
+     * 获取负债类期初余额
+     * @param paramsMap
+     */
+    void callFunctionC_QIMO(Map<String, Object> paramsMap);
+
+    /**
+     * 获取资产类期初余额
+     * @param paramsMap
+     */
+    void callFunctionD_QIMO(Map<String, Object> paramsMap);
+
+    /**
+     * 获取资产类期末余额
+     * @param paramsMap
+     */
+    void callFunctionD_QICHU(Map<String, Object> paramsMap);
+
+    /**
+     * 获取负债类期末余额
+     * @param paramsMap
+     */
+    void callFunctionC_QICHU(Map<String, Object> paramsMap);
 }
